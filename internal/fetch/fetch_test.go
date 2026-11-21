@@ -5,6 +5,8 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
+	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -188,6 +190,74 @@ func TestOneUsesConnectForHTTPSAndSurfacesProxyRejection(t *testing.T) {
 	})
 	if err == nil || !strings.Contains(err.Error(), "Forbidden") {
 		t.Fatalf("proxy error = %v, want Forbidden", err)
+	}
+}
+
+func TestOneFetchesHTTPSFeedThroughProxyWithTLSVerification(t *testing.T) {
+	const body = `<rss version="2.0"><channel><title>Test</title></channel></rss>`
+	origin := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if req.Host != "example.com" || req.URL.Path != "/feed" {
+			t.Errorf("unexpected origin request: %s %s", req.Host, req.URL.Path)
+		}
+		fmt.Fprint(w, body)
+	}))
+	defer origin.Close()
+
+	transport := http.DefaultTransport
+	http.DefaultTransport = origin.Client().Transport
+	t.Cleanup(func() { http.DefaultTransport = transport })
+	proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if req.Method != http.MethodConnect ||
+			(req.Host != "example.com:443" && req.Host != "wrong.example.net:443") {
+			t.Errorf("unexpected proxy request: %s %s", req.Method, req.Host)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		upstream, err := net.DialTimeout("tcp", origin.Listener.Addr().String(), time.Second)
+		if err != nil {
+			t.Error(err)
+			w.WriteHeader(http.StatusBadGateway)
+			return
+		}
+		defer upstream.Close()
+		client, buffer, err := http.NewResponseController(w).Hijack()
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		defer client.Close()
+		deadline := time.Now().Add(3 * time.Second)
+		_ = client.SetDeadline(deadline)
+		_ = upstream.SetDeadline(deadline)
+		if _, err := buffer.WriteString("HTTP/1.1 200 Connection Established\r\n\r\n"); err != nil {
+			t.Error(err)
+			return
+		}
+		if err := buffer.Flush(); err != nil {
+			t.Error(err)
+			return
+		}
+		forwarded := make(chan struct{})
+		go func() {
+			defer close(forwarded)
+			_, _ = io.Copy(upstream, buffer)
+			_ = upstream.Close()
+		}()
+		_, _ = io.Copy(client, upstream)
+		_ = client.Close()
+		<-forwarded
+	}))
+	defer proxy.Close()
+	t.Setenv("RSSCOLLECTOR_EGRESS_PROXY", proxy.URL)
+
+	request := Request{URL: "https://example.com/feed", Timeout: 2 * time.Second, MaxBodyBytes: 1024}
+	result, err := One(context.Background(), request)
+	if err != nil || result.Status != http.StatusOK || string(result.DecodedBody) != body {
+		t.Fatalf("HTTPS proxy response = %+v, err = %v", result, err)
+	}
+	request.URL = "https://wrong.example.net/feed"
+	if _, err := One(context.Background(), request); err == nil || !strings.Contains(err.Error(), "certificate") {
+		t.Fatalf("wrong hostname returned %v, want certificate error", err)
 	}
 }
 
