@@ -1,6 +1,9 @@
 package fetch
 
 import (
+	"bytes"
+	"compress/gzip"
+	"compress/zlib"
 	"context"
 	"errors"
 	"fmt"
@@ -8,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -21,17 +25,44 @@ type Request struct {
 	MaxBodyBytes        int64
 	MaxRedirects        int
 	AllowPrivateNetwork bool
+	Headers             map[string]string
+	Now                 func() time.Time
 }
 
 type Result struct {
-	Body         []byte
-	Status       int
-	EffectiveURL string
-	ContentType  string
-	ETag         string
-	LastModified string
-	NotModified  bool
-	RetrievedAt  time.Time
+	Body            []byte
+	DecodedBody     []byte
+	Status          int
+	EffectiveURL    string
+	Redirects       []string
+	ContentType     string
+	ContentEncoding string
+	ETag            string
+	LastModified    string
+	RetryAfter      time.Time
+	NotModified     bool
+	RetrievedAt     time.Time
+}
+
+type HTTPError struct {
+	URL        string
+	StatusCode int
+	RetryAfter time.Time
+}
+
+func (e *HTTPError) Error() string {
+	return fmt.Sprintf("fetch %s: unexpected HTTP status %d", e.URL, e.StatusCode)
+}
+
+func (e *HTTPError) Retryable() bool {
+	switch e.StatusCode {
+	case http.StatusRequestTimeout, http.StatusTooManyRequests,
+		http.StatusInternalServerError, http.StatusBadGateway,
+		http.StatusServiceUnavailable, http.StatusGatewayTimeout:
+		return true
+	default:
+		return false
+	}
 }
 
 func One(ctx context.Context, request Request) (Result, error) {
@@ -39,14 +70,31 @@ func One(ctx context.Context, request Request) (Result, error) {
 		return Result{}, err
 	}
 	redirects := 0
+	redirectChain := make([]string, 0, request.MaxRedirects)
+	defaultTransport, ok := http.DefaultTransport.(*http.Transport)
+	if !ok {
+		return Result{}, errors.New("http.DefaultTransport is not an *http.Transport")
+	}
+	transport := defaultTransport.Clone()
+	transport.DisableCompression = true
 	client := &http.Client{
-		Timeout: request.Timeout,
+		Transport: transport,
+		Timeout:   request.Timeout,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			redirects++
 			if redirects > request.MaxRedirects {
 				return fmt.Errorf("redirect limit of %d exceeded", request.MaxRedirects)
 			}
-			return validateDestination(req.Context(), req.URL.String(), request.AllowPrivateNetwork)
+			if err := validateDestination(req.Context(), req.URL.String(), request.AllowPrivateNetwork); err != nil {
+				return err
+			}
+			if len(via) > 0 && !sameOrigin(via[0].URL, req.URL) {
+				for header := range request.Headers {
+					req.Header.Del(header)
+				}
+			}
+			redirectChain = append(redirectChain, req.URL.String())
+			return nil
 		},
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, request.URL, nil)
@@ -55,6 +103,10 @@ func One(ctx context.Context, request Request) (Result, error) {
 	}
 	req.Header.Set("User-Agent", request.UserAgent)
 	req.Header.Set("Accept", "application/rss+xml, application/atom+xml, application/rdf+xml, application/xml, text/xml, */*;q=0.5")
+	req.Header.Set("Accept-Encoding", "gzip, deflate")
+	for name, value := range request.Headers {
+		req.Header.Set(name, value)
+	}
 	if request.ETag != "" {
 		req.Header.Set("If-None-Match", request.ETag)
 	}
@@ -63,15 +115,20 @@ func One(ctx context.Context, request Request) (Result, error) {
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return Result{}, fmt.Errorf("fetch %s: %w", request.URL, err)
+		return Result{Redirects: redirectChain}, fmt.Errorf("fetch %s: %w", request.URL, err)
 	}
 	defer resp.Body.Close()
 
 	now := time.Now()
+	if request.Now != nil {
+		now = request.Now()
+	}
 	result := Result{
 		Status: resp.StatusCode, EffectiveURL: resp.Request.URL.String(),
-		ContentType: resp.Header.Get("Content-Type"), ETag: resp.Header.Get("ETag"),
+		Redirects: redirectChain, ContentType: resp.Header.Get("Content-Type"),
+		ContentEncoding: resp.Header.Get("Content-Encoding"), ETag: resp.Header.Get("ETag"),
 		LastModified: resp.Header.Get("Last-Modified"), RetrievedAt: now,
+		RetryAfter: parseRetryAfter(resp.Header.Get("Retry-After"), now),
 	}
 	if resp.StatusCode == http.StatusNotModified {
 		result.NotModified = true
@@ -79,16 +136,21 @@ func One(ctx context.Context, request Request) (Result, error) {
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 4096))
-		return Result{}, fmt.Errorf("fetch %s: unexpected HTTP status %d", request.URL, resp.StatusCode)
+		return result, &HTTPError{URL: request.URL, StatusCode: resp.StatusCode, RetryAfter: result.RetryAfter}
 	}
 	body, err := io.ReadAll(io.LimitReader(resp.Body, request.MaxBodyBytes+1))
 	if err != nil {
-		return Result{}, fmt.Errorf("read response: %w", err)
+		return result, fmt.Errorf("read response: %w", err)
 	}
 	if int64(len(body)) > request.MaxBodyBytes {
-		return Result{}, fmt.Errorf("response exceeds limit of %d bytes", request.MaxBodyBytes)
+		return result, fmt.Errorf("response exceeds limit of %d bytes", request.MaxBodyBytes)
 	}
 	result.Body = body
+	decoded, err := DecodeBody(body, result.ContentEncoding, request.MaxBodyBytes)
+	if err != nil {
+		return result, err
+	}
+	result.DecodedBody = decoded
 	return result, nil
 }
 
@@ -110,9 +172,12 @@ func validateDestination(ctx context.Context, raw string, allowPrivate bool) err
 	if err != nil {
 		return fmt.Errorf("resolve %s: %w", parsed.Hostname(), err)
 	}
+	if len(ips) == 0 {
+		return fmt.Errorf("resolve %s: no addresses", parsed.Hostname())
+	}
 	for _, address := range ips {
 		ip := address.IP
-		if ip.IsPrivate() || ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsUnspecified() {
+		if !ip.IsGlobalUnicast() || ip.IsPrivate() {
 			return fmt.Errorf("destination %s resolves to a non-public address", parsed.Hostname())
 		}
 	}
@@ -120,10 +185,75 @@ func validateDestination(ctx context.Context, raw string, allowPrivate bool) err
 }
 
 func IsTransient(err error) bool {
-	return err != nil && (errors.Is(err, context.DeadlineExceeded) ||
-		strings.Contains(err.Error(), "unexpected HTTP status 429") ||
-		strings.Contains(err.Error(), "unexpected HTTP status 500") ||
-		strings.Contains(err.Error(), "unexpected HTTP status 502") ||
-		strings.Contains(err.Error(), "unexpected HTTP status 503") ||
-		strings.Contains(err.Error(), "unexpected HTTP status 504"))
+	if err == nil {
+		return false
+	}
+	var httpErr *HTTPError
+	if errors.As(err, &httpErr) {
+		return httpErr.Retryable()
+	}
+	var netErr net.Error
+	return errors.Is(err, context.DeadlineExceeded) || errors.As(err, &netErr)
+}
+
+func RetryAt(err error) time.Time {
+	var httpErr *HTTPError
+	if errors.As(err, &httpErr) {
+		return httpErr.RetryAfter
+	}
+	return time.Time{}
+}
+
+func DecodeBody(body []byte, encoding string, maxBytes int64) ([]byte, error) {
+	encoding = strings.ToLower(strings.TrimSpace(encoding))
+	if encoding == "" || encoding == "identity" {
+		return append([]byte(nil), body...), nil
+	}
+	var reader io.ReadCloser
+	var err error
+	switch encoding {
+	case "gzip":
+		reader, err = gzip.NewReader(bytes.NewReader(body))
+	case "deflate":
+		reader, err = zlib.NewReader(bytes.NewReader(body))
+	default:
+		return nil, fmt.Errorf("unsupported Content-Encoding %q", encoding)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("decompress %s response: %w", encoding, err)
+	}
+	defer reader.Close()
+	decoded, err := io.ReadAll(io.LimitReader(reader, maxBytes+1))
+	if err != nil {
+		return nil, fmt.Errorf("decompress %s response: %w", encoding, err)
+	}
+	if int64(len(decoded)) > maxBytes {
+		return nil, fmt.Errorf("decompressed response exceeds limit of %d bytes", maxBytes)
+	}
+	return decoded, nil
+}
+
+func parseRetryAfter(raw string, now time.Time) time.Time {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return time.Time{}
+	}
+	if seconds, err := strconv.ParseInt(raw, 10, 64); err == nil {
+		if seconds >= 0 {
+			const maximum = int64((365 * 24 * time.Hour) / time.Second)
+			if seconds > maximum {
+				seconds = maximum
+			}
+			return now.Add(time.Duration(seconds) * time.Second)
+		}
+	}
+	if value, err := http.ParseTime(raw); err == nil {
+		return value
+	}
+	return time.Time{}
+}
+
+func sameOrigin(left, right *url.URL) bool {
+	return strings.EqualFold(left.Scheme, right.Scheme) &&
+		strings.EqualFold(left.Host, right.Host)
 }

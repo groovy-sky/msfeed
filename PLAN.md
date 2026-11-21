@@ -347,6 +347,11 @@ Acceptance:
 Record actual peak memory and execution time using a representative fixture
 set; choose operational limits from measurement, not unsupported guarantees.
 
+Measured on 2026-11-21 for the six-fixture offline compatibility run:
+0.557 seconds wall time and 155620 KiB peak resident memory, including the Go
+test/toolchain process. This measurement is a development baseline, not a
+production-memory guarantee.
+
 ## 14. Delivery Phases
 
 ### Phase 1 — Core collector
@@ -513,10 +518,19 @@ Before claiming support for all six feeds:
 
 ### 16.5 Verification Status at Plan Update
 
-A browser-tool retrieval attempt did not obtain usable feed bodies for these
-six URLs. No live compatibility tests or raw XML parser tests have been run as
-part of this plan update. Browser-tool failures alone do not establish that the
-endpoints are unavailable to the intended Go client.
+The opt-in Go live suite ran at 2026-11-21T15:31Z. It verified the
+`microsoft-m365-updates` and `microsoft-azure-updates` endpoints by fetching,
+parsing, persisting, and replaying their snapshots, including all entry batches
+for the 2,401-entry M365 response. Neither endpoint supplied a validator during
+the check, so conditional-fetch coverage remains `NOT_EXERCISED`.
 
-All six targets therefore remain UNVERIFIED until the implementation executes
-the live suite. Do not infer feed formats or field mappings from URL names.
+The other four configured hostnames failed DNS resolution in the execution
+environment and remain `UNVERIFIED`. This transport result is not evidence that
+the endpoints are unavailable generally. Sanitized machine-readable and
+human-readable results are retained in `testdata/reports/`.
+
+Only two targets therefore have live compatibility evidence. Do not infer that
+all six are supported or replace configured URLs based on their names. Current
+article bodies are not committed; offline CI uses clearly marked representative
+fixtures, and the capture procedure retains real bodies only in an explicitly
+selected local directory.

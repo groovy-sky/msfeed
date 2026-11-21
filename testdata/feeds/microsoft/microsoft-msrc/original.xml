@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Representative security feed</title>
+    <link>https://example.test/security/</link>
+    <description>Representative enclosure fixture</description>
+    <item>
+      <guid isPermaLink="false">msrc-stable-1</guid>
+      <title>Representative security item one</title>
+      <link>https://example.test/security/one</link>
+      <pubDate>Tue, 17 Jun 2025 10:00:00 GMT</pubDate>
+      <description>Original security body one.</description>
+      <enclosure url="/attachments/one.json" length="128" type="application/json"/>
+    </item>
+    <item>
+      <guid isPermaLink="false">msrc-stable-2</guid>
+      <title>Representative security item two</title>
+      <link>https://example.test/security/two</link>
+      <description>Original security body two.</description>
+    </item>
+  </channel>
+</rss>

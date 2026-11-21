@@ -5,9 +5,12 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
+	"math/rand/v2"
+	"mime"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -18,6 +21,7 @@ import (
 )
 
 var ErrLocked = errors.New("another collector process holds the data directory lock")
+var ErrStorage = errors.New("collector storage failure")
 
 type Report struct {
 	SchemaVersion int          `json:"schema_version"`
@@ -25,20 +29,27 @@ type Report struct {
 	StartedAt     string       `json:"started_at"`
 	FinishedAt    string       `json:"finished_at"`
 	Feeds         []FeedReport `json:"feeds"`
+	Requests      int          `json:"requests"`
 	Failed        int          `json:"failed"`
 	BudgetReached bool         `json:"budget_reached,omitempty"`
 }
 
 type FeedReport struct {
-	FeedID         string           `json:"feed_id"`
-	Status         string           `json:"status"`
-	Format         string           `json:"format,omitempty"`
-	Snapshot       string           `json:"snapshot,omitempty"`
-	EffectiveURL   string           `json:"effective_url,omitempty"`
-	Counts         store.FeedCounts `json:"counts"`
-	SkippedEntries int              `json:"skipped_entries,omitempty"`
-	NotModified    bool             `json:"not_modified,omitempty"`
-	Error          string           `json:"error,omitempty"`
+	FeedID           string           `json:"feed_id"`
+	RequestedURL     string           `json:"requested_url,omitempty"`
+	Status           string           `json:"status"`
+	Format           string           `json:"format,omitempty"`
+	Snapshot         string           `json:"snapshot,omitempty"`
+	EffectiveURL     string           `json:"effective_url,omitempty"`
+	HTTPStatus       int              `json:"http_status,omitempty"`
+	Redirects        []string         `json:"redirects,omitempty"`
+	Counts           store.FeedCounts `json:"counts"`
+	RemainingEntries int              `json:"remaining_entries,omitempty"`
+	NotModified      bool             `json:"not_modified,omitempty"`
+	Conditional      string           `json:"conditional_fetch,omitempty"`
+	FailureClass     string           `json:"failure_class,omitempty"`
+	Warnings         []string         `json:"warnings,omitempty"`
+	Error            string           `json:"error,omitempty"`
 }
 
 type Runner struct {
@@ -48,16 +59,31 @@ type Runner struct {
 }
 
 func New(cfg *config.Config) *Runner {
+	if cfg.HTTP.MaxRequestsPerRun == 0 {
+		cfg.HTTP.MaxRequestsPerRun = 100
+	}
+	if cfg.Retry.MaxAttempts == 0 {
+		cfg.Retry.MaxAttempts = 5
+	}
+	if cfg.Retry.InitialBackoffSeconds == 0 {
+		cfg.Retry.InitialBackoffSeconds = 30
+	}
+	if cfg.Retry.MaxBackoffSeconds == 0 {
+		cfg.Retry.MaxBackoffSeconds = 3600
+	}
 	return &Runner{Config: cfg, Store: store.New(cfg.DataDir), Now: time.Now}
 }
 
 func (r *Runner) Run(ctx context.Context, onlyFeed string, force bool) (*Report, error) {
 	if err := r.Store.Initialize(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", ErrStorage, err)
 	}
 	lock, err := acquireLock(filepath.Join(r.Store.Root(), "collector.lock"))
 	if err != nil {
-		return nil, err
+		if errors.Is(err, ErrLocked) {
+			return nil, err
+		}
+		return nil, fmt.Errorf("%w: %v", ErrStorage, err)
 	}
 	defer releaseLock(lock)
 
@@ -68,15 +94,24 @@ func (r *Runner) Run(ctx context.Context, onlyFeed string, force bool) (*Report,
 	defer cancel()
 
 	selected := false
+	processed := 0
 	for _, feed := range r.Config.Feeds {
 		if !feed.Enabled || (onlyFeed != "" && feed.ID != onlyFeed) {
 			continue
 		}
 		selected = true
+		if r.Config.MaxFeedsPerRun > 0 && processed >= r.Config.MaxFeedsPerRun {
+			report.BudgetReached = true
+			break
+		}
+		processed++
 		if err := r.Store.SaveFeed(store.FeedConfig{
 			SchemaVersion: 1, ID: feed.ID, URL: feed.URL,
 		}); err != nil {
-			report.Feeds = append(report.Feeds, FeedReport{FeedID: feed.ID, Status: "failed", Error: err.Error()})
+			report.Feeds = append(report.Feeds, FeedReport{
+				FeedID: feed.ID, RequestedURL: feed.URL, Status: "failed",
+				FailureClass: "storage", Error: err.Error(),
+			})
 			report.Failed++
 			continue
 		}
@@ -84,80 +119,153 @@ func (r *Runner) Run(ctx context.Context, onlyFeed string, force bool) (*Report,
 			report.BudgetReached = true
 			break
 		}
-		feedReport := r.processFeed(budget, feed, force)
+
+		feedReport, requests, budgetReached := r.processFeed(
+			budget, feed, force, r.Config.HTTP.MaxRequestsPerRun-report.Requests,
+		)
 		report.Feeds = append(report.Feeds, feedReport)
+		report.Requests += requests
 		if feedReport.Status == "failed" {
 			report.Failed++
+		}
+		if budgetReached {
+			report.BudgetReached = true
 		}
 	}
 	if onlyFeed != "" && !selected {
 		return nil, fmt.Errorf("feed %q is not enabled or does not exist", onlyFeed)
 	}
 	report.FinishedAt = r.Now().UTC().Format(time.RFC3339Nano)
+	if budget.Err() != nil && !errors.Is(budget.Err(), context.Canceled) {
+		report.BudgetReached = true
+	}
 	if err := r.Store.SaveRun(runID, report); err != nil {
-		return report, fmt.Errorf("save run report: %w", err)
+		return report, fmt.Errorf("%w: save run report: %v", ErrStorage, err)
 	}
 	return report, nil
 }
 
-func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool) FeedReport {
-	report := FeedReport{FeedID: feed.ID, Status: "completed"}
+func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool, requestBudget int) (FeedReport, int, bool) {
+	report := FeedReport{FeedID: feed.ID, RequestedURL: feed.URL, Status: "completed"}
 	state, err := r.Store.LoadState(feed.ID)
 	if err != nil {
 		report.Status = "failed"
+		report.FailureClass = "storage"
 		report.Error = fmt.Sprintf("load state: %v", err)
-		return report
+		return report, 0, false
 	}
 	now := r.Now()
+	state.SchemaVersion = 1
 	state.LastAttempt = now.UTC().Format(time.RFC3339)
 	if state.PendingSnapshot != "" {
-		report = r.processPending(feed, state, report, now)
-		return report
+		if !force && retryNotDue(state, now) {
+			report.Status = "skipped"
+			return report, 0, false
+		}
+		return r.processPending(ctx, feed, state, report, now)
 	}
 	if !force && !due(state, now, feed.PollIntervalSeconds) {
 		report.Status = "skipped"
-		return report
+		return report, 0, false
+	}
+	if requestBudget <= 0 {
+		report.Status = "deferred"
+		report.FailureClass = "budget"
+		return report, 0, true
 	}
 
+	headers, err := r.Config.ResolveAuthentication(feed)
+	if err != nil {
+		report.Status = "failed"
+		report.FailureClass = "configuration"
+		report.Error = err.Error()
+		r.recordFailure(&report, feed, &state, now, err)
+		return report, 0, false
+	}
+	maxRedirects := r.Config.HTTP.MaxRedirects
+	if allowed := requestBudget - 1; maxRedirects > allowed {
+		maxRedirects = allowed
+	}
 	result, err := fetch.One(ctx, fetch.Request{
 		URL: feed.URL, ETag: state.ETag, LastModified: state.LastModified,
 		UserAgent: r.Config.HTTP.UserAgent, Timeout: r.Config.HTTPTimeout(),
-		MaxBodyBytes: r.Config.HTTP.MaxBodyBytes, MaxRedirects: r.Config.HTTP.MaxRedirects,
-		AllowPrivateNetwork: r.Config.HTTP.AllowPrivateNetworks,
+		MaxBodyBytes: r.Config.HTTP.MaxBodyBytes, MaxRedirects: maxRedirects,
+		AllowPrivateNetwork: r.Config.HTTP.AllowPrivateNetworks, Headers: headers, Now: r.Now,
 	})
+	requests := 1 + len(result.Redirects)
 	report.EffectiveURL = result.EffectiveURL
+	report.HTTPStatus = result.Status
+	report.Redirects = append([]string{}, result.Redirects...)
+	report.Conditional = "not_sent"
+	if state.ETag != "" || state.LastModified != "" {
+		report.Conditional = "sent"
+	}
 	if err != nil {
-		report.Status = "failed"
-		report.Error = err.Error()
-		markFailure(&state, now, err)
-		if saveErr := r.Store.SaveState(feed.ID, state); saveErr != nil {
-			report.Error += fmt.Sprintf("; save failure state: %v", saveErr)
+		if len(result.Body) > 0 && result.Status >= 200 && result.Status < 300 {
+			if persistErr := r.persistFetched(feed, &state, result, now); persistErr != nil {
+				report.Status = "failed"
+				report.FailureClass = "storage"
+				report.Error = persistErr.Error()
+				r.recordFailure(&report, feed, &state, now, persistErr)
+				return report, requests, false
+			}
+			return r.processPending(ctx, feed, state, report, now)
 		}
-		return report
+		report.Status = "failed"
+		report.FailureClass = failureClass(err)
+		report.Error = err.Error()
+		r.recordFailure(&report, feed, &state, now, err)
+		return report, requests, errors.Is(ctx.Err(), context.DeadlineExceeded)
 	}
 	if result.NotModified {
 		report.NotModified = true
+		report.Conditional = "not_modified"
 		state.LastSuccess = now.UTC().Format(time.RFC3339)
-		state.NextRetryAt = ""
-		state.LastError = ""
-		state.ConsecutiveErrors = 0
+		clearFailure(&state)
 		if err := r.Store.SaveState(feed.ID, state); err != nil {
 			report.Status = "failed"
+			report.FailureClass = "storage"
 			report.Error = err.Error()
 		}
-		return report
+		return report, requests, false
 	}
 
+	lowDisk, err := r.Store.CheckCapacity(int64(len(result.Body)))
+	if err != nil {
+		report.Status = "failed"
+		report.FailureClass = "storage"
+		report.Error = err.Error()
+		r.recordFailure(&report, feed, &state, now, err)
+		return report, requests, false
+	}
+	if lowDisk {
+		report.Warnings = append(report.Warnings, "available disk space is below 64 MiB")
+	}
+	if err := r.persistFetched(feed, &state, result, now); err != nil {
+		report.Status = "failed"
+		report.FailureClass = "storage"
+		report.Error = err.Error()
+		r.recordFailure(&report, feed, &state, now, err)
+		return report, requests, false
+	}
+	pending, pendingRequests, budgetReached := r.processPending(ctx, feed, state, report, now)
+	return pending, requests + pendingRequests, budgetReached
+}
+
+func (r *Runner) persistFetched(feed config.Feed, state *store.State, result fetch.Result, now time.Time) error {
+	if _, err := r.Store.CheckCapacity(int64(len(result.Body))); err != nil {
+		return err
+	}
 	metadata := store.SnapshotMetadata{
 		SchemaVersion: 1, FeedID: feed.ID, RequestedURL: feed.URL,
 		EffectiveURL: result.EffectiveURL, Status: result.Status,
-		ContentType: result.ContentType, ETag: result.ETag,
-		LastModified: result.LastModified, RetrievedAt: result.RetrievedAt.UTC().Format(time.RFC3339),
+		ContentType: result.ContentType, ContentEncoding: result.ContentEncoding,
+		ETag: result.ETag, LastModified: result.LastModified,
+		RetrievedAt: result.RetrievedAt.UTC().Format(time.RFC3339),
+		Redirects:   append([]string{}, result.Redirects...),
 	}
 	if err := r.Store.SaveSnapshot(feed.ID, result.Body, metadata); err != nil {
-		report.Status = "failed"
-		report.Error = fmt.Sprintf("save snapshot: %v", err)
-		return report
+		return fmt.Errorf("save snapshot: %w", err)
 	}
 	sum := hashHex(result.Body)
 	state.PendingSnapshot = sum
@@ -165,46 +273,72 @@ func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool) 
 	state.PendingLastMod = result.LastModified
 	state.PendingEffectiveURL = result.EffectiveURL
 	state.PendingRetrievedAt = result.RetrievedAt.UTC().Format(time.RFC3339)
-	if err := r.Store.SaveState(feed.ID, state); err != nil {
-		report.Status = "failed"
-		report.Error = fmt.Sprintf("mark snapshot pending: %v", err)
-		return report
+	state.PendingEncoding = result.ContentEncoding
+	state.PendingContentType = result.ContentType
+	state.PendingOffset = 0
+	state.LastAttempt = now.UTC().Format(time.RFC3339)
+	clearFailure(state)
+	if err := r.Store.SaveState(feed.ID, *state); err != nil {
+		return fmt.Errorf("mark snapshot pending: %w", err)
 	}
-	report.Snapshot = sum
-	return r.processPending(feed, state, report, now)
+	return nil
 }
 
-func (r *Runner) processPending(feed config.Feed, state store.State, report FeedReport, now time.Time) FeedReport {
+func (r *Runner) processPending(ctx context.Context, feed config.Feed, state store.State, report FeedReport, now time.Time) (FeedReport, int, bool) {
 	body, err := r.Store.ReadSnapshot(feed.ID, state.PendingSnapshot)
 	if err != nil {
 		report.Status = "failed"
+		report.FailureClass = "storage"
 		report.Error = fmt.Sprintf("read pending snapshot: %v", err)
-		return report
+		r.recordFailure(&report, feed, &state, now, err)
+		return report, 0, false
+	}
+	decoded, err := fetch.DecodeBody(body, state.PendingEncoding, r.Config.HTTP.MaxBodyBytes)
+	if err != nil {
+		report.Status = "failed"
+		report.FailureClass = "content"
+		report.Error = err.Error()
+		r.recordFailure(&report, feed, &state, now, err)
+		return report, 0, false
 	}
 	retrievedAt, err := time.Parse(time.RFC3339, state.PendingRetrievedAt)
 	if err != nil || state.PendingRetrievedAt == "" {
 		retrievedAt = now
 	}
-	parsed, err := parse.Parse(body, state.PendingEffectiveURL, feed.ID, state.PendingSnapshot, retrievedAt, feed.MaxEntriesPerRun)
+	parsed, err := parse.ParseRange(
+		decoded, state.PendingEffectiveURL, feed.ID, state.PendingSnapshot,
+		retrievedAt, state.PendingOffset, feed.MaxEntriesPerRun,
+	)
 	if err != nil {
 		report.Status = "failed"
+		report.FailureClass = "parse"
 		report.Error = err.Error()
-		markFailure(&state, now, err)
-		_ = r.Store.SaveState(feed.ID, state)
-		return report
+		r.recordFailure(&report, feed, &state, now, err)
+		return report, 0, false
 	}
 	report.Format = parsed.Format
 	report.Snapshot = state.PendingSnapshot
 	report.EffectiveURL = state.PendingEffectiveURL
-	report.SkippedEntries = parsed.EntryLimit
+	report.Warnings = append(report.Warnings, parsed.Warnings...)
+	mediaType, _, _ := mime.ParseMediaType(state.PendingContentType)
+	if strings.HasSuffix(mediaType, "html") || strings.Contains(mediaType, "text/html") {
+		report.Warnings = append(report.Warnings, "successful feed parsed despite unexpected HTML Content-Type")
+	}
 	for _, entry := range parsed.Entries {
+		if err := ctx.Err(); err != nil {
+			report.Status = "failed"
+			report.FailureClass = "budget"
+			report.Error = err.Error()
+			r.recordFailure(&report, feed, &state, now, err)
+			return report, 0, errors.Is(err, context.DeadlineExceeded)
+		}
 		newEntry, changed, err := r.Store.SaveEntry(entry, now)
 		if err != nil {
 			report.Status = "failed"
+			report.FailureClass = "storage"
 			report.Error = fmt.Sprintf("persist entry %s: %v", entry.EntryKey, err)
-			markFailure(&state, now, err)
-			_ = r.Store.SaveState(feed.ID, state)
-			return report
+			r.recordFailure(&report, feed, &state, now, err)
+			return report, 0, false
 		}
 		report.Counts.EntriesSeen++
 		if newEntry {
@@ -215,42 +349,108 @@ func (r *Runner) processPending(feed config.Feed, state store.State, report Feed
 			report.Counts.Unchanged++
 		}
 	}
+
+	state.PendingOffset += len(parsed.Entries)
+	report.RemainingEntries = parsed.RemainingEntries
+	if parsed.RemainingEntries > 0 {
+		report.Status = "partial"
+		if err := r.Store.SaveState(feed.ID, state); err != nil {
+			report.Status = "failed"
+			report.FailureClass = "storage"
+			report.Error = fmt.Sprintf("save pending progress: %v", err)
+			return report, 0, false
+		}
+		return report, 0, true
+	}
+
 	state.ETag = state.PendingETag
 	state.LastModified = state.PendingLastMod
 	state.EffectiveURL = state.PendingEffectiveURL
 	state.LastSuccess = now.UTC().Format(time.RFC3339)
-	state.NextRetryAt = ""
-	state.LastError = ""
-	state.ConsecutiveErrors = 0
 	state.PendingSnapshot = ""
 	state.PendingETag = ""
 	state.PendingLastMod = ""
 	state.PendingEffectiveURL = ""
 	state.PendingRetrievedAt = ""
+	state.PendingEncoding = ""
+	state.PendingContentType = ""
+	state.PendingOffset = 0
+	clearFailure(&state)
 	if err := r.Store.SaveState(feed.ID, state); err != nil {
 		report.Status = "failed"
+		report.FailureClass = "storage"
 		report.Error = fmt.Sprintf("commit feed state: %v", err)
-		return report
+		return report, 0, false
 	}
-	return report
+	return report, 0, false
 }
 
 func due(state store.State, now time.Time, intervalSeconds int) bool {
-	if next, err := time.Parse(time.RFC3339, state.NextRetryAt); err == nil && now.Before(next) {
+	if retryNotDue(state, now) {
 		return false
 	}
 	last, err := time.Parse(time.RFC3339, state.LastSuccess)
 	return err != nil || now.Sub(last) >= time.Duration(intervalSeconds)*time.Second
 }
 
-func markFailure(state *store.State, now time.Time, err error) {
+func retryNotDue(state store.State, now time.Time) bool {
+	next, err := time.Parse(time.RFC3339, state.NextRetryAt)
+	return err == nil && now.Before(next)
+}
+
+func (r *Runner) recordFailure(report *FeedReport, feed config.Feed, state *store.State, now time.Time, err error) {
 	state.ConsecutiveErrors++
 	state.LastError = err.Error()
-	backoff := 30 * time.Second
-	for i := 1; i < state.ConsecutiveErrors && backoff < time.Hour; i++ {
-		backoff *= 2
+	state.FailureClass = report.FailureClass
+
+	next := fetch.RetryAt(err)
+	maxBackoff := time.Duration(r.Config.Retry.MaxBackoffSeconds) * time.Second
+	if next.After(now.Add(maxBackoff)) {
+		next = now.Add(maxBackoff)
 	}
-	state.NextRetryAt = now.Add(backoff).UTC().Format(time.RFC3339)
+	if next.IsZero() || !next.After(now) {
+		backoff := time.Duration(r.Config.Retry.InitialBackoffSeconds) * time.Second
+		for attempt := 1; attempt < state.ConsecutiveErrors; attempt++ {
+			if backoff >= time.Duration(r.Config.Retry.MaxBackoffSeconds)*time.Second/2 {
+				backoff = time.Duration(r.Config.Retry.MaxBackoffSeconds) * time.Second
+				break
+			}
+			backoff *= 2
+		}
+		percent := r.Config.Retry.JitterPercent
+		if percent > 0 {
+			span := int64(backoff) * int64(percent) / 100
+			backoff += time.Duration(rand.Int64N(span*2+1) - span)
+		}
+		next = now.Add(backoff)
+	}
+	state.RetryExhausted = state.ConsecutiveErrors >= r.Config.Retry.MaxAttempts
+	if state.RetryExhausted {
+		next = now.Add(time.Duration(feed.PollIntervalSeconds) * time.Second)
+	}
+	state.NextRetryAt = next.UTC().Format(time.RFC3339)
+	if saveErr := r.Store.SaveState(feed.ID, *state); saveErr != nil {
+		report.Error += fmt.Sprintf("; save failure state: %v", saveErr)
+	}
+}
+
+func clearFailure(state *store.State) {
+	state.NextRetryAt = ""
+	state.LastError = ""
+	state.FailureClass = ""
+	state.ConsecutiveErrors = 0
+	state.RetryExhausted = false
+}
+
+func failureClass(err error) string {
+	switch {
+	case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded):
+		return "cancelled"
+	case fetch.IsTransient(err):
+		return "transport"
+	default:
+		return "http"
+	}
 }
 
 func acquireLock(path string) (*os.File, error) {
@@ -265,8 +465,18 @@ func acquireLock(path string) (*os.File, error) {
 		}
 		return nil, fmt.Errorf("lock data directory: %w", err)
 	}
-	_, _ = file.WriteString(strconv.Itoa(os.Getpid()))
-	_ = file.Sync()
+	if err := file.Truncate(0); err != nil {
+		_ = file.Close()
+		return nil, fmt.Errorf("truncate lock: %w", err)
+	}
+	if _, err := file.WriteString(strconv.Itoa(os.Getpid())); err != nil {
+		_ = file.Close()
+		return nil, fmt.Errorf("write lock: %w", err)
+	}
+	if err := file.Sync(); err != nil {
+		_ = file.Close()
+		return nil, fmt.Errorf("sync lock: %w", err)
+	}
 	return file, nil
 }
 

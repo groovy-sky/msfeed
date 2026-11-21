@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Representative updates feed</title>
+    <link>https://example.test/m365/</link>
+    <description>Representative fixture without GUIDs</description>
+    <item>
+      <guid isPermaLink="false">m365-stable-1</guid>
+      <title>Representative update one</title>
+      <link>https://example.test/m365/one</link>
+      <pubDate>not-a-date</pubDate>
+      <description>Original update body one.</description>
+    </item>
+    <item>
+      <guid isPermaLink="false">m365-stable-2</guid>
+      <title>Representative update two</title>
+      <link>https://example.test/m365/two</link>
+      <description>Original update body two.</description>
+    </item>
+  </channel>
+</rss>

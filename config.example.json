@@ -2,11 +2,19 @@
   "schema_version": 1,
   "data_dir": "./data",
   "max_run_seconds": 300,
+  "max_feeds_per_run": 100,
   "http": {
     "timeout_seconds": 30,
     "max_body_bytes": 8388608,
     "max_redirects": 5,
+    "max_requests_per_run": 100,
     "user_agent": "rsscollector/1.0"
+  },
+  "retry": {
+    "max_attempts": 5,
+    "initial_backoff_seconds": 30,
+    "max_backoff_seconds": 3600,
+    "jitter_percent": 20
   },
   "defaults": {
     "poll_interval_seconds": 3600,

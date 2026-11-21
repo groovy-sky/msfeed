@@ -30,8 +30,39 @@ func TestValidateRejectsNegativeLimits(t *testing.T) {
 		SchemaVersion: 1, DataDir: "data", MaxRunSeconds: -1,
 		Feeds: []Feed{{ID: "example", URL: "https://example.com/feed", Enabled: true}},
 	}
+
 	if err := cfg.ApplyDefaultsAndValidate(); err == nil {
 		t.Fatal("negative limit accepted")
+	}
+}
+
+func TestResolveAuthenticationFromProtectedFile(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "token")
+	if err := os.WriteFile(path, []byte("secret-value\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	feed := Feed{Authentication: &Authentication{
+		HeaderName: "Authorization", ValueFile: path,
+	}}
+	headers, err := (Config{}).ResolveAuthentication(feed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if headers["Authorization"] != "secret-value" {
+		t.Fatalf("authorization = %q", headers["Authorization"])
+	}
+}
+
+func TestResolveAuthenticationRejectsSharedFile(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "token")
+	if err := os.WriteFile(path, []byte("secret-value"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	feed := Feed{Authentication: &Authentication{HeaderName: "Authorization", ValueFile: path}}
+	if _, err := (Config{}).ResolveAuthentication(feed); err == nil {
+		t.Fatal("shared-secret file was accepted")
 	}
 }
 

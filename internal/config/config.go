@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/url"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -15,22 +16,34 @@ import (
 const SchemaVersion = 1
 
 var feedIDPattern = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$`)
+var headerNamePattern = regexp.MustCompile(`^[!#$%&'*+\-.^_` + "`" + `|~0-9A-Za-z]+$`)
 
 type Config struct {
-	SchemaVersion int      `json:"schema_version"`
-	DataDir       string   `json:"data_dir"`
-	MaxRunSeconds int      `json:"max_run_seconds"`
-	HTTP          HTTP     `json:"http"`
-	Defaults      Defaults `json:"defaults"`
-	Feeds         []Feed   `json:"feeds"`
+	SchemaVersion  int      `json:"schema_version"`
+	DataDir        string   `json:"data_dir"`
+	MaxRunSeconds  int      `json:"max_run_seconds"`
+	MaxFeedsPerRun int      `json:"max_feeds_per_run,omitempty"`
+	HTTP           HTTP     `json:"http"`
+	Retry          Retry    `json:"retry,omitempty"`
+	Defaults       Defaults `json:"defaults"`
+	Feeds          []Feed   `json:"feeds"`
+	baseDir        string
 }
 
 type HTTP struct {
 	TimeoutSeconds       int    `json:"timeout_seconds"`
 	MaxBodyBytes         int64  `json:"max_body_bytes"`
 	MaxRedirects         int    `json:"max_redirects"`
+	MaxRequestsPerRun    int    `json:"max_requests_per_run,omitempty"`
 	UserAgent            string `json:"user_agent"`
 	AllowPrivateNetworks bool   `json:"allow_private_networks,omitempty"`
+}
+
+type Retry struct {
+	MaxAttempts           int `json:"max_attempts,omitempty"`
+	InitialBackoffSeconds int `json:"initial_backoff_seconds,omitempty"`
+	MaxBackoffSeconds     int `json:"max_backoff_seconds,omitempty"`
+	JitterPercent         int `json:"jitter_percent,omitempty"`
 }
 
 type Defaults struct {
@@ -39,11 +52,18 @@ type Defaults struct {
 }
 
 type Feed struct {
-	ID                  string `json:"id"`
-	URL                 string `json:"url"`
-	Enabled             bool   `json:"enabled"`
-	PollIntervalSeconds int    `json:"poll_interval_seconds,omitempty"`
-	MaxEntriesPerRun    int    `json:"max_entries_per_run,omitempty"`
+	ID                  string          `json:"id"`
+	URL                 string          `json:"url"`
+	Enabled             bool            `json:"enabled"`
+	PollIntervalSeconds int             `json:"poll_interval_seconds,omitempty"`
+	MaxEntriesPerRun    int             `json:"max_entries_per_run,omitempty"`
+	Authentication      *Authentication `json:"authentication,omitempty"`
+}
+
+type Authentication struct {
+	HeaderName string `json:"header_name"`
+	ValueEnv   string `json:"value_env,omitempty"`
+	ValueFile  string `json:"value_file,omitempty"`
 }
 
 func Load(path string) (*Config, error) {
@@ -62,6 +82,11 @@ func Load(path string) (*Config, error) {
 	if err := decoder.Decode(&struct{}{}); !errors.Is(err, io.EOF) {
 		return nil, errors.New("config contains multiple JSON values")
 	}
+	absolutePath, err := filepath.Abs(path)
+	if err != nil {
+		return nil, fmt.Errorf("resolve config path: %w", err)
+	}
+	cfg.baseDir = filepath.Dir(absolutePath)
 	if err := cfg.ApplyDefaultsAndValidate(); err != nil {
 		return nil, err
 	}
@@ -81,6 +106,12 @@ func (c *Config) ApplyDefaultsAndValidate() error {
 	if c.MaxRunSeconds == 0 {
 		c.MaxRunSeconds = 300
 	}
+	if c.MaxFeedsPerRun < 0 {
+		return errors.New("max_feeds_per_run cannot be negative")
+	}
+	if c.MaxFeedsPerRun > 10000 {
+		return errors.New("max_feeds_per_run is too large")
+	}
 	if c.HTTP.TimeoutSeconds < 0 {
 		return errors.New("http.timeout_seconds cannot be negative")
 	}
@@ -93,11 +124,23 @@ func (c *Config) ApplyDefaultsAndValidate() error {
 	if c.HTTP.MaxBodyBytes == 0 {
 		c.HTTP.MaxBodyBytes = 8 << 20
 	}
+	if c.HTTP.MaxRequestsPerRun < 0 {
+		return errors.New("http.max_requests_per_run cannot be negative")
+	}
+	if c.HTTP.MaxRequestsPerRun == 0 {
+		c.HTTP.MaxRequestsPerRun = 100
+	}
+	if c.HTTP.MaxRequestsPerRun > 10000 {
+		return errors.New("http.max_requests_per_run is too large")
+	}
 	if c.HTTP.MaxRedirects < 0 || c.HTTP.MaxRedirects > 20 {
 		return errors.New("http.max_redirects must be between 0 and 20")
 	}
 	if c.HTTP.UserAgent == "" {
 		c.HTTP.UserAgent = "rsscollector/1.0"
+	}
+	if err := c.Retry.applyDefaultsAndValidate(); err != nil {
+		return err
 	}
 	if c.Defaults.PollIntervalSeconds < 0 {
 		return errors.New("defaults.poll_interval_seconds cannot be negative")
@@ -139,9 +182,57 @@ func (c *Config) ApplyDefaultsAndValidate() error {
 		if feed.MaxEntriesPerRun == 0 {
 			feed.MaxEntriesPerRun = c.Defaults.MaxEntriesPerRun
 		}
+		if feed.PollIntervalSeconds > 86400*365 || feed.MaxEntriesPerRun > 100000 {
+			return fmt.Errorf("feed %q poll interval or entry limit is too large", feed.ID)
+		}
+		if err := validateAuthentication(feed.Authentication); err != nil {
+			return fmt.Errorf("feed %q authentication: %w", feed.ID, err)
+		}
 	}
 	if len(c.Feeds) == 0 {
 		return errors.New("at least one feed is required")
+	}
+	return nil
+}
+
+func (r *Retry) applyDefaultsAndValidate() error {
+	if r.MaxAttempts < 0 || r.InitialBackoffSeconds < 0 || r.MaxBackoffSeconds < 0 || r.JitterPercent < 0 {
+		return errors.New("retry limits cannot be negative")
+	}
+	if r.MaxAttempts == 0 {
+		r.MaxAttempts = 5
+	}
+	if r.InitialBackoffSeconds == 0 {
+		r.InitialBackoffSeconds = 30
+	}
+	if r.MaxBackoffSeconds == 0 {
+		r.MaxBackoffSeconds = 3600
+	}
+	if r.JitterPercent == 0 {
+		r.JitterPercent = 20
+	}
+	if r.MaxAttempts > 20 || r.InitialBackoffSeconds > 3600 || r.MaxBackoffSeconds > 86400 || r.JitterPercent > 50 {
+		return errors.New("configured retry limit is too large")
+	}
+	if r.InitialBackoffSeconds > r.MaxBackoffSeconds {
+		return errors.New("retry.initial_backoff_seconds cannot exceed retry.max_backoff_seconds")
+	}
+	return nil
+}
+
+func validateAuthentication(auth *Authentication) error {
+	if auth == nil {
+		return nil
+	}
+	if !headerNamePattern.MatchString(auth.HeaderName) {
+		return errors.New("header_name is invalid")
+	}
+	switch strings.ToLower(auth.HeaderName) {
+	case "host", "content-length", "transfer-encoding", "connection", "upgrade":
+		return errors.New("header_name is not allowed")
+	}
+	if (auth.ValueEnv == "") == (auth.ValueFile == "") {
+		return errors.New("exactly one of value_env or value_file is required")
 	}
 	return nil
 }
@@ -173,4 +264,40 @@ func (c Config) RunTimeout() time.Duration {
 
 func (c Config) HTTPTimeout() time.Duration {
 	return time.Duration(c.HTTP.TimeoutSeconds) * time.Second
+}
+
+func (c Config) ResolveAuthentication(feed Feed) (map[string]string, error) {
+	if feed.Authentication == nil {
+		return nil, nil
+	}
+	auth := feed.Authentication
+	var value string
+	switch {
+	case auth.ValueEnv != "":
+		value = os.Getenv(auth.ValueEnv)
+		if value == "" {
+			return nil, fmt.Errorf("environment variable %s is unset or empty", auth.ValueEnv)
+		}
+	case auth.ValueFile != "":
+		path := auth.ValueFile
+		if !filepath.IsAbs(path) {
+			path = filepath.Join(c.baseDir, path)
+		}
+		info, err := os.Stat(path)
+		if err != nil {
+			return nil, fmt.Errorf("stat authentication file: %w", err)
+		}
+		if !info.Mode().IsRegular() || info.Mode().Perm()&0o077 != 0 {
+			return nil, errors.New("authentication file must be a regular file readable only by its owner")
+		}
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return nil, fmt.Errorf("read authentication file: %w", err)
+		}
+		value = strings.TrimSpace(string(data))
+		if value == "" {
+			return nil, errors.New("authentication file is empty")
+		}
+	}
+	return map[string]string{auth.HeaderName: value}, nil
 }

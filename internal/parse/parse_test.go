@@ -1,6 +1,9 @@
 package parse
 
 import (
+	"bytes"
+	"fmt"
+	"strings"
 	"testing"
 	"time"
 )
@@ -35,6 +38,7 @@ func TestParseSupportedFeedFormats(t *testing.T) {
 			wantFormat: "rss",
 		},
 	}
+
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
@@ -60,6 +64,18 @@ func TestParseSupportedFeedFormats(t *testing.T) {
 	}
 }
 
+func TestParseHonorsDeclaredEncoding(t *testing.T) {
+	latin1 := []byte(`<?xml version="1.0" encoding="ISO-8859-1"?><rss version="2.0"><channel><title>Encod</title><item><guid>one</guid><title>CafXX</title></item></channel></rss>`)
+	latin1 = bytes.Replace(latin1, []byte{0x58, 0x58}, []byte{0xe9, 0x21}, 1)
+	result, err := Parse(latin1, "https://example.com/feed", "encoding", "snapshot", time.Unix(0, 0), 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Entries[0].Title != "Café!" {
+		t.Fatalf("title = %q", result.Entries[0].Title)
+	}
+}
+
 func TestParseIsDeterministicAcrossReordering(t *testing.T) {
 	a := `<?xml version="1.0"?><rss version="2.0"><channel><title>x</title><item><guid>1</guid><title>A</title></item><item><guid>2</guid><title>B</title></item></channel></rss>`
 	b := `<?xml version="1.0"?><rss version="2.0"><channel><title>x</title><item><guid>2</guid><title>B</title></item><item><guid>1</guid><title>A</title></item></channel></rss>`
@@ -79,5 +95,79 @@ func TestParseIsDeterministicAcrossReordering(t *testing.T) {
 		if keys[entry.EntryKey] != entry.ContentHash {
 			t.Fatalf("entry %s changed hash after reordering", entry.EntryKey)
 		}
+	}
+}
+
+func TestParsePreservesBaseContentTypeAndExtensions(t *testing.T) {
+	body := `<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"
+		xml:base="https://example.com/articles/" xmlns:media="http://search.yahoo.com/mrss/">
+		<title>News</title><entry xml:base="nested/"><id>stable</id><title>Entry</title>
+		<updated>not-a-date</updated><content type="text/html">&lt;p&gt;Body&lt;/p&gt;</content>
+		<link rel="alternate" href="post.html"/><media:thumbnail url="/thumbnail.jpg"/>
+		</entry></feed>`
+	result, err := Parse([]byte(body), "https://example.com/feed", "test", "snapshot", time.Unix(0, 0), 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	entry := result.Entries[0]
+	if entry.URL != "https://example.com/articles/nested/post.html" {
+		t.Fatalf("URL = %q", entry.URL)
+	}
+	if entry.ContentType != "text/html" {
+		t.Fatalf("content type = %q", entry.ContentType)
+	}
+	if entry.RawUpdatedDate != "not-a-date" || entry.UpdatedAt != "" {
+		t.Fatalf("invalid date was not preserved: raw=%q normalized=%q", entry.RawUpdatedDate, entry.UpdatedAt)
+	}
+	if len(entry.Extensions["media"]["thumbnail"]) != 1 {
+		t.Fatalf("extension = %#v", entry.Extensions)
+	}
+}
+
+func TestRevisionHashIgnoresIncidentalCategoryOrder(t *testing.T) {
+	template := `<?xml version="1.0"?><rss version="2.0"><channel><title>x</title>
+		<item><guid>same</guid><category>%s</category><category>%s</category></item></channel></rss>`
+	first, err := Parse([]byte(fmt.Sprintf(template, "alpha", "beta")), "https://example.com/feed", "x", "a", time.Unix(0, 0), 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	second, err := Parse([]byte(fmt.Sprintf(template, "beta", "alpha")), "https://example.com/feed", "x", "b", time.Unix(0, 0), 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first.Entries[0].ContentHash != second.Entries[0].ContentHash {
+		t.Fatal("category order changed revision hash")
+	}
+}
+
+func TestParseUsesDocumentedFallbackIdentity(t *testing.T) {
+	body := `<?xml version="1.0"?><rss version="2.0"><channel><title>x</title>
+		<item><title>No identifier</title><description>Body</description></item>
+		</channel></rss>`
+	parsed, err := Parse([]byte(body), "https://example.com/feed", "fallback", "snapshot", time.Unix(0, 0), 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	entry := parsed.Entries[0]
+	if entry.IdentityBasis != "fallback" || entry.EntryKey == "" {
+		t.Fatalf("entry = %#v", entry)
+	}
+	edited := []byte(strings.Replace(body, "Body", "Changed", 1))
+	changed, err := Parse(edited, "https://example.com/feed", "fallback", "snapshot", time.Unix(0, 0), 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if changed.Entries[0].EntryKey == entry.EntryKey {
+		t.Fatal("fallback identity unexpectedly masked a content edit")
+	}
+}
+
+func TestParseRejectsExternalEntity(t *testing.T) {
+	body := []byte(`<?xml version="1.0"?>
+		<!DOCTYPE rss [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
+		<rss version="2.0"><channel><title>&xxe;</title></channel></rss>`)
+	if _, err := Parse(body, "https://example.com/feed", "hostile", "snapshot", time.Unix(0, 0), 10); err == nil {
+		t.Fatal("external entity payload was accepted")
 	}
 }

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "feed_id": "microsoft-blogs",
+  "source_kind": "representative",
+  "requested_url": "https://blogs.microsoft.com/?feed=rss2",
+  "body_sha256": "0bc072ce3fdaf5992c84dc05ba9f2da0080417e00bcc571e82667ac3c674d8c7",
+  "capture_tool_version": "rsscollector-fixture-v1",
+  "parse_warnings": [],
+  "verification": "UNVERIFIED",
+  "limitations": [
+    "not a capture from the configured live endpoint",
+    "live parsing and endpoint availability are not established"
+  ]
+}

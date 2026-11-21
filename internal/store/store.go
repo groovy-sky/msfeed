@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"syscall"
 	"time"
 
 	"github.com/groovy-sky/msfeed/internal/parse"
@@ -20,6 +21,7 @@ type Store struct {
 }
 
 type State struct {
+	SchemaVersion       int    `json:"schema_version,omitempty"`
 	ETag                string `json:"etag,omitempty"`
 	LastModified        string `json:"last_modified,omitempty"`
 	EffectiveURL        string `json:"effective_url,omitempty"`
@@ -28,25 +30,32 @@ type State struct {
 	NextRetryAt         string `json:"next_retry_at,omitempty"`
 	ConsecutiveErrors   int    `json:"consecutive_errors,omitempty"`
 	LastError           string `json:"last_error,omitempty"`
+	FailureClass        string `json:"failure_class,omitempty"`
+	RetryExhausted      bool   `json:"retry_exhausted,omitempty"`
 	PendingSnapshot     string `json:"pending_snapshot,omitempty"`
 	PendingETag         string `json:"pending_etag,omitempty"`
 	PendingLastMod      string `json:"pending_last_modified,omitempty"`
 	PendingEffectiveURL string `json:"pending_effective_url,omitempty"`
 	PendingRetrievedAt  string `json:"pending_retrieved_at,omitempty"`
+	PendingEncoding     string `json:"pending_content_encoding,omitempty"`
+	PendingContentType  string `json:"pending_content_type,omitempty"`
+	PendingOffset       int    `json:"pending_offset,omitempty"`
 }
 
 type SnapshotMetadata struct {
-	SchemaVersion int    `json:"schema_version"`
-	FeedID        string `json:"feed_id"`
-	Hash          string `json:"hash"`
-	Bytes         int64  `json:"bytes"`
-	RequestedURL  string `json:"requested_url"`
-	EffectiveURL  string `json:"effective_url"`
-	Status        int    `json:"status"`
-	ContentType   string `json:"content_type,omitempty"`
-	ETag          string `json:"etag,omitempty"`
-	LastModified  string `json:"last_modified,omitempty"`
-	RetrievedAt   string `json:"retrieved_at"`
+	SchemaVersion   int      `json:"schema_version"`
+	FeedID          string   `json:"feed_id"`
+	Hash            string   `json:"hash"`
+	Bytes           int64    `json:"bytes"`
+	RequestedURL    string   `json:"requested_url"`
+	EffectiveURL    string   `json:"effective_url"`
+	Status          int      `json:"status"`
+	ContentType     string   `json:"content_type,omitempty"`
+	ContentEncoding string   `json:"content_encoding,omitempty"`
+	ETag            string   `json:"etag,omitempty"`
+	LastModified    string   `json:"last_modified,omitempty"`
+	RetrievedAt     string   `json:"retrieved_at"`
+	Redirects       []string `json:"redirects,omitempty"`
 }
 
 type EntryIndex struct {
@@ -130,8 +139,16 @@ func (s *Store) SaveSnapshot(feedID string, body []byte, metadata SnapshotMetada
 		}
 	} else if err != nil {
 		return err
+	} else if err := verifyFileHash(snapshotPath, metadata.Hash); err != nil {
+		return err
 	}
-	return writeJSON(filepath.Join(dir, "snapshot-metadata", metadata.Hash+".json"), metadata)
+	metadataPath := filepath.Join(dir, "snapshot-metadata", metadata.Hash+".json")
+	if _, err := os.Stat(metadataPath); errors.Is(err, os.ErrNotExist) {
+		return writeJSON(metadataPath, metadata)
+	} else if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *Store) ReadSnapshot(feedID, hash string) ([]byte, error) {
@@ -170,6 +187,14 @@ func (s *Store) SaveEntry(entry parse.Entry, observedAt time.Time) (newEntry, ch
 		}
 	} else if statErr != nil {
 		return false, false, statErr
+	} else {
+		var existing parse.Entry
+		if err := readJSON(revisionPath, &existing); err != nil {
+			return false, false, fmt.Errorf("read existing revision: %w", err)
+		}
+		if existing.ContentHash != entry.ContentHash || existing.EntryKey != entry.EntryKey {
+			return false, false, errors.New("revision file does not match its immutable path")
+		}
 	}
 	if err := writeJSON(indexPath, index); err != nil {
 		return false, false, err
@@ -243,4 +268,30 @@ func writeFile(path string, data []byte) error {
 
 func (s *Store) SaveRun(id string, report any) error {
 	return writeJSON(filepath.Join(s.root, "runs", id+".json"), report)
+}
+
+func (s *Store) CheckCapacity(bytesNeeded int64) (low bool, err error) {
+	var stat syscall.Statfs_t
+	if err := syscall.Statfs(s.root, &stat); err != nil {
+		return false, fmt.Errorf("check available disk space: %w", err)
+	}
+	available := int64(stat.Bavail) * int64(stat.Bsize)
+	reserve := bytesNeeded*2 + 1<<20
+	if available < reserve {
+		return true, fmt.Errorf("insufficient disk space: need %d bytes, have %d", reserve, available)
+	}
+	return available < 64<<20, nil
+}
+
+func verifyFileHash(path, expected string) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	sum := sha256.Sum256(data)
+	actual := hex.EncodeToString(sum[:])
+	if actual != expected {
+		return fmt.Errorf("corrupt immutable file %s: expected %s, found %s", path, expected, actual)
+	}
+	return nil
 }

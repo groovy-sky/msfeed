@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"
+  xmlns:media="http://search.yahoo.com/mrss/">
+  <channel>
+    <title>Representative developer blog feed</title>
+    <link>https://example.test/devblogs/</link>
+    <description>Representative extension fixture</description>
+    <item>
+      <guid isPermaLink="false">devblogs-stable-1</guid>
+      <title>Representative developer post one</title>
+      <link>https://example.test/devblogs/one</link>
+      <pubDate>Mon, 16 Jun 2025 10:00:00 +0000</pubDate>
+      <content:encoded><![CDATA[<p>Original developer body one.</p>]]></content:encoded>
+      <media:thumbnail url="/images/one.jpg"/>
+    </item>
+    <item>
+      <guid isPermaLink="false">devblogs-stable-2</guid>
+      <title>Representative developer post two</title>
+      <link>https://example.test/devblogs/two</link>
+      <content:encoded><![CDATA[<p>Original developer body two.</p>]]></content:encoded>
+    </item>
+  </channel>
+</rss>

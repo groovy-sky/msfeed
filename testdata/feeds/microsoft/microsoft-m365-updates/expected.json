@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "feed_id": "microsoft-m365-updates",
+  "format": "rss",
+  "entry_count": 2,
+  "entries": [
+    {
+      "identity_basis": "id",
+      "title": "Representative update one",
+      "url": "https://example.test/m365/one",
+      "entry_key": "3900a8ca605f230cfcdddeb0dbc8373ed08369a0b0f59f15a6988ccf3e50d53e",
+      "content_hash": "db3ccd73c902a3189ca35f126618d8b8a7adab11a6e1cb3be022e0664997bcd8"
+    },
+    {
+      "identity_basis": "id",
+      "title": "Representative update two",
+      "url": "https://example.test/m365/two",
+      "entry_key": "059fd92f1d68c3e971c9f43f31c4afe98b5a715489ebe2aa30bc5f89196fd5fe",
+      "content_hash": "72cde03944ab38c281f178b9921da8bee8b63c46d112e4862a7c289f75be263b"
+    }
+  ]
+}

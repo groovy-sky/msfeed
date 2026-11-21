@@ -76,12 +76,19 @@ func collect(args []string) int {
 			fmt.Fprintln(os.Stderr, err)
 			return 3
 		}
+		if errors.Is(err, runner.ErrStorage) {
+			fmt.Fprintf(os.Stderr, "collector failed: %v\n", err)
+			return 1
+		}
 		fmt.Fprintf(os.Stderr, "collector failed: %v\n", err)
 		return 2
 	}
 	encoder := json.NewEncoder(os.Stdout)
 	encoder.SetIndent("", "  ")
-	_ = encoder.Encode(report)
+	if err := encoder.Encode(report); err != nil {
+		fmt.Fprintf(os.Stderr, "write report: %v\n", err)
+		return 1
+	}
 	if report.BudgetReached {
 		return 4
 	}
@@ -122,7 +129,10 @@ func status(args []string) int {
 	}
 	encoder := json.NewEncoder(os.Stdout)
 	encoder.SetIndent("", "  ")
-	_ = encoder.Encode(map[string]any{"schema_version": 1, "feeds": feeds})
+	if err := encoder.Encode(map[string]any{"schema_version": 1, "feeds": feeds}); err != nil {
+		fmt.Fprintf(os.Stderr, "write status: %v\n", err)
+		return 1
+	}
 	if failed {
 		return 1
 	}

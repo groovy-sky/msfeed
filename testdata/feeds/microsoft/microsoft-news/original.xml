@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Representative news feed</title>
+    <link>https://example.test/news/</link>
+    <description>Representative fixture for RSS 2.0</description>
+    <item>
+      <guid isPermaLink="false">news-stable-1</guid>
+      <title>Representative news item one</title>
+      <link>/articles/one</link>
+      <dc:creator>Fixture Author</dc:creator>
+      <pubDate>Tue, 10 Jun 2025 04:00:00 GMT</pubDate>
+      <category>News</category>
+      <description>Original news body one.</description>
+    </item>
+    <item>
+      <guid isPermaLink="false">news-stable-2</guid>
+      <title>Representative news item two</title>
+      <link>/articles/two</link>
+      <pubDate>Wed, 11 Jun 2025 04:00:00 GMT</pubDate>
+      <description>Original news body two.</description>
+    </item>
+  </channel>
+</rss>

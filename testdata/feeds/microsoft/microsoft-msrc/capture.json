@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "feed_id": "microsoft-msrc",
+  "source_kind": "representative",
+  "requested_url": "https://api.msrc.microsoft.com/update-guide/rss",
+  "body_sha256": "2bbceb13bb40367632b6ea25298a384cc8f36b84fe66e7b9d86588d267f231ae",
+  "capture_tool_version": "rsscollector-fixture-v1",
+  "parse_warnings": [],
+  "verification": "UNVERIFIED",
+  "limitations": [
+    "not a capture from the configured live endpoint",
+    "live parsing and endpoint availability are not established"
+  ]
+}

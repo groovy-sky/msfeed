@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "feed_id": "microsoft-devblogs",
+  "source_kind": "representative",
+  "requested_url": "https://devblogs.microsoft.com/feed",
+  "body_sha256": "0836505db9578304ff71a9d6ee45dfa6f460951e2ca543ef297070bfefb4f28c",
+  "capture_tool_version": "rsscollector-fixture-v1",
+  "parse_warnings": [],
+  "verification": "UNVERIFIED",
+  "limitations": [
+    "not a capture from the configured live endpoint",
+    "live parsing and endpoint availability are not established"
+  ]
+}

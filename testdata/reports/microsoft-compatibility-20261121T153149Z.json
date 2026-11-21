@@ -1,0 +1,120 @@
+[
+  {
+    "feed_id": "microsoft-news",
+    "requested_url": "https://news.microsoft.com/source/feed/",
+    "checked_at": "2026-11-21T15:31:29Z",
+    "transport_result": "UNVERIFIED",
+    "tls_result": "NOT_EXERCISED",
+    "parse_result": "UNVERIFIED",
+    "entry_count": 0,
+    "normalization_result": "UNVERIFIED",
+    "entry_checks": "NOT_EXERCISED",
+    "idempotency_result": "UNVERIFIED",
+    "conditional_fetch_result": "NOT_EXERCISED",
+    "warnings": [
+      "resolve news.microsoft.com: lookup news.microsoft.com on 168.63.129.16:53: server misbehaving"
+    ],
+    "failure_class": "transport",
+    "failure_detail": "resolve news.microsoft.com: lookup news.microsoft.com on 168.63.129.16:53: server misbehaving",
+    "overall": "UNVERIFIED"
+  },
+  {
+    "feed_id": "microsoft-blogs",
+    "requested_url": "https://blogs.microsoft.com/?feed=rss2",
+    "checked_at": "2026-11-21T15:31:29Z",
+    "transport_result": "UNVERIFIED",
+    "tls_result": "NOT_EXERCISED",
+    "parse_result": "UNVERIFIED",
+    "entry_count": 0,
+    "normalization_result": "UNVERIFIED",
+    "entry_checks": "NOT_EXERCISED",
+    "idempotency_result": "UNVERIFIED",
+    "conditional_fetch_result": "NOT_EXERCISED",
+    "warnings": [
+      "resolve blogs.microsoft.com: lookup blogs.microsoft.com on 168.63.129.16:53: server misbehaving"
+    ],
+    "failure_class": "transport",
+    "failure_detail": "resolve blogs.microsoft.com: lookup blogs.microsoft.com on 168.63.129.16:53: server misbehaving",
+    "overall": "UNVERIFIED"
+  },
+  {
+    "feed_id": "microsoft-m365-updates",
+    "requested_url": "https://www.microsoft.com/releasecommunications/api/v2/m365/rss",
+    "effective_url": "https://www.microsoft.com/releasecommunications/api/v2/m365/rss",
+    "checked_at": "2026-11-21T15:31:29Z",
+    "transport_result": "PASS",
+    "tls_result": "PASS",
+    "http_status": 200,
+    "snapshot_sha256": "ce22f462c9af8616afcf735cae741f6d98dd17174aabbf7deba559fdd4dedb8e",
+    "parse_result": "PASS",
+    "detected_format": "rss",
+    "entry_count": 2401,
+    "normalization_result": "PASS",
+    "entry_checks": "PASS",
+    "idempotency_result": "PASS",
+    "conditional_fetch_result": "NOT_EXERCISED",
+    "warnings": [
+      "no validators were supplied by the feed"
+    ],
+    "overall": "PASS"
+  },
+  {
+    "feed_id": "microsoft-azure-updates",
+    "requested_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss",
+    "effective_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss",
+    "checked_at": "2026-11-21T15:31:48Z",
+    "transport_result": "PASS",
+    "tls_result": "PASS",
+    "http_status": 200,
+    "snapshot_sha256": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "parse_result": "PASS",
+    "detected_format": "rss",
+    "entry_count": 200,
+    "normalization_result": "PASS",
+    "entry_checks": "PASS",
+    "idempotency_result": "PASS",
+    "conditional_fetch_result": "NOT_EXERCISED",
+    "warnings": [
+      "no validators were supplied by the feed"
+    ],
+    "overall": "PASS"
+  },
+  {
+    "feed_id": "microsoft-devblogs",
+    "requested_url": "https://devblogs.microsoft.com/feed",
+    "checked_at": "2026-11-21T15:31:49Z",
+    "transport_result": "UNVERIFIED",
+    "tls_result": "NOT_EXERCISED",
+    "parse_result": "UNVERIFIED",
+    "entry_count": 0,
+    "normalization_result": "UNVERIFIED",
+    "entry_checks": "NOT_EXERCISED",
+    "idempotency_result": "UNVERIFIED",
+    "conditional_fetch_result": "NOT_EXERCISED",
+    "warnings": [
+      "resolve devblogs.microsoft.com: lookup devblogs.microsoft.com on 168.63.129.16:53: server misbehaving"
+    ],
+    "failure_class": "transport",
+    "failure_detail": "resolve devblogs.microsoft.com: lookup devblogs.microsoft.com on 168.63.129.16:53: server misbehaving",
+    "overall": "UNVERIFIED"
+  },
+  {
+    "feed_id": "microsoft-msrc",
+    "requested_url": "https://api.msrc.microsoft.com/update-guide/rss",
+    "checked_at": "2026-11-21T15:31:49Z",
+    "transport_result": "UNVERIFIED",
+    "tls_result": "NOT_EXERCISED",
+    "parse_result": "UNVERIFIED",
+    "entry_count": 0,
+    "normalization_result": "UNVERIFIED",
+    "entry_checks": "NOT_EXERCISED",
+    "idempotency_result": "UNVERIFIED",
+    "conditional_fetch_result": "NOT_EXERCISED",
+    "warnings": [
+      "resolve api.msrc.microsoft.com: lookup api.msrc.microsoft.com on 168.63.129.16:53: server misbehaving"
+    ],
+    "failure_class": "transport",
+    "failure_detail": "resolve api.msrc.microsoft.com: lookup api.msrc.microsoft.com on 168.63.129.16:53: server misbehaving",
+    "overall": "UNVERIFIED"
+  }
+]

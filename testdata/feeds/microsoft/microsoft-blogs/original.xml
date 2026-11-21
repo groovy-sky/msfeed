@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns="http://purl.org/rss/1.0/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel rdf:about="https://example.test/blogs/">
+    <title>Representative blog feed</title>
+    <link>https://example.test/blogs/</link>
+    <description>Representative fixture for RDF</description>
+  </channel>
+  <item rdf:about="blogs-stable-1">
+    <title>Representative blog item one</title>
+    <link>https://example.test/blogs/one</link>
+    <dc:date>2025-06-12T09:00:00Z</dc:date>
+    <dc:creator>Blog Author</dc:creator>
+    <description>Original blog body one.</description>
+  </item>
+  <item rdf:about="blogs-stable-2">
+    <title>Representative blog item two</title>
+    <link>https://example.test/blogs/two</link>
+    <dc:date>2025-06-13T09:00:00Z</dc:date>
+    <description>Original blog body two.</description>
+  </item>
+</rdf:RDF>

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "feed_id": "microsoft-news",
+  "format": "rss",
+  "entry_count": 2,
+  "entries": [
+    {
+      "identity_basis": "id",
+      "title": "Representative news item one",
+      "url": "https://news.microsoft.com/articles/one",
+      "entry_key": "9268d5d4ced143305a04608ad6f7d37aece6ca53bdb42aa4f35e2496e88a2db2",
+      "content_hash": "67fcceeb3366238c18e5b875c239bea48cdd9db8e6cde8c1af416fd98e6a8d9c"
+    },
+    {
+      "identity_basis": "id",
+      "title": "Representative news item two",
+      "url": "https://news.microsoft.com/articles/two",
+      "entry_key": "4ffd26bcd1686325513b1ec4a65cd3e4fa779b7293e11d030d97255a3a3f2182",
+      "content_hash": "b264118426159904b28fc64ddaee50ca7bd8fe0547319e0946e33f23a437663d"
+    }
+  ]
+}

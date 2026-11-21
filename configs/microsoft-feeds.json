@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "data_dir": "./data/microsoft",
+  "max_run_seconds": 300,
+  "max_feeds_per_run": 6,
+  "http": {
+    "timeout_seconds": 30,
+    "max_body_bytes": 8388608,
+    "max_redirects": 5,
+    "max_requests_per_run": 12,
+    "user_agent": "rsscollector/1.0 (+https://github.com/groovy-sky/msfeed)"
+  },
+  "retry": {
+    "max_attempts": 4,
+    "initial_backoff_seconds": 30,
+    "max_backoff_seconds": 1800,
+    "jitter_percent": 20
+  },
+  "defaults": {
+    "poll_interval_seconds": 3600,
+    "max_entries_per_run": 500
+  },
+  "feeds": [
+    {
+      "id": "microsoft-news",
+      "url": "https://news.microsoft.com/source/feed/",
+      "enabled": true
+    },
+    {
+      "id": "microsoft-blogs",
+      "url": "https://blogs.microsoft.com/?feed=rss2",
+      "enabled": true
+    },
+    {
+      "id": "microsoft-m365-updates",
+      "url": "https://www.microsoft.com/releasecommunications/api/v2/m365/rss",
+      "enabled": true
+    },
+    {
+      "id": "microsoft-azure-updates",
+      "url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss",
+      "enabled": true
+    },
+    {
+      "id": "microsoft-devblogs",
+      "url": "https://devblogs.microsoft.com/feed",
+      "enabled": true
+    },
+    {
+      "id": "microsoft-msrc",
+      "url": "https://api.msrc.microsoft.com/update-guide/rss",
+      "enabled": true
+    }
+  ]
+}

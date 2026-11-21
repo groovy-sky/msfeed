@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "feed_id": "microsoft-blogs",
+  "format": "rss",
+  "entry_count": 2,
+  "entries": [
+    {
+      "identity_basis": "link",
+      "title": "Representative blog item one",
+      "url": "https://example.test/blogs/one",
+      "entry_key": "f938345446c0de22f08036a8e8014bb6e3a3b35cbfb8a759940b3e05cff10eac",
+      "content_hash": "97f712131d904a2ae7ece4d49b40484a860a18c39795f4d5ecaa80249ed5c464"
+    },
+    {
+      "identity_basis": "link",
+      "title": "Representative blog item two",
+      "url": "https://example.test/blogs/two",
+      "entry_key": "0a4d400135070d6adca622d2d868e2bd0653fd4ec3ff15f6eccf4cbf7e47f99c",
+      "content_hash": "caeb3f349ff823be6affa4b2d80f3778e4aee3327c6603d92ee99b9b1919d253"
+    }
+  ]
+}

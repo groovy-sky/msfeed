@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "feed_id": "microsoft-news",
+  "source_kind": "representative",
+  "requested_url": "https://news.microsoft.com/source/feed/",
+  "body_sha256": "b1b0bc868b05094e30af1d9b5d303c50fb06ec808d3fe821b05c540ffdb73863",
+  "capture_tool_version": "rsscollector-fixture-v1",
+  "parse_warnings": [],
+  "verification": "UNVERIFIED",
+  "limitations": [
+    "not a capture from the configured live endpoint",
+    "live parsing and endpoint availability are not established"
+  ]
+}
