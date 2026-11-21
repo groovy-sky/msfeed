@@ -19,6 +19,7 @@ cp config.example.json config.json
 ./rsscollector validate --config config.json
 ./rsscollector run --config config.json
 ./rsscollector status --config config.json
+./rsscollector archive --config config.json --repository .
 ```
 
 Use `run --feed ID` to collect one configured feed and `run --force` to bypass
@@ -39,6 +40,54 @@ collector keeps the original bytes and records the snapshot hash in the run
 report. The next scheduled retry fetches a replacement using only the last
 good HTTP validators. Local storage corruption leaves pending work in place
 for inspection rather than treating it as a bad response from the publisher.
+
+## Git branch archive
+
+The `archive` command publishes one configured feed to one orphan Git branch,
+using stable branches named `rss/<feed-id>` by default:
+
+```sh
+./rsscollector archive \
+  --config configs/microsoft-feeds.json \
+  --repository . \
+  --remote origin
+```
+
+Feed branches contain only that feed's `feeds/<id>/` data. `collector.lock`
+and one-off run reports are ignored, because they add Git churn without
+representing collection state. The branch's `feed.json` records the configured
+URL, so a URL change can be made without changing the branch or entry identity.
+The command rejects duplicate configured URLs and refuses to process a branch
+that contains another feed or unrelated or symlinked paths.
+
+The archive path is deliberately batched:
+
+1. Resolve all enabled feed branches with one remote query.
+2. Fetch existing branch tips together with shallow refspecs.
+3. Materialize and collect each branch sequentially using isolated temporary
+   Git indexes, so no worktree checkout or second repository clone is needed.
+4. Commit only changed feed state, snapshots, and revisions.
+5. Push all changed branches in one atomic, lease-protected operation.
+
+This keeps Git transport and runner startup overhead independent of the number
+of feeds. Conditional requests, pending snapshots, retry state, runtime,
+request, feed, and entry budgets remain part of the collector rather than
+being reimplemented by the workflow. A run may be inspected without publishing
+by adding `--dry-run`; `--feed ID` selects one branch and `--force` bypasses
+the normal poll and retry schedules.
+
+`.github/workflows/archive.yml` runs this mode hourly with one checkout and one
+Go build. A workflow concurrency group prevents two archive runs from writing
+the same branches concurrently. Ensure Actions has write permission for the
+repository before enabling scheduled publishing. Authentication values for
+private feeds must be supplied through Actions secrets; never place the secret
+itself in the configuration or feed branch.
+
+Branch-per-feed publication is suitable for small to medium auditable archives.
+GitHub and Git have repository, object, and file-size limits, and every
+immutable snapshot or revision contributes to branch history. There is no
+automatic retention yet; high-volume use may require object storage with Git
+holding only indexes and manifests.
 
 ## Configuration
 

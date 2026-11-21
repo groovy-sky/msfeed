@@ -308,6 +308,42 @@ Exit codes:
 Cron should invoke the binary directly with absolute paths and log rotation.
 The collector's configured poll intervals determine which feeds are due.
 
+### Optional Git Branch Publication
+
+For an auditable repository archive, `rsscollector archive` maps each stable
+feed ID to an orphan branch named `rss/<feed-id>`. The collector remains the
+single implementation of fetch, parse, retry, scheduling, and persistence
+semantics; Git publication is an outer persistence step rather than a separate
+scraper.
+
+The archive command is optimized to avoid one checkout, process, or push per
+feed:
+
+1. Query all selected remote branch tips in one operation.
+2. Fetch the existing shallow tips with one batched `git fetch`.
+3. Materialize each branch through an isolated temporary Git index.
+4. Run the feed with `data_dir` rooted at that temporary tree.
+5. Stage only `feeds/<feed-id>/`; ephemeral locks and per-invocation reports
+   are not committed.
+6. Create a commit only when the resulting feed tree changed.
+7. Push every changed branch in one atomic, force-with-lease-protected call.
+
+Branch contents are constrained to `.gitignore` and that branch's feed data.
+Symlinks, submodules, and unrelated paths are rejected instead of being
+checked out and executed. A stable feed ID is preferred over encoding a URL in
+the branch name: this avoids unsafe refs and preserves identity/state if the
+configured URL changes. Duplicate source URLs in one archive run are rejected.
+
+`.github/workflows/archive.yml` provides the scheduled deployment shape: one
+runner, one checkout, one build, one invocation, and a repository-wide
+concurrency group. GitHub Actions remains an optional transport; the same
+command works locally with any Git remote.
+
+Git branch publication does not remove repository-size constraints. It is
+appropriate for small or medium archives where immutable history is the main
+goal. Large bodies and high-volume feeds should use object storage and keep
+branch contents limited to manifests and indexes.
+
 ## 12. Resource Discipline and Retention
 
 - Default concurrency: one feed/request at a time.
