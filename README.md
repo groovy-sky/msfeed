@@ -65,6 +65,15 @@ Retry backoff is persisted as `next_retry_at`; scheduled invocations do not
 sleep. `Retry-After` is honored, and transient `429` and selected `5xx` responses
 use bounded exponential backoff with configured jitter.
 
+The Microsoft configuration enables `"public_dns_fallback": true` under
+`http`. For direct connections, the collector tries system DNS first. If
+that lookup fails, it tries Cloudflare, Quad9, Google, and OpenDNS in that
+order, with one second per public resolver within the fetch timeout. These
+queries send the feed or redirect hostname (not the URL or credentials) to
+external DNS providers. Disable the option if your network forbids that.
+Fallback does not retry HTTP denials or connection failures and does not
+change TLS verification or the public-destination policy.
+
 ## Microsoft compatibility suite
 
 `configs/microsoft-feeds.json` contains the six Microsoft targets from

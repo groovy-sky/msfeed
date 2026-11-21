@@ -8,6 +8,7 @@
     "max_body_bytes": 8388608,
     "max_redirects": 5,
     "max_requests_per_run": 12,
+    "public_dns_fallback": true,
     "user_agent": "rsscollector/1.0 (+https://github.com/groovy-sky/msfeed)"
   },
   "retry": {

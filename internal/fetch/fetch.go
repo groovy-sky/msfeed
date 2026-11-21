@@ -14,6 +14,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"golang.org/x/net/idna"
 )
 
 type Request struct {
@@ -25,6 +27,7 @@ type Request struct {
 	MaxBodyBytes        int64
 	MaxRedirects        int
 	AllowPrivateNetwork bool
+	PublicDNSFallback   bool
 	Headers             map[string]string
 	Now                 func() time.Time
 }
@@ -66,8 +69,14 @@ func (e *HTTPError) Retryable() bool {
 }
 
 func One(ctx context.Context, request Request) (Result, error) {
-	if err := validateDestination(ctx, request.URL, request.AllowPrivateNetwork); err != nil {
-		return Result{}, err
+	return one(ctx, request, lookupWithFallback)
+}
+
+func one(ctx context.Context, request Request, lookup ipLookup) (Result, error) {
+	if request.Timeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, request.Timeout)
+		defer cancel()
 	}
 	redirects := 0
 	redirectChain := make([]string, 0, request.MaxRedirects)
@@ -76,7 +85,14 @@ func One(ctx context.Context, request Request) (Result, error) {
 		return Result{}, errors.New("http.DefaultTransport is not an *http.Transport")
 	}
 	transport := defaultTransport.Clone()
+	defer transport.CloseIdleConnections()
 	transport.DisableCompression = true
+	if request.PublicDNSFallback {
+		transport.DialContext = dialResolved(transport.DialContext)
+	}
+	prepare := func(req *http.Request) error {
+		return prepareDestination(req, transport, request, lookup)
+	}
 	client := &http.Client{
 		Transport: transport,
 		Timeout:   request.Timeout,
@@ -85,7 +101,7 @@ func One(ctx context.Context, request Request) (Result, error) {
 			if redirects > request.MaxRedirects {
 				return fmt.Errorf("redirect limit of %d exceeded", request.MaxRedirects)
 			}
-			if err := validateDestination(req.Context(), req.URL.String(), request.AllowPrivateNetwork); err != nil {
+			if err := prepare(req); err != nil {
 				return err
 			}
 			if len(via) > 0 && !sameOrigin(via[0].URL, req.URL) {
@@ -100,6 +116,9 @@ func One(ctx context.Context, request Request) (Result, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, request.URL, nil)
 	if err != nil {
 		return Result{}, fmt.Errorf("create request: %w", err)
+	}
+	if err := prepare(req); err != nil {
+		return Result{}, err
 	}
 	req.Header.Set("User-Agent", request.UserAgent)
 	req.Header.Set("Accept", "application/rss+xml, application/atom+xml, application/rdf+xml, application/xml, text/xml, */*;q=0.5")
@@ -154,10 +173,11 @@ func One(ctx context.Context, request Request) (Result, error) {
 	return result, nil
 }
 
-func validateDestination(ctx context.Context, raw string, allowPrivate bool) error {
-	parsed, err := url.Parse(raw)
-	if err != nil || parsed.Hostname() == "" {
-		return fmt.Errorf("invalid destination %q", raw)
+func prepareDestination(req *http.Request, transport *http.Transport, request Request, lookup ipLookup) error {
+	parsed := req.URL
+	host := parsed.Hostname()
+	if host == "" {
+		return errors.New("feed URL must have a hostname")
 	}
 	if parsed.Scheme != "http" && parsed.Scheme != "https" {
 		return errors.New("feed URL must use http or https")
@@ -165,21 +185,56 @@ func validateDestination(ctx context.Context, raw string, allowPrivate bool) err
 	if parsed.User != nil {
 		return errors.New("feed URL must not contain credentials")
 	}
-	if allowPrivate {
+	directFallback := request.PublicDNSFallback
+	if directFallback && transport.Proxy != nil {
+		proxy, err := transport.Proxy(req)
+		if err != nil {
+			return err
+		}
+		directFallback = proxy == nil
+	}
+	if request.PublicDNSFallback && !directFallback {
+		*req = *req.WithContext(context.WithValue(req.Context(), resolvedTargetKey{}, resolvedTarget{}))
+	}
+	if request.AllowPrivateNetwork && !directFallback {
 		return nil
 	}
-	ips, err := net.DefaultResolver.LookupIPAddr(ctx, parsed.Hostname())
+	if !directFallback {
+		lookup = net.DefaultResolver.LookupIPAddr
+	}
+	if directFallback && net.ParseIP(host) == nil && !strings.Contains(host, ":") {
+		var err error
+		host, err = idna.Lookup.ToASCII(host)
+		if err != nil {
+			return fmt.Errorf("invalid feed hostname: %w", err)
+		}
+	}
+	ips, err := lookup(req.Context(), host)
 	if err != nil {
-		return fmt.Errorf("resolve %s: %w", parsed.Hostname(), err)
+		return fmt.Errorf("resolve %s: %w", host, err)
 	}
 	if len(ips) == 0 {
-		return fmt.Errorf("resolve %s: no addresses", parsed.Hostname())
+		return fmt.Errorf("resolve %s: no addresses", host)
 	}
-	for _, address := range ips {
-		ip := address.IP
-		if !ip.IsGlobalUnicast() || ip.IsPrivate() {
-			return fmt.Errorf("destination %s resolves to a non-public address", parsed.Hostname())
+	if !request.AllowPrivateNetwork {
+		for _, address := range ips {
+			ip := address.IP
+			if !ip.IsGlobalUnicast() || ip.IsPrivate() || sharedAddressSpace.Contains(ip) {
+				return fmt.Errorf("destination %s resolves to a non-public address", host)
+			}
 		}
+	}
+	if directFallback {
+		port := parsed.Port()
+		if port == "" {
+			port = "80"
+			if parsed.Scheme == "https" {
+				port = "443"
+			}
+		}
+		deadline, _ := req.Context().Deadline()
+		target := resolvedTarget{address: net.JoinHostPort(host, port), ips: ips, deadline: deadline}
+		*req = *req.WithContext(context.WithValue(req.Context(), resolvedTargetKey{}, target))
 	}
 	return nil
 }
