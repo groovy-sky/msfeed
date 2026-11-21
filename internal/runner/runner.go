@@ -191,7 +191,8 @@ func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool, 
 		URL: feed.URL, ETag: state.ETag, LastModified: state.LastModified,
 		UserAgent: r.Config.HTTP.UserAgent, Timeout: r.Config.HTTPTimeout(),
 		MaxBodyBytes: r.Config.HTTP.MaxBodyBytes, MaxRedirects: maxRedirects,
-		AllowPrivateNetwork: r.Config.HTTP.AllowPrivateNetworks, Headers: headers, Now: r.Now,
+		AllowPrivateNetwork: r.Config.HTTP.AllowPrivateNetworks, PublicDNSFallback: r.Config.HTTP.PublicDNSFallback,
+		Headers: headers, Now: r.Now,
 	})
 	requests := 1 + len(result.Redirects)
 	report.EffectiveURL = result.EffectiveURL

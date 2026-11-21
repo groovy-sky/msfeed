@@ -37,6 +37,7 @@ type HTTP struct {
 	MaxRequestsPerRun    int    `json:"max_requests_per_run,omitempty"`
 	UserAgent            string `json:"user_agent"`
 	AllowPrivateNetworks bool   `json:"allow_private_networks,omitempty"`
+	PublicDNSFallback    bool   `json:"public_dns_fallback,omitempty"`
 }
 
 type Retry struct {
