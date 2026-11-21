@@ -34,6 +34,12 @@ snapshot to be replayed safely. Pending snapshots larger than the configured
 entry budget are processed in deterministic batches across runs without
 refetching.
 
+If a response cannot be decoded or parsed before any entry batch commits, the
+collector keeps the original bytes and records the snapshot hash in the run
+report. The next scheduled retry fetches a replacement using only the last
+good HTTP validators. Local storage corruption leaves pending work in place
+for inspection rather than treating it as a bad response from the publisher.
+
 ## Configuration
 
 See `config.example.json`. Feed IDs must be unique and contain only safe

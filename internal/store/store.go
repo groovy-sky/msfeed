@@ -139,7 +139,7 @@ func (s *Store) SaveSnapshot(feedID string, body []byte, metadata SnapshotMetada
 		}
 	} else if err != nil {
 		return err
-	} else if err := verifyFileHash(snapshotPath, metadata.Hash); err != nil {
+	} else if _, err := s.ReadSnapshot(feedID, metadata.Hash); err != nil {
 		return err
 	}
 	metadataPath := filepath.Join(dir, "snapshot-metadata", metadata.Hash+".json")
@@ -152,7 +152,22 @@ func (s *Store) SaveSnapshot(feedID string, body []byte, metadata SnapshotMetada
 }
 
 func (s *Store) ReadSnapshot(feedID, hash string) ([]byte, error) {
-	return os.ReadFile(filepath.Join(s.feedDir(feedID), "snapshots", hash+".xml"))
+	var expected [sha256.Size]byte
+	if len(hash) != hex.EncodedLen(len(expected)) {
+		return nil, errors.New("invalid snapshot hash length")
+	}
+	if _, err := hex.Decode(expected[:], []byte(hash)); err != nil {
+		return nil, fmt.Errorf("invalid snapshot hash: %w", err)
+	}
+	path := filepath.Join(s.feedDir(feedID), "snapshots", hash+".xml")
+	body, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	if actual := sha256.Sum256(body); actual != expected {
+		return nil, fmt.Errorf("corrupt immutable file %s: expected %s, found %x", path, hash, actual)
+	}
+	return body, nil
 }
 
 func (s *Store) SaveEntry(entry parse.Entry, observedAt time.Time) (newEntry, changed bool, err error) {
@@ -281,17 +296,4 @@ func (s *Store) CheckCapacity(bytesNeeded int64) (low bool, err error) {
 		return true, fmt.Errorf("insufficient disk space: need %d bytes, have %d", reserve, available)
 	}
 	return available < 64<<20, nil
-}
-
-func verifyFileHash(path, expected string) error {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	sum := sha256.Sum256(data)
-	actual := hex.EncodeToString(sum[:])
-	if actual != expected {
-		return fmt.Errorf("corrupt immutable file %s: expected %s, found %s", path, expected, actual)
-	}
-	return nil
 }
