@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "data_dir": "./data",
+  "max_run_seconds": 300,
+  "http": {
+    "timeout_seconds": 30,
+    "max_body_bytes": 8388608,
+    "max_redirects": 5,
+    "user_agent": "rsscollector/1.0"
+  },
+  "defaults": {
+    "poll_interval_seconds": 3600,
+    "max_entries_per_run": 500
+  },
+  "feeds": [
+    {
+      "id": "example",
+      "url": "https://example.org/feed.xml",
+      "enabled": true
+    }
+  ]
+}
