@@ -65,6 +65,14 @@ Retry backoff is persisted as `next_retry_at`; scheduled invocations do not
 sleep. `Retry-After` is honored, and transient `429` and selected `5xx` responses
 use bounded exponential backoff with configured jitter.
 
+If your network requires an approved outbound proxy, set
+`RSSCOLLECTOR_EGRESS_PROXY` to its HTTP(S) URL (without credentials) in the
+collector's environment. The proxy resolves and connects to feed hosts, including
+redirect targets; requests do not fall back to a direct connection. Use only a
+proxy that enforces public-destination policy for the addresses it actually
+connects to. This mode is for public feeds only, keeps normal HTTPS certificate
+verification, and does not bypass publisher access restrictions.
+
 ## Microsoft compatibility suite
 
 `configs/microsoft-feeds.json` contains the six Microsoft targets from

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 )
@@ -110,5 +111,90 @@ func TestOneHonorsTimeout(t *testing.T) {
 	})
 	if err == nil || !IsTransient(err) {
 		t.Fatalf("error = %v, want transient timeout", err)
+	}
+}
+
+func TestOneUsesApprovedProxyForFeedAndRedirectWithoutLocalDNS(t *testing.T) {
+	const first = "http://feed.invalid/rss"
+	const second = "http://publisher.invalid/feed"
+	proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		switch req.URL.String() {
+		case first:
+			if req.Header.Get("Authorization") != "test-token" {
+				t.Error("configured feed authorization missing from original request")
+			}
+			http.Redirect(w, req, second, http.StatusFound)
+		case second:
+			if req.Header.Get("Authorization") != "" {
+				t.Error("authorization followed cross-origin redirect")
+			}
+			_, _ = fmt.Fprint(w, `<rss version="2.0"><channel><title>Test</title></channel></rss>`)
+		default:
+			t.Errorf("unexpected proxy request: %s", req.URL)
+			w.WriteHeader(http.StatusBadRequest)
+		}
+	}))
+	defer proxy.Close()
+	t.Setenv("RSSCOLLECTOR_EGRESS_PROXY", proxy.URL)
+	t.Setenv("NO_PROXY", "*")
+
+	result, err := One(context.Background(), Request{
+		URL: first, Timeout: time.Second, MaxBodyBytes: 1024, MaxRedirects: 1,
+		Headers: map[string]string{"Authorization": "test-token"},
+	})
+	if err != nil || result.Status != http.StatusOK || result.EffectiveURL != second ||
+		len(result.Redirects) != 1 || result.Redirects[0] != second {
+		t.Fatalf("proxy result = %+v, err = %v", result, err)
+	}
+}
+
+func TestOneRejectsPrivateRedirectBeforeRoutingToApprovedProxy(t *testing.T) {
+	proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if req.URL.Hostname() != "publisher.invalid" {
+			t.Errorf("unexpected proxy request: %s", req.URL)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		http.Redirect(w, req, "http://127.0.0.1/rss", http.StatusFound)
+	}))
+	defer proxy.Close()
+	t.Setenv("RSSCOLLECTOR_EGRESS_PROXY", proxy.URL)
+
+	_, err := One(context.Background(), Request{
+		URL: "http://publisher.invalid/rss", Timeout: time.Second,
+		MaxBodyBytes: 1024, MaxRedirects: 1, AllowPrivateNetwork: true,
+	})
+	if err == nil || !strings.Contains(err.Error(), "not a public address") {
+		t.Fatalf("redirect error = %v, want destination rejection", err)
+	}
+}
+
+func TestOneUsesConnectForHTTPSAndSurfacesProxyRejection(t *testing.T) {
+	proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if req.Method != http.MethodConnect || req.Host != "publisher.invalid:443" {
+			t.Errorf("proxy request = %s %s, want CONNECT publisher.invalid:443", req.Method, req.Host)
+		}
+		if req.Header.Get("Authorization") != "" {
+			t.Error("feed authorization was sent in CONNECT")
+		}
+		w.WriteHeader(http.StatusForbidden)
+	}))
+	defer proxy.Close()
+	t.Setenv("RSSCOLLECTOR_EGRESS_PROXY", proxy.URL)
+
+	_, err := One(context.Background(), Request{
+		URL: "https://publisher.invalid/rss", Timeout: time.Second, MaxBodyBytes: 1024,
+		Headers: map[string]string{"Authorization": "test-token"},
+	})
+	if err == nil || !strings.Contains(err.Error(), "Forbidden") {
+		t.Fatalf("proxy error = %v, want Forbidden", err)
+	}
+}
+
+func TestOneRejectsInvalidProxyWithoutLoggingCredentials(t *testing.T) {
+	t.Setenv("RSSCOLLECTOR_EGRESS_PROXY", "http://user:secret@proxy.example")
+	_, err := One(context.Background(), Request{URL: "https://publisher.invalid/rss"})
+	if err == nil || !strings.Contains(err.Error(), "RSSCOLLECTOR_EGRESS_PROXY") || strings.Contains(err.Error(), "secret") {
+		t.Fatalf("invalid proxy error should identify the setting without leaking its value: %v", err)
 	}
 }

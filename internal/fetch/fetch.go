@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -66,7 +67,16 @@ func (e *HTTPError) Retryable() bool {
 }
 
 func One(ctx context.Context, request Request) (Result, error) {
-	if err := validateDestination(ctx, request.URL, request.AllowPrivateNetwork); err != nil {
+	proxy, err := egressProxy(os.Getenv("RSSCOLLECTOR_EGRESS_PROXY"))
+	if err != nil {
+		return Result{}, err
+	}
+	if request.Timeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, request.Timeout)
+		defer cancel()
+	}
+	if err := validateDestination(ctx, request.URL, request.AllowPrivateNetwork, proxy != nil); err != nil {
 		return Result{}, err
 	}
 	redirects := 0
@@ -76,7 +86,12 @@ func One(ctx context.Context, request Request) (Result, error) {
 		return Result{}, errors.New("http.DefaultTransport is not an *http.Transport")
 	}
 	transport := defaultTransport.Clone()
+	defer transport.CloseIdleConnections()
 	transport.DisableCompression = true
+	if proxy != nil {
+		// Use the approved proxy for every hop, without a direct fallback.
+		transport.Proxy = http.ProxyURL(proxy)
+	}
 	client := &http.Client{
 		Transport: transport,
 		Timeout:   request.Timeout,
@@ -85,7 +100,7 @@ func One(ctx context.Context, request Request) (Result, error) {
 			if redirects > request.MaxRedirects {
 				return fmt.Errorf("redirect limit of %d exceeded", request.MaxRedirects)
 			}
-			if err := validateDestination(req.Context(), req.URL.String(), request.AllowPrivateNetwork); err != nil {
+			if err := validateDestination(req.Context(), req.URL.String(), request.AllowPrivateNetwork, proxy != nil); err != nil {
 				return err
 			}
 			if len(via) > 0 && !sameOrigin(via[0].URL, req.URL) {
@@ -154,7 +169,21 @@ func One(ctx context.Context, request Request) (Result, error) {
 	return result, nil
 }
 
-func validateDestination(ctx context.Context, raw string, allowPrivate bool) error {
+func egressProxy(raw string) (*url.URL, error) {
+	if raw == "" {
+		return nil, nil
+	}
+	parsed, err := url.Parse(raw)
+	if err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") ||
+		parsed.Hostname() == "" || parsed.User != nil ||
+		(parsed.Path != "" && parsed.Path != "/") ||
+		parsed.ForceQuery || parsed.RawQuery != "" || parsed.Fragment != "" {
+		return nil, errors.New("RSSCOLLECTOR_EGRESS_PROXY must be an HTTP(S) proxy URL without credentials, path, query, or fragment")
+	}
+	return parsed, nil
+}
+
+func validateDestination(ctx context.Context, raw string, allowPrivate, proxyResolves bool) error {
 	parsed, err := url.Parse(raw)
 	if err != nil || parsed.Hostname() == "" {
 		return fmt.Errorf("invalid destination %q", raw)
@@ -165,10 +194,26 @@ func validateDestination(ctx context.Context, raw string, allowPrivate bool) err
 	if parsed.User != nil {
 		return errors.New("feed URL must not contain credentials")
 	}
+	host := parsed.Hostname()
+	if proxyResolves {
+		if ip := net.ParseIP(host); ip != nil {
+			if !ip.IsGlobalUnicast() || ip.IsPrivate() {
+				return fmt.Errorf("destination %s is not a public address", host)
+			}
+		} else {
+			name := strings.ToLower(strings.TrimSuffix(host, "."))
+			if !strings.Contains(name, ".") || strings.Contains(name, "%") ||
+				strings.HasSuffix(name, ".localhost") || strings.HasSuffix(name, ".local") {
+				return fmt.Errorf("destination %s is not a public hostname", host)
+			}
+		}
+		// Only the trusted proxy can enforce IP policy on the addresses it resolves and dials.
+		return nil
+	}
 	if allowPrivate {
 		return nil
 	}
-	ips, err := net.DefaultResolver.LookupIPAddr(ctx, parsed.Hostname())
+	ips, err := net.DefaultResolver.LookupIPAddr(ctx, host)
 	if err != nil {
 		return fmt.Errorf("resolve %s: %w", parsed.Hostname(), err)
 	}
