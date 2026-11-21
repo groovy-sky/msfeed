@@ -247,7 +247,9 @@ Behavior:
   exponential backoff, jitter, and a configured maximum.
 - Persist next_retry_at; avoid long sleeping loops inside scheduled jobs.
 - Treat most other 4xx responses as configuration/access errors.
-- Persist malformed snapshots and report parse failure.
+- Persist malformed snapshots and report parse failure. If processing has not
+  committed a batch yet, fetch a replacement on the next scheduled retry
+  rather than replaying the same rejected bytes.
 
 Important: do not activate new HTTP validators until the associated snapshot
 has been successfully processed. Otherwise, a subsequent 304 could hide

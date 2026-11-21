@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/groovy-sky/msfeed/internal/config"
+	"github.com/groovy-sky/msfeed/internal/store"
 )
 
 func TestRunIsIdempotentAndPreservesChangedRevision(t *testing.T) {
@@ -198,29 +199,152 @@ func TestRunRejectsOversizedResponse(t *testing.T) {
 	}
 }
 
-func TestRunPreservesMalformedSnapshotAsPending(t *testing.T) {
+func TestRunRefetchesRejectedSnapshotOnSchedule(t *testing.T) {
+	const (
+		feedBody         = `<rss version="2.0"><channel><title>Feed</title><item><guid>stable</guid><title>%s</title></item></channel></rss>`
+		goodETag         = `"last-good"`
+		goodLastModified = "Mon, 06 Jan 2025 12:00:00 GMT"
+	)
+	for _, tt := range []struct {
+		name, body, encoding, failureClass string
+	}{
+		{name: "malformed RSS", body: `<rss><channel><item>`, failureClass: "parse"},
+		{name: "invalid gzip", body: "not a gzip stream", encoding: "gzip", failureClass: "content"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			var requests atomic.Int32
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+				n := requests.Add(1)
+				switch n {
+				case 1:
+					w.Header().Set("ETag", goodETag)
+					w.Header().Set("Last-Modified", goodLastModified)
+					_, _ = fmt.Fprintf(w, feedBody, "Before")
+					return
+				case 2, 3:
+					w.Header().Set("ETag", `"rejected"`)
+					w.Header().Set("Last-Modified", "Mon, 06 Jan 2025 12:01:00 GMT")
+					if tt.encoding != "" {
+						w.Header().Set("Content-Encoding", tt.encoding)
+					}
+				default:
+					w.Header().Set("ETag", `"recovered"`)
+				}
+				if got := req.Header.Get("If-None-Match"); got != goodETag {
+					t.Errorf("If-None-Match = %q, want %q", got, goodETag)
+				}
+				if got := req.Header.Get("If-Modified-Since"); got != goodLastModified {
+					t.Errorf("If-Modified-Since = %q, want %q", got, goodLastModified)
+				}
+				if n <= 3 {
+					_, _ = fmt.Fprint(w, tt.body)
+				} else {
+					_, _ = fmt.Fprintf(w, feedBody, "After")
+				}
+			}))
+			defer server.Close()
+
+			collector := New(runnerConfig(t, server.URL))
+			now := time.Date(2025, 1, 6, 13, 0, 0, 0, time.UTC)
+			collector.Now = func() time.Time { return now }
+			run := func(force bool) *Report {
+				t.Helper()
+				report, err := collector.Run(context.Background(), "", force)
+				if err != nil || len(report.Feeds) != 1 {
+					t.Fatalf("run: report = %+v, error = %v", report, err)
+				}
+				return report
+			}
+			loadState := func() store.State {
+				t.Helper()
+				state, err := collector.Store.LoadState("test")
+				if err != nil {
+					t.Fatal(err)
+				}
+				return state
+			}
+			first := run(false)
+			if first.Failed != 0 || first.Feeds[0].Counts.NewEntries != 1 {
+				t.Fatalf("initial run = %+v", first)
+			}
+
+			now = now.Add(time.Second)
+			firstFailure := run(true)
+			if firstFailure.Failed != 1 || firstFailure.Requests != 1 || firstFailure.Feeds[0].FailureClass != tt.failureClass {
+				t.Errorf("first failure = %+v", firstFailure)
+			}
+			hash := firstFailure.Feeds[0].Snapshot
+			archived, err := collector.Store.ReadSnapshot("test", hash)
+			if err != nil || string(archived) != tt.body {
+				t.Errorf("archived snapshot = %q, error = %v", archived, err)
+			}
+			state := loadState()
+			if state.PendingSnapshot != "" || state.PendingETag != "" || state.PendingLastMod != "" ||
+				state.ETag != goodETag || state.LastModified != goodLastModified ||
+				state.ConsecutiveErrors != 1 || state.NextRetryAt != now.Add(time.Second).Format(time.RFC3339) {
+				t.Errorf("state after first rejection = %+v", state)
+			}
+			now = now.Add(500 * time.Millisecond)
+			if early := run(false); early.Requests != 0 || early.Feeds[0].Status != "skipped" {
+				t.Errorf("run before retry due = %+v", early)
+			}
+
+			now = now.Add(500 * time.Millisecond)
+			secondFailure := run(false)
+			state = loadState()
+			if secondFailure.Failed != 1 || secondFailure.Requests != 1 || state.ConsecutiveErrors != 2 ||
+				state.NextRetryAt != now.Add(2*time.Second).Format(time.RFC3339) {
+				t.Errorf("second failure: report = %+v, state = %+v", secondFailure, state)
+			}
+
+			now = now.Add(2 * time.Second)
+			recovered := run(false)
+			state = loadState()
+			if recovered.Failed != 0 || recovered.Requests != 1 || recovered.Feeds[0].Counts.Revisions != 1 ||
+				requests.Load() != 4 || state.ETag != `"recovered"` || state.NextRetryAt != "" || state.ConsecutiveErrors != 0 {
+				t.Errorf("recovery: report = %+v, state = %+v, network requests = %d", recovered, state, requests.Load())
+			}
+		})
+	}
+}
+
+func TestRunRetainsCorruptPendingSnapshot(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		_, _ = w.Write([]byte(`<rss><channel><item>`))
+		t.Error("a corrupt pending snapshot should not trigger a network request")
+		w.WriteHeader(http.StatusInternalServerError)
 	}))
 	defer server.Close()
-	cfg := runnerConfig(t, server.URL)
-	report, err := New(cfg).Run(context.Background(), "", true)
+	feedURL := server.URL
+	collector := New(runnerConfig(t, feedURL))
+	body := []byte(`<rss version="2.0"><channel><title>Test</title><item><guid>one</guid></item></channel></rss>`)
+	hash := hashHex(body)
+	if err := collector.Store.SaveSnapshot("test", body, store.SnapshotMetadata{
+		FeedID: "test", RequestedURL: feedURL, EffectiveURL: feedURL,
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := collector.Store.SaveState("test", store.State{
+		PendingSnapshot: hash, PendingETag: `"pending"`, PendingEffectiveURL: feedURL,
+	}); err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(collector.Store.Root(), "feeds", "test", "snapshots", hash+".xml")
+	if err := os.WriteFile(path, []byte(`<rss><channel>`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	report, err := collector.Run(context.Background(), "", true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if report.Failed != 1 || report.Feeds[0].FailureClass != "parse" {
-		t.Fatalf("report = %+v", report)
+	if report.Failed != 1 || report.Requests != 0 || report.Feeds[0].FailureClass != "storage" || report.Feeds[0].Snapshot != hash {
+		t.Errorf("corrupt replay report = %+v", report)
 	}
-	collector := New(cfg)
 	state, err := collector.Store.LoadState("test")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if state.PendingSnapshot == "" {
-		t.Fatal("malformed snapshot was not retained as pending")
-	}
-	if _, err := collector.Store.ReadSnapshot("test", state.PendingSnapshot); err != nil {
-		t.Fatalf("pending snapshot cannot be read: %v", err)
+	if state.PendingSnapshot != hash || state.PendingETag != `"pending"` || state.ETag != "" {
+		t.Errorf("state after corrupted replay = %+v", state)
 	}
 }
 

@@ -162,7 +162,8 @@ func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool, 
 			report.Status = "skipped"
 			return report, 0, false
 		}
-		return r.processPending(ctx, feed, state, report, now)
+		pending, budgetReached := r.processPending(ctx, feed, state, report, now)
+		return pending, 0, budgetReached
 	}
 	if !force && !due(state, now, feed.PollIntervalSeconds) {
 		report.Status = "skipped"
@@ -200,17 +201,8 @@ func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool, 
 	if state.ETag != "" || state.LastModified != "" {
 		report.Conditional = "sent"
 	}
-	if err != nil {
-		if len(result.Body) > 0 && result.Status >= 200 && result.Status < 300 {
-			if persistErr := r.persistFetched(feed, &state, result, now); persistErr != nil {
-				report.Status = "failed"
-				report.FailureClass = "storage"
-				report.Error = persistErr.Error()
-				r.recordFailure(&report, feed, &state, now, persistErr)
-				return report, requests, false
-			}
-			return r.processPending(ctx, feed, state, report, now)
-		}
+	// A complete body with a decoding error still needs to be archived.
+	if err != nil && result.Body == nil {
 		report.Status = "failed"
 		report.FailureClass = failureClass(err)
 		report.Error = err.Error()
@@ -248,14 +240,11 @@ func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool, 
 		r.recordFailure(&report, feed, &state, now, err)
 		return report, requests, false
 	}
-	pending, pendingRequests, budgetReached := r.processPending(ctx, feed, state, report, now)
-	return pending, requests + pendingRequests, budgetReached
+	pending, budgetReached := r.processPending(ctx, feed, state, report, now)
+	return pending, requests, budgetReached
 }
 
 func (r *Runner) persistFetched(feed config.Feed, state *store.State, result fetch.Result, now time.Time) error {
-	if _, err := r.Store.CheckCapacity(int64(len(result.Body))); err != nil {
-		return err
-	}
 	metadata := store.SnapshotMetadata{
 		SchemaVersion: 1, FeedID: feed.ID, RequestedURL: feed.URL,
 		EffectiveURL: result.EffectiveURL, Status: result.Status,
@@ -277,29 +266,27 @@ func (r *Runner) persistFetched(feed config.Feed, state *store.State, result fet
 	state.PendingContentType = result.ContentType
 	state.PendingOffset = 0
 	state.LastAttempt = now.UTC().Format(time.RFC3339)
-	clearFailure(state)
 	if err := r.Store.SaveState(feed.ID, *state); err != nil {
 		return fmt.Errorf("mark snapshot pending: %w", err)
 	}
 	return nil
 }
 
-func (r *Runner) processPending(ctx context.Context, feed config.Feed, state store.State, report FeedReport, now time.Time) (FeedReport, int, bool) {
+func (r *Runner) processPending(ctx context.Context, feed config.Feed, state store.State, report FeedReport, now time.Time) (FeedReport, bool) {
+	report.Snapshot = state.PendingSnapshot
+	report.EffectiveURL = state.PendingEffectiveURL
 	body, err := r.Store.ReadSnapshot(feed.ID, state.PendingSnapshot)
 	if err != nil {
 		report.Status = "failed"
 		report.FailureClass = "storage"
 		report.Error = fmt.Sprintf("read pending snapshot: %v", err)
 		r.recordFailure(&report, feed, &state, now, err)
-		return report, 0, false
+		return report, false
 	}
 	decoded, err := fetch.DecodeBody(body, state.PendingEncoding, r.Config.HTTP.MaxBodyBytes)
 	if err != nil {
-		report.Status = "failed"
-		report.FailureClass = "content"
-		report.Error = err.Error()
-		r.recordFailure(&report, feed, &state, now, err)
-		return report, 0, false
+		r.recordSnapshotFailure(&report, feed, &state, now, "content", err)
+		return report, false
 	}
 	retrievedAt, err := time.Parse(time.RFC3339, state.PendingRetrievedAt)
 	if err != nil || state.PendingRetrievedAt == "" {
@@ -310,15 +297,10 @@ func (r *Runner) processPending(ctx context.Context, feed config.Feed, state sto
 		retrievedAt, state.PendingOffset, feed.MaxEntriesPerRun,
 	)
 	if err != nil {
-		report.Status = "failed"
-		report.FailureClass = "parse"
-		report.Error = err.Error()
-		r.recordFailure(&report, feed, &state, now, err)
-		return report, 0, false
+		r.recordSnapshotFailure(&report, feed, &state, now, "parse", err)
+		return report, false
 	}
 	report.Format = parsed.Format
-	report.Snapshot = state.PendingSnapshot
-	report.EffectiveURL = state.PendingEffectiveURL
 	report.Warnings = append(report.Warnings, parsed.Warnings...)
 	mediaType, _, _ := mime.ParseMediaType(state.PendingContentType)
 	if strings.HasSuffix(mediaType, "html") || strings.Contains(mediaType, "text/html") {
@@ -330,7 +312,7 @@ func (r *Runner) processPending(ctx context.Context, feed config.Feed, state sto
 			report.FailureClass = "budget"
 			report.Error = err.Error()
 			r.recordFailure(&report, feed, &state, now, err)
-			return report, 0, errors.Is(err, context.DeadlineExceeded)
+			return report, errors.Is(err, context.DeadlineExceeded)
 		}
 		newEntry, changed, err := r.Store.SaveEntry(entry, now)
 		if err != nil {
@@ -338,7 +320,7 @@ func (r *Runner) processPending(ctx context.Context, feed config.Feed, state sto
 			report.FailureClass = "storage"
 			report.Error = fmt.Sprintf("persist entry %s: %v", entry.EntryKey, err)
 			r.recordFailure(&report, feed, &state, now, err)
-			return report, 0, false
+			return report, false
 		}
 		report.Counts.EntriesSeen++
 		if newEntry {
@@ -351,6 +333,7 @@ func (r *Runner) processPending(ctx context.Context, feed config.Feed, state sto
 	}
 
 	state.PendingOffset += len(parsed.Entries)
+	clearFailure(&state)
 	report.RemainingEntries = parsed.RemainingEntries
 	if parsed.RemainingEntries > 0 {
 		report.Status = "partial"
@@ -358,15 +341,36 @@ func (r *Runner) processPending(ctx context.Context, feed config.Feed, state sto
 			report.Status = "failed"
 			report.FailureClass = "storage"
 			report.Error = fmt.Sprintf("save pending progress: %v", err)
-			return report, 0, false
+			return report, false
 		}
-		return report, 0, true
+		return report, true
 	}
 
 	state.ETag = state.PendingETag
 	state.LastModified = state.PendingLastMod
 	state.EffectiveURL = state.PendingEffectiveURL
 	state.LastSuccess = now.UTC().Format(time.RFC3339)
+	clearPending(&state)
+	if err := r.Store.SaveState(feed.ID, state); err != nil {
+		report.Status = "failed"
+		report.FailureClass = "storage"
+		report.Error = fmt.Sprintf("commit feed state: %v", err)
+	}
+	return report, false
+}
+
+func (r *Runner) recordSnapshotFailure(report *FeedReport, feed config.Feed, state *store.State, now time.Time, class string, err error) {
+	report.Status = "failed"
+	report.FailureClass = class
+	report.Error = err.Error()
+	// Keep the bytes, but fetch a replacement next time unless a batch already committed.
+	if state.PendingOffset == 0 {
+		clearPending(state)
+	}
+	r.recordFailure(report, feed, state, now, err)
+}
+
+func clearPending(state *store.State) {
 	state.PendingSnapshot = ""
 	state.PendingETag = ""
 	state.PendingLastMod = ""
@@ -375,19 +379,11 @@ func (r *Runner) processPending(ctx context.Context, feed config.Feed, state sto
 	state.PendingEncoding = ""
 	state.PendingContentType = ""
 	state.PendingOffset = 0
-	clearFailure(&state)
-	if err := r.Store.SaveState(feed.ID, state); err != nil {
-		report.Status = "failed"
-		report.FailureClass = "storage"
-		report.Error = fmt.Sprintf("commit feed state: %v", err)
-		return report, 0, false
-	}
-	return report, 0, false
 }
 
 func due(state store.State, now time.Time, intervalSeconds int) bool {
-	if retryNotDue(state, now) {
-		return false
+	if next, err := time.Parse(time.RFC3339, state.NextRetryAt); err == nil {
+		return !now.Before(next)
 	}
 	last, err := time.Parse(time.RFC3339, state.LastSuccess)
 	return err != nil || now.Sub(last) >= time.Duration(intervalSeconds)*time.Second
