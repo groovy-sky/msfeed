@@ -28,8 +28,16 @@ lock, and network requests have bounded time, redirects, and response size.
 Private or local feed destinations are rejected unless
 `http.allow_private_networks` is intentionally enabled.
 
-Fetched bodies are retained in `data/feeds/<id>/snapshots/`; compact entry
-revisions and indexes are stored under `entries/`. A revision can contain:
+Fetched bodies are retained in `data/feeds/<id>/snapshots/`. Compact entries
+are grouped by publication week under
+`weeks/<YYYY-Www>/<entry-key>/`, using UTC ISO weeks. The complete SHA-256
+`entry_key` is feed-scoped and derived from the preferred RSS/Atom identity.
+`locations/<entry-key>.json` provides a constant-time path to the canonical
+week, so an existing entry is never moved if its publisher later corrects its
+publication date. The entry index records any corrected weeks as aliases.
+The publication timestamp uses the feed's published date, then updated date;
+when neither is valid, the first observation time selects the canonical week.
+A revision can contain:
 
 ```json
 {
@@ -50,12 +58,12 @@ only supplies an excerpt. Original HTML, provider extensions, and provenance
 remain in the snapshot and snapshot-metadata directories.
 
 Feeds may optionally declare an OData content source to recover text that the
-RSS payload truncates. Provider text is cleaned to plain text and stored
-separately at `entries/<entry-key>/enrichments/<content-hash>.json`, with the
-current artifact selected by `enrichment.json`. Each artifact records its
-provider, source and article URLs, RSS entry ID, entry revision, retrieval
-time, and text. This keeps provider failures and content changes independent
-from the feed's identity and compact revisions.
+RSS payload truncates. Provider text is cleaned to plain text and stored in
+the entry's `enrichments/<content-hash>.json`, with the current artifact
+selected by `enrichment.json`. Each artifact records its provider, source and
+article URLs, RSS entry ID, entry revision, retrieval time, and text. This
+keeps provider failures and content changes independent from the feed's
+identity and compact revisions.
 
 State validators are committed only after the snapshot has been parsed and
 persisted, allowing a pending snapshot to be replayed safely. Pending snapshots
@@ -66,6 +74,10 @@ the cropped 320-character format, the latest successfully processed snapshot
 is replayed before any network fetch; previously cropped files remain intact
 and a new uncropped revision becomes current. Missing provider artifacts are
 retried even when the next feed request returns `304 Not Modified`.
+Entry storage format 4 also migrates legacy `entries/<entry-key>/` directories
+into canonical weekly buckets and writes their location records. Migration is
+resumable and interrupted legacy entries are recovered from the pending
+snapshot before the old directory is removed.
 
 If a response cannot be decoded or parsed before any entry batch commits, the
 collector keeps the original bytes and records the snapshot hash in the run

@@ -47,6 +47,7 @@ type Entry struct {
 	EntryKey         string       `json:"entry_key"`
 	FeedID           string       `json:"feed_id"`
 	IdentityBasis    string       `json:"identity_basis"`
+	Identity         string       `json:"identity,omitempty"`
 	SourceID         string       `json:"source_id,omitempty"`
 	Title            string       `json:"title,omitempty"`
 	URL              string       `json:"url,omitempty"`
@@ -174,6 +175,7 @@ func normalize(item *gofeed.Item, feedID, sourceURL string, meta entryMetadata, 
 		EntryKey:         hashStrings(feedID, identityBasis, identity),
 		FeedID:           feedID,
 		IdentityBasis:    identityBasis,
+		Identity:         identity,
 		SourceID:         item.GUID,
 		Title:            strings.TrimSpace(item.Title),
 		URL:              resolve(meta.baseURL, item.Link),
