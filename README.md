@@ -108,14 +108,11 @@ The Microsoft configuration publishes these isolated archives:
 
 | Branch | RSS URL |
 | --- | --- |
-| `rss/microsoft-news` | https://news.microsoft.com/source/feed/ |
 | `rss/microsoft-blogs` | https://blogs.microsoft.com/?feed=rss2 |
-| `rss/microsoft-m365-updates` | https://www.microsoft.com/releasecommunications/api/v2/m365/rss |
 | `rss/microsoft-azure-updates` | https://www.microsoft.com/releasecommunications/api/v2/azure/rss |
 | `rss/microsoft-devblogs` | https://devblogs.microsoft.com/feed |
-| `rss/microsoft-msrc` | https://api.msrc.microsoft.com/update-guide/rss |
 
-All six archives retain complete text supplied by their feeds. The Azure
+All three archives retain complete text supplied by their feeds. The Azure
 archive also enriches source-truncated descriptions from Microsoft's
 Release Communications JSON API; no arbitrary linked page is fetched.
 
@@ -208,8 +205,8 @@ change TLS verification or the public-destination policy.
 
 ## Microsoft compatibility suite
 
-`configs/microsoft-feeds.json` contains the six Microsoft targets from
-`PLAN.md`. Normal tests use reviewed, synthetic representative fixtures in
+`configs/microsoft-feeds.json` contains the three actively archived Microsoft
+targets. Normal tests use reviewed, synthetic representative fixtures in
 `testdata/feeds/microsoft/` so CI never depends on the network or redistributes
 current article content. Their capture records explicitly remain `UNVERIFIED`
 until the endpoints are checked live.
