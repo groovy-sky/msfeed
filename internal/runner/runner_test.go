@@ -2,6 +2,7 @@ package runner
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -14,6 +15,7 @@ import (
 	"time"
 
 	"github.com/groovy-sky/msfeed/internal/config"
+	"github.com/groovy-sky/msfeed/internal/parse"
 	"github.com/groovy-sky/msfeed/internal/store"
 )
 
@@ -122,6 +124,77 @@ func TestRunProcessesPendingSnapshotAcrossEntryBatches(t *testing.T) {
 	}
 	if requests.Load() != 1 {
 		t.Fatalf("network requests = %d, want 1", requests.Load())
+	}
+}
+
+func TestRunRecoversEntryWithoutIndexBeforeStorageUpgrade(t *testing.T) {
+	body := []byte(`<?xml version="1.0"?><rss version="2.0"><channel><title>Pending</title>
+		<item><guid>interrupted</guid><title>Interrupted</title>
+		<description>Pending summary</description><link>/interrupted</link>
+		<pubDate>Thu, 12 Nov 2026 16:00:02 +0000</pubDate></item>
+		</channel></rss>`)
+	feedURL := "https://example.com/feed"
+	now := time.Date(2026, 11, 22, 10, 0, 0, 0, time.UTC)
+	parsed, err := parse.Parse(body, feedURL, "test", hashHex(body), now, 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	entry := parsed.Entries[0]
+	legacyHash := "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+	legacy := entry
+	legacy.ContentHash = legacyHash
+
+	collector := New(runnerConfig(t, feedURL))
+	collector.Now = func() time.Time { return now }
+	hash := hashHex(body)
+	if err := collector.Store.SaveSnapshot("test", body, store.SnapshotMetadata{
+		FeedID: "test", RequestedURL: feedURL, EffectiveURL: feedURL,
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := collector.Store.SaveState("test", store.State{
+		PendingSnapshot: hash, PendingEffectiveURL: feedURL,
+		PendingRetrievedAt: now.Format(time.RFC3339), PendingContentType: "application/rss+xml",
+	}); err != nil {
+		t.Fatal(err)
+	}
+	revisions := filepath.Join(
+		collector.Store.Root(), "feeds", "test", "entries", entry.EntryKey, "revisions",
+	)
+	if err := os.MkdirAll(revisions, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	legacyData, err := json.Marshal(legacy)
+	if err != nil {
+		t.Fatal(err)
+	}
+	legacyPath := filepath.Join(revisions, legacyHash+".json")
+	if err := os.WriteFile(legacyPath, legacyData, 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	report, err := collector.Run(context.Background(), "", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if report.Failed != 0 || report.Feeds[0].Status != "completed" {
+		t.Fatalf("report = %+v", report)
+	}
+	state, err := collector.Store.LoadState("test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if state.EntryStorageVersion != store.CompactEntryVersion || state.PendingSnapshot != "" {
+		t.Fatalf("state after recovery = %+v", state)
+	}
+	index := filepath.Join(
+		collector.Store.Root(), "feeds", "test", "entries", entry.EntryKey, "index.json",
+	)
+	if _, err := os.Stat(index); err != nil {
+		t.Fatalf("recovered index missing: %v", err)
+	}
+	if _, err := os.Stat(legacyPath); !os.IsNotExist(err) {
+		t.Fatalf("legacy revision still exists: %v", err)
 	}
 }
 

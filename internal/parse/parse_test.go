@@ -106,6 +106,46 @@ func TestRecordUsesUpdatedDateWhenPublishedDateIsMissing(t *testing.T) {
 	}
 }
 
+func TestRecordHonorsAtomPlainTextTypes(t *testing.T) {
+	body := `<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"><title>News</title>
+		<entry><id>text</id><title>Generics</title>
+		<summary type="text">Use &lt;T&gt; in the summary.</summary>
+		<content type="text">Use &lt;T&gt; in the content.</content>
+		<updated>2025-01-02T03:04:05Z</updated></entry>
+		<entry><id>content</id><title>Generics</title>
+		<content type="text">Use &lt;T&gt; in the content.</content>
+		<updated>2025-01-02T03:04:05Z</updated></entry></feed>`
+	parsed, err := Parse([]byte(body), "https://example.com/feed", "atom-text", "snapshot", time.Unix(0, 0), 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	first := parsed.Entries[0].Record()
+	second := parsed.Entries[1].Record()
+	if first.Summary != "Use <T> in the summary." {
+		t.Fatalf("summary = %q", first.Summary)
+	}
+	if second.Summary != "Use <T> in the content." {
+		t.Fatalf("content fallback = %q", second.Summary)
+	}
+}
+
+func TestRecordRemovesOnlyTrailingFeedBoilerplate(t *testing.T) {
+	record := (Entry{
+		Summary: "The post explains the update. The post Update appeared first on Microsoft.",
+	}).Record()
+	if record.Summary != "The post explains the update." {
+		t.Fatalf("summary = %q", record.Summary)
+	}
+
+	prefix := strings.Repeat("\u022a", 100)
+	record = (Entry{
+		Summary: prefix + " update. The post Update appeared first on Microsoft.",
+	}).Record()
+	if record.Summary != prefix+" update." {
+		t.Fatalf("Unicode footer handling = %q", record.Summary)
+	}
+}
+
 func TestCompactSummaryDoesNotRepeatEllipsis(t *testing.T) {
 	value := strings.Repeat("word ", MaxStoredSummaryRunes/5) + "ending..."
 	record := (Entry{Summary: value}).Record()

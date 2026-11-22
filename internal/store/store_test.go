@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -111,8 +112,12 @@ func TestUpgradeEntryStorageCompactsLegacyRevisions(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := st.UpgradeEntryStorage("test"); err != nil {
+	complete, err := st.UpgradeEntryStorage(context.Background(), "test", false)
+	if err != nil {
 		t.Fatal(err)
+	}
+	if !complete {
+		t.Fatal("entry storage upgrade is incomplete")
 	}
 	record := legacy.Record()
 	compactPath := filepath.Join(directory, "revisions", record.Hash()+".json")
@@ -135,6 +140,96 @@ func TestUpgradeEntryStorageCompactsLegacyRevisions(t *testing.T) {
 	}
 	if stored != record {
 		t.Fatalf("stored record = %#v, want %#v", stored, record)
+	}
+}
+
+func TestUpgradeEntryStorageDefersIncompleteEntries(t *testing.T) {
+	st := New(t.TempDir())
+	entry := parse.Entry{
+		SchemaVersion: 1,
+		EntryKey:      "interrupted-key",
+		FeedID:        "test",
+		IdentityBasis: "id",
+		Title:         "Interrupted entry",
+		URL:           "https://example.com/interrupted",
+		PublishedAt:   "2026-11-12T16:00:02Z",
+		Summary:       "Interrupted summary",
+	}
+	entry.ContentHash = entry.Record().Hash()
+	directory := filepath.Join(st.Root(), "feeds", "test", "entries", entry.EntryKey)
+	revisions := filepath.Join(directory, "revisions")
+	if err := os.MkdirAll(revisions, dirMode); err != nil {
+		t.Fatal(err)
+	}
+	legacyPath := filepath.Join(revisions, entry.ContentHash+".json")
+	if err := writeJSON(legacyPath, entry.Record()); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(directory, ".tmp-abandoned"), []byte("partial"), dirMode); err != nil {
+		t.Fatal(err)
+	}
+	complete, err := st.UpgradeEntryStorage(context.Background(), "test", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if complete {
+		t.Fatal("entry storage upgrade completed without an index")
+	}
+	if _, err := os.Stat(filepath.Join(directory, ".tmp-abandoned")); !os.IsNotExist(err) {
+		t.Fatalf("abandoned index temp remains: %v", err)
+	}
+
+	if _, _, err := st.SaveEntry(entry, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	complete, err = st.UpgradeEntryStorage(context.Background(), "test", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !complete {
+		t.Fatal("entry storage upgrade did not recover")
+	}
+}
+
+func TestUpgradeEntryStorageIgnoresTemporaryRevisions(t *testing.T) {
+	st := New(t.TempDir())
+	entry := parse.Entry{
+		EntryKey: "temp-key", FeedID: "test", IdentityBasis: "id",
+		Title: "Temporary cleanup", URL: "https://example.com/temp", Summary: "Summary",
+	}
+	entry.ContentHash = entry.Record().Hash()
+	if _, _, err := st.SaveEntry(entry, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	revisions := filepath.Join(
+		st.Root(), "feeds", "test", "entries", entry.EntryKey, "revisions",
+	)
+	tempPath := filepath.Join(revisions, ".tmp-abandoned")
+	if err := os.WriteFile(tempPath, []byte("partial"), dirMode); err != nil {
+		t.Fatal(err)
+	}
+	complete, err := st.UpgradeEntryStorage(context.Background(), "test", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !complete {
+		t.Fatal("entry storage upgrade is incomplete")
+	}
+	if _, err := os.Stat(tempPath); !os.IsNotExist(err) {
+		t.Fatalf("abandoned revision temp remains: %v", err)
+	}
+}
+
+func TestUpgradeEntryStorageHonorsCancellation(t *testing.T) {
+	st := New(t.TempDir())
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	complete, err := st.UpgradeEntryStorage(ctx, "test", false)
+	if complete {
+		t.Fatal("canceled upgrade reported complete")
+	}
+	if err != context.Canceled {
+		t.Fatalf("error = %v, want context.Canceled", err)
 	}
 }
 

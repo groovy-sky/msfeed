@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -224,60 +225,92 @@ func (s *Store) SaveEntry(entry parse.Entry, observedAt time.Time) (newEntry, ch
 	return newEntry, changed, nil
 }
 
-func (s *Store) UpgradeEntryStorage(feedID string) error {
+func (s *Store) UpgradeEntryStorage(ctx context.Context, feedID string, allowIncomplete bool) (bool, error) {
+	if err := ctx.Err(); err != nil {
+		return false, err
+	}
 	entriesRoot := filepath.Join(s.feedDir(feedID), "entries")
 	entries, err := os.ReadDir(entriesRoot)
 	if errors.Is(err, os.ErrNotExist) {
-		return nil
+		return true, nil
 	}
 	if err != nil {
-		return err
+		return false, err
 	}
+	complete := true
 	for _, directory := range entries {
-		if !directory.IsDir() {
-			return fmt.Errorf("entry path %q is not a directory", directory.Name())
+		if err := ctx.Err(); err != nil {
+			return false, err
 		}
-		if err := s.upgradeEntryDirectory(filepath.Join(entriesRoot, directory.Name()), directory.Name()); err != nil {
-			return err
+		if !directory.IsDir() {
+			return false, fmt.Errorf("entry path %q is not a directory", directory.Name())
+		}
+		directoryComplete, err := s.upgradeEntryDirectory(
+			ctx, filepath.Join(entriesRoot, directory.Name()), directory.Name(), allowIncomplete,
+		)
+		if err != nil {
+			return false, err
+		}
+		if !directoryComplete {
+			complete = false
 		}
 	}
-	return nil
+	return complete, ctx.Err()
 }
 
-func (s *Store) upgradeEntryDirectory(directory, entryKey string) error {
+func (s *Store) upgradeEntryDirectory(
+	ctx context.Context,
+	directory, entryKey string,
+	allowIncomplete bool,
+) (bool, error) {
+	if err := removeTemporaryFiles(directory); err != nil {
+		return false, err
+	}
 	indexPath := filepath.Join(directory, "index.json")
 	var index EntryIndex
 	if err := readJSON(indexPath, &index); err != nil {
-		return fmt.Errorf("read entry index %s: %w", entryKey, err)
+		if allowIncomplete && errors.Is(err, os.ErrNotExist) {
+			return false, nil
+		}
+		return false, fmt.Errorf("read entry index %s: %w", entryKey, err)
 	}
 	if index.EntryKey != entryKey {
-		return fmt.Errorf("entry index %s does not match its directory", entryKey)
+		return false, fmt.Errorf("entry index %s does not match its directory", entryKey)
 	}
 
 	revisions := filepath.Join(directory, "revisions")
 	files, err := os.ReadDir(revisions)
 	if err != nil {
-		return fmt.Errorf("read revisions for %s: %w", entryKey, err)
+		return false, fmt.Errorf("read revisions for %s: %w", entryKey, err)
 	}
 	hashes := make(map[string]string, len(files))
 	remove := make([]string, 0)
 	for _, file := range files {
+		if err := ctx.Err(); err != nil {
+			return false, err
+		}
+		if strings.HasPrefix(file.Name(), ".tmp-") && file.Type().IsRegular() {
+			if err := os.Remove(filepath.Join(revisions, file.Name())); err != nil {
+				return false, fmt.Errorf("remove temporary revision %s: %w", file.Name(), err)
+			}
+			continue
+		}
 		if !file.Type().IsRegular() || filepath.Ext(file.Name()) != ".json" {
-			return fmt.Errorf("revision path %q is not a regular JSON file", filepath.Join(revisions, file.Name()))
+			return false, fmt.Errorf("revision path %q is not a regular JSON file", filepath.Join(revisions, file.Name()))
 		}
 		oldHash := strings.TrimSuffix(file.Name(), ".json")
 		path := filepath.Join(revisions, file.Name())
 		legacy, err := isLegacyRevision(path)
 		if err != nil {
-			return err
+			return false, err
 		}
 		if !legacy {
 			record, err := readCompactRevision(path)
 			if err != nil {
-				return err
+				return false, err
 			}
 			if record.Hash() != oldHash {
-				return fmt.Errorf("compact revision %s does not match its immutable path", path)
+				return false, fmt.Errorf("compact revision %s does not match its immutable path", path)
 			}
 			hashes[oldHash] = oldHash
 			continue
@@ -285,34 +318,59 @@ func (s *Store) upgradeEntryDirectory(directory, entryKey string) error {
 
 		var entry parse.Entry
 		if err := readJSON(path, &entry); err != nil {
-			return fmt.Errorf("read legacy revision %s: %w", path, err)
+			return false, fmt.Errorf("read legacy revision %s: %w", path, err)
 		}
 		if entry.EntryKey != entryKey || entry.ContentHash != oldHash {
-			return fmt.Errorf("legacy revision %s does not match its immutable path", path)
+			return false, fmt.Errorf("legacy revision %s does not match its immutable path", path)
 		}
 		record := entry.Record()
 		newHash := record.Hash()
 		hashes[oldHash] = newHash
 		newPath := filepath.Join(revisions, newHash+".json")
 		if err := writeCompactRevisionIfMissing(newPath, record); err != nil {
-			return err
+			return false, err
 		}
 		remove = append(remove, path)
 	}
 
 	current := hashes[index.CurrentRevision]
 	if current == "" {
-		return fmt.Errorf("entry index %s references a missing revision %s", entryKey, index.CurrentRevision)
+		return false, fmt.Errorf("entry index %s references a missing revision %s", entryKey, index.CurrentRevision)
+	}
+	if err := ctx.Err(); err != nil {
+		return false, err
 	}
 	if current != index.CurrentRevision {
 		index.CurrentRevision = current
 		if err := writeJSON(indexPath, index); err != nil {
-			return fmt.Errorf("update entry index %s: %w", entryKey, err)
+			return false, fmt.Errorf("update entry index %s: %w", entryKey, err)
 		}
 	}
 	for _, path := range remove {
+		if err := ctx.Err(); err != nil {
+			return false, err
+		}
 		if err := os.Remove(path); err != nil {
-			return fmt.Errorf("remove legacy revision %s: %w", path, err)
+			return false, fmt.Errorf("remove legacy revision %s: %w", path, err)
+		}
+	}
+	return true, nil
+}
+
+func removeTemporaryFiles(directory string) error {
+	entries, err := os.ReadDir(directory)
+	if err != nil {
+		return fmt.Errorf("read entry directory %s: %w", directory, err)
+	}
+	for _, entry := range entries {
+		if !strings.HasPrefix(entry.Name(), ".tmp-") {
+			continue
+		}
+		if !entry.Type().IsRegular() {
+			return fmt.Errorf("temporary entry path %q is not a regular file", filepath.Join(directory, entry.Name()))
+		}
+		if err := os.Remove(filepath.Join(directory, entry.Name())); err != nil {
+			return fmt.Errorf("remove temporary entry file %s: %w", entry.Name(), err)
 		}
 	}
 	return nil

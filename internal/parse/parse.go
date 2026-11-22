@@ -57,6 +57,7 @@ type Entry struct {
 	RawPublishedDate string       `json:"raw_published_date,omitempty"`
 	RawUpdatedDate   string       `json:"raw_updated_date,omitempty"`
 	Summary          string       `json:"summary,omitempty"`
+	SummaryType      string       `json:"summary_type,omitempty"`
 	Content          string       `json:"content,omitempty"`
 	ContentType      string       `json:"content_type,omitempty"`
 	Categories       []string     `json:"categories"`
@@ -182,6 +183,7 @@ func normalize(item *gofeed.Item, feedID, sourceURL string, meta entryMetadata, 
 		RawPublishedDate: item.Published,
 		RawUpdatedDate:   item.Updated,
 		Summary:          item.Description,
+		SummaryType:      meta.summaryType,
 		Content:          item.Content,
 		ContentType:      meta.contentType,
 		Categories:       categories,
@@ -200,14 +202,16 @@ func normalize(item *gofeed.Item, feedID, sourceURL string, meta entryMetadata, 
 
 func (entry Entry) Record() Record {
 	summary := entry.Summary
+	contentType := entry.SummaryType
 	if strings.TrimSpace(summary) == "" {
 		summary = entry.Content
+		contentType = entry.ContentType
 	}
 	return Record{
 		URL:         entry.URL,
 		Title:       entry.Title,
 		PublishedAt: entry.recordPublishedAt(),
-		Summary:     compactSummary(summary),
+		Summary:     compactSummary(summary, contentType),
 	}
 }
 
@@ -241,15 +245,9 @@ func unixTimestamp(value string) (int64, bool) {
 	return parsed.Unix(), true
 }
 
-func compactSummary(value string) string {
-	text := htmlText(value)
-	lower := strings.ToLower(text)
-	if index := strings.Index(lower, "the post "); index >= 0 {
-		tail := lower[index:]
-		if strings.Contains(tail, " appeared first on ") {
-			text = strings.TrimSpace(text[:index])
-		}
-	}
+func compactSummary(value, contentType string) string {
+	text := plainText(value, contentType)
+	text = removeTrailingBoilerplate(text)
 	runes := []rune(text)
 	if len(runes) <= MaxStoredSummaryRunes {
 		return text
@@ -263,6 +261,56 @@ func compactSummary(value string) string {
 	}
 	truncated = strings.TrimRight(strings.TrimSpace(truncated), ".!?")
 	return truncated + "..."
+}
+
+func plainText(value, contentType string) string {
+	if !contentIsHTML(value, contentType) {
+		return strings.Join(strings.Fields(value), " ")
+	}
+	return htmlText(value)
+}
+
+func contentIsHTML(value, contentType string) bool {
+	mediaType := strings.ToLower(strings.TrimSpace(strings.SplitN(contentType, ";", 2)[0]))
+	switch mediaType {
+	case "text", "text/plain":
+		return false
+	case "html", "xhtml", "text/html", "application/xhtml+xml":
+		return true
+	}
+	return containsHTMLTag(value)
+}
+
+func containsHTMLTag(value string) bool {
+	if !strings.Contains(value, "<") {
+		return false
+	}
+	tokenizer := html.NewTokenizer(strings.NewReader(value))
+	for {
+		switch tokenizer.Next() {
+		case html.ErrorToken:
+			return false
+		case html.StartTagToken, html.EndTagToken, html.SelfClosingTagToken:
+			name, _ := tokenizer.TagName()
+			if isHTMLTag(string(name)) {
+				return true
+			}
+		}
+	}
+}
+
+func isHTMLTag(value string) bool {
+	switch strings.ToLower(value) {
+	case "a", "abbr", "address", "article", "aside", "b", "blockquote", "body",
+		"br", "code", "dd", "del", "details", "div", "dl", "dt", "em",
+		"figcaption", "figure", "footer", "h1", "h2", "h3", "h4", "h5", "h6",
+		"head", "header", "hr", "html", "i", "img", "li", "main", "nav", "ol",
+		"p", "pre", "section", "small", "span", "strong", "sub", "sup", "table",
+		"tbody", "td", "th", "thead", "tr", "u", "ul":
+		return true
+	default:
+		return false
+	}
 }
 
 func htmlText(value string) string {
@@ -291,6 +339,58 @@ func htmlText(value string) string {
 	}
 	visit(document)
 	return strings.Join(strings.Fields(text.String()), " ")
+}
+
+func removeTrailingBoilerplate(value string) string {
+	const (
+		prefix = "the post "
+		footer = " appeared first on "
+	)
+	folded := asciiFold(value)
+	searchEnd := len(folded)
+	for {
+		footerAt := strings.LastIndex(folded[:searchEnd], footer)
+		if footerAt < 0 {
+			return value
+		}
+		startAt := strings.LastIndex(folded[:footerAt], prefix)
+		if startAt < 0 {
+			searchEnd = footerAt
+			continue
+		}
+		remainder := strings.TrimSpace(value[footerAt+len(footer):])
+		if !isTrailingFooterRemainder(remainder) || !isFooterBoundary(value[:startAt]) {
+			searchEnd = startAt
+			continue
+		}
+		return strings.TrimSpace(value[:startAt])
+	}
+}
+
+func asciiFold(value string) string {
+	folded := []byte(value)
+	for index, char := range folded {
+		if char >= 'A' && char <= 'Z' {
+			folded[index] = char + ('a' - 'A')
+		}
+	}
+	return string(folded)
+}
+
+func isTrailingFooterRemainder(value string) bool {
+	trimmed := strings.TrimRight(value, " \t\r\n")
+	return !strings.Contains(trimmed, ". ") &&
+		!strings.Contains(trimmed, "! ") &&
+		!strings.Contains(trimmed, "? ")
+}
+
+func isFooterBoundary(prefix string) bool {
+	trimmed := strings.TrimSpace(prefix)
+	return trimmed == "" ||
+		strings.HasSuffix(trimmed, ".") ||
+		strings.HasSuffix(trimmed, "!") ||
+		strings.HasSuffix(trimmed, "?") ||
+		strings.HasSuffix(trimmed, "\u2026")
 }
 
 func isTextBoundary(element string) bool {
@@ -415,6 +515,7 @@ func sortedStrings(values []string) []string {
 
 type entryMetadata struct {
 	baseURL     string
+	summaryType string
 	contentType string
 }
 
@@ -444,13 +545,13 @@ func inspectXML(body []byte, documentURL string) ([]entryMetadata, error) {
 				parentBase = stack[len(stack)-1].base
 			}
 			elementBase := parentBase
-			contentType := ""
+			elementType := ""
 			for _, attr := range typed.Attr {
 				if attr.Name.Local == "base" && (attr.Name.Space == "http://www.w3.org/XML/1998/namespace" || attr.Name.Space == "xml") {
 					elementBase = resolve(parentBase, attr.Value)
 				}
-				if attr.Name.Local == "type" && strings.EqualFold(typed.Name.Local, "content") {
-					contentType = attr.Value
+				if attr.Name.Local == "type" {
+					elementType = attr.Value
 				}
 			}
 			local := strings.ToLower(typed.Name.Local)
@@ -460,12 +561,18 @@ func inspectXML(body []byte, documentURL string) ([]entryMetadata, error) {
 				currentEntry = len(metadata) - 1
 				currentEntryDepth = len(stack)
 			} else if currentEntry >= 0 && len(stack) > currentEntryDepth {
-				if local == "content" && contentType != "" {
-					metadata[currentEntry].contentType = contentType
+				if local == "content" && elementType != "" {
+					metadata[currentEntry].contentType = elementType
+				} else if local == "summary" && isAtomNamespace(typed.Name.Space) {
+					if elementType == "" {
+						elementType = "text"
+					}
+					metadata[currentEntry].summaryType = elementType
 				} else if local == "encoded" && typed.Name.Space == "http://purl.org/rss/1.0/modules/content/" {
 					metadata[currentEntry].contentType = "text/html"
 				}
 			}
+
 		case xml.EndElement:
 			if len(stack) > 0 {
 				closingDepth := len(stack)
@@ -475,6 +582,12 @@ func inspectXML(body []byte, documentURL string) ([]entryMetadata, error) {
 					currentEntry = -1
 				}
 			}
+
 		}
 	}
+}
+
+func isAtomNamespace(namespace string) bool {
+	return namespace == "http://www.w3.org/2005/Atom" ||
+		namespace == "http://purl.org/atom/ns#"
 }
