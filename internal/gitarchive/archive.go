@@ -52,20 +52,23 @@ type Report struct {
 }
 
 type FeedReport struct {
-	FeedID       string         `json:"feed_id"`
-	Branch       string         `json:"branch"`
-	BaseCommit   string         `json:"base_commit,omitempty"`
-	Commit       string         `json:"commit,omitempty"`
-	Status       string         `json:"status"`
-	Changed      bool           `json:"changed,omitempty"`
-	Collector    *runner.Report `json:"collector,omitempty"`
-	Error        string         `json:"error,omitempty"`
-	Requests     int            `json:"requests"`
-	EntriesSeen  int            `json:"entries_seen"`
-	NewEntries   int            `json:"new_entries"`
-	Revisions    int            `json:"revisions"`
-	Unchanged    int            `json:"unchanged"`
-	FailureClass string         `json:"failure_class,omitempty"`
+	FeedID              string         `json:"feed_id"`
+	Branch              string         `json:"branch"`
+	BaseCommit          string         `json:"base_commit,omitempty"`
+	Commit              string         `json:"commit,omitempty"`
+	Status              string         `json:"status"`
+	Changed             bool           `json:"changed,omitempty"`
+	Collector           *runner.Report `json:"collector,omitempty"`
+	Error               string         `json:"error,omitempty"`
+	Requests            int            `json:"requests"`
+	EntriesSeen         int            `json:"entries_seen"`
+	NewEntries          int            `json:"new_entries"`
+	Revisions           int            `json:"revisions"`
+	Unchanged           int            `json:"unchanged"`
+	Enrichments         int            `json:"enrichments,omitempty"`
+	EnrichmentRevisions int            `json:"enrichment_revisions,omitempty"`
+	EnrichmentDeferred  int            `json:"enrichment_deferred,omitempty"`
+	FailureClass        string         `json:"failure_class,omitempty"`
 }
 
 type feedTarget struct {
@@ -268,6 +271,9 @@ func mergeCollectorMetrics(report *FeedReport, collector *runner.Report) {
 	report.NewEntries = feed.Counts.NewEntries
 	report.Revisions = feed.Counts.Revisions
 	report.Unchanged = feed.Counts.Unchanged
+	report.Enrichments = feed.Counts.Enrichments
+	report.EnrichmentRevisions = feed.Counts.EnrichmentRevisions
+	report.EnrichmentDeferred = feed.Counts.EnrichmentDeferred
 	report.FailureClass = feed.FailureClass
 }
 

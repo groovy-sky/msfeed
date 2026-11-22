@@ -249,6 +249,10 @@ func unixTimestamp(value string) (int64, bool) {
 	return parsed.Unix(), true
 }
 
+func PlainText(value, contentType string) string {
+	return plainText(value, contentType)
+}
+
 func plainText(value, contentType string) string {
 	if !contentIsHTML(value, contentType) {
 		return strings.Join(strings.Fields(value), " ")

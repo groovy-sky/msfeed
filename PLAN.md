@@ -25,8 +25,8 @@ every malformed feed.
 - Persistent retry state and bounded execution.
 - Structured logs and useful exit codes.
 
-### Optional, later
-- Provider-specific enrichment, including MCP.
+### Optional, provider-aware
+- Provider-specific APIs, including additional adapters or MCP.
 - Article fetching.
 - Summarization through an external service.
 - Export to JSON Lines or Markdown.
@@ -151,7 +151,10 @@ data/
       entries/
         <entry-key>/
           index.json
+          enrichment.json
           revisions/
+            <content-hash>.json
+          enrichments/
             <content-hash>.json
   runs/
     <run-id>.json
@@ -161,9 +164,12 @@ data/
 - `state.json`: HTTP validators, last success, retry schedule, pending snapshot.
 - Snapshots: immutable downloaded bodies; extension does not determine format.
 - Snapshot metadata: retrieval time, effective URL, status, content type, hash.
-- `index.json`: identity basis, first/last seen, current revision.
+- `index.json`: identity basis, source URL/ID, first/last seen, current revision.
 - Revisions: immutable compact records containing URL, title, Unix publication
   timestamp, uncropped plain-text summary, and optional article text.
+- `enrichment.json`: current provider-derived artifact for an entry.
+- Enrichments: immutable plain-text artifacts linked to the exact entry revision,
+  provider, source URL, article URL, source ID, and retrieval time.
 - Run reports: counts, timings, failures, and budget exhaustion.
 
 Reuse identical snapshot and revision hashes rather than rewriting them.
@@ -271,6 +277,12 @@ Commit order:
 
 File writes do not form a multi-file transaction. Recovery must replay the
 pending snapshot idempotently and reconcile indexes with stored revisions.
+Optional provider content is stored after the feed revision in a separate
+artifact. A provider failure leaves the completed feed usable; the next run
+retries entries that lack an artifact for the configured provider, including
+after a `304 Not Modified` response. Storage-format upgrades replay the latest
+successfully processed retained snapshot before fetching, so validator-backed
+feeds are backfilled from preserved source bytes without relying on a 200.
 
 Protect local directories with restrictive permissions. Do not delete corrupt
 artifacts automatically: quarantine/report them and preserve recoverable data.
@@ -363,6 +375,7 @@ Coverage:
 - ETag/Last-Modified, 304, redirects, 429, timeouts, oversized responses.
 - Malformed XML and hostile payloads.
 - Interrupted writes, pending replay, corrupt state, lock contention.
+- Missing or changed OData results, request budgets, and 304 enrichment replay.
 - Deterministic normalization and hash results.
 
 Acceptance:
@@ -394,9 +407,11 @@ Conditional requests, durable retry state, pending recovery, resource budgets,
 status command, run reports, failure-injection tests.
 
 ### Phase 3 — Optional downstream processing
-Add a separate `enrich` command only if needed. Preserve separate task state,
-source provenance, and retries. Provider-specific MCP and remote summarization
-must not alter the universal collector's identity or storage semantics.
+Keep configured enrichment separate from RSS identity and revision storage.
+The OData adapter is available for bounded provider-backed text. Future
+provider-specific MCP, article fetching, and remote summarization adapters
+must preserve separate source provenance and retries without altering the
+universal collector's identity or storage semantics.
 
 ## 15. Definition of Done
 

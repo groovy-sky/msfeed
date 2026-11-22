@@ -49,13 +49,23 @@ adds distinct text. The collector does not fetch linked articles when a feed
 only supplies an excerpt. Original HTML, provider extensions, and provenance
 remain in the snapshot and snapshot-metadata directories.
 
+Feeds may optionally declare an OData content source to recover text that the
+RSS payload truncates. Provider text is cleaned to plain text and stored
+separately at `entries/<entry-key>/enrichments/<content-hash>.json`, with the
+current artifact selected by `enrichment.json`. Each artifact records its
+provider, source and article URLs, RSS entry ID, entry revision, retrieval
+time, and text. This keeps provider failures and content changes independent
+from the feed's identity and compact revisions.
+
 State validators are committed only after the snapshot has been parsed and
 persisted, allowing a pending snapshot to be replayed safely. Pending snapshots
 larger than the configured entry budget are processed in deterministic batches
 across runs without refetching. Existing full entry revisions are compacted
-automatically on the next run without cropping their text. Previously cropped
-compact revisions are not rewritten; entries can receive an uncropped revision
-when collected again, and their original text remains in the raw snapshots.
+automatically on the next run without cropping their text. When upgrading from
+the cropped 320-character format, the latest successfully processed snapshot
+is replayed before any network fetch; previously cropped files remain intact
+and a new uncropped revision becomes current. Missing provider artifacts are
+retried even when the next feed request returns `304 Not Modified`.
 
 If a response cannot be decoded or parsed before any entry batch commits, the
 collector keeps the original bytes and records the snapshot hash in the run
@@ -92,6 +102,10 @@ The Microsoft configuration publishes these isolated archives:
 | `rss/microsoft-azure-updates` | https://www.microsoft.com/releasecommunications/api/v2/azure/rss |
 | `rss/microsoft-devblogs` | https://devblogs.microsoft.com/feed |
 | `rss/microsoft-msrc` | https://api.msrc.microsoft.com/update-guide/rss |
+
+All six archives retain complete text supplied by their feeds. The Azure
+archive also enriches source-truncated descriptions from Microsoft's
+Release Communications JSON API; no arbitrary linked page is fetched.
 
 The archive path is deliberately batched:
 
@@ -143,6 +157,29 @@ Use `value_file` instead of `value_env` when appropriate; relative paths are
 resolved from the configuration file. Secret files must be regular files with
 owner-only permissions. Authentication headers are removed on cross-origin
 redirects.
+
+Optional OData enrichment is configured per feed:
+
+```json
+"enrichment": {
+  "provider": "odata",
+  "url": "https://example.org/api/updates",
+  "id_field": "id",
+  "content_field": "description",
+  "content_type": "text/html",
+  "max_items_per_request": 100
+}
+```
+
+The RSS GUID/Atom ID is matched to `id_field`; the provider's `content_field`
+is converted to plain text while dropping script and style content. Requests
+use bounded OData batches and share the feed HTTP timeout, body, redirect,
+network, and total request budgets. Remote provider failures are reported as
+warnings and never prevent the underlying RSS record from being committed;
+local artifact corruption or write failures remain explicit storage failures.
+The Microsoft Azure feed uses this mode because its RSS descriptions are
+source-truncated while the public Release Communications JSON API supplies
+the complete description. Linked web pages are not scraped.
 
 Retry backoff is persisted as `next_retry_at`; scheduled invocations do not
 sleep. `Retry-After` is honored, and transient `429` and selected `5xx` responses
@@ -196,9 +233,10 @@ metadata for review. Raw captures are not written to the repository by default.
 go test ./...
 ```
 
-This MVP does not scrape arbitrary web pages, infer deleted entries, deduplicate
-across feeds, or run remote enrichment. Polling cannot recover entries that are
-published and removed between successful runs. Crash durability targets Linux
+This MVP does not scrape arbitrary web pages, render JavaScript, infer deleted
+entries, or deduplicate across feeds. Provider enrichment is limited to
+configured OData endpoints. Polling cannot recover entries that are published
+and removed between successful runs. Crash durability targets Linux
 filesystems; other platforms and filesystems require their own durability
 validation. Retention remains an explicit future command—there is no automatic
-deletion of snapshots or revisions.
+deletion of snapshots, revisions, or enrichment artifacts.
