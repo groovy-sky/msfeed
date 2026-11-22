@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/groovy-sky/msfeed/internal/config"
+	"github.com/groovy-sky/msfeed/internal/enrich"
 	"github.com/groovy-sky/msfeed/internal/fetch"
 	"github.com/groovy-sky/msfeed/internal/parse"
 	"github.com/groovy-sky/msfeed/internal/store"
@@ -106,7 +107,7 @@ func (r *Runner) Run(ctx context.Context, onlyFeed string, force bool) (*Report,
 		}
 		processed++
 		if err := r.Store.SaveFeed(store.FeedConfig{
-			SchemaVersion: 1, ID: feed.ID, URL: feed.URL,
+			SchemaVersion: 1, ID: feed.ID, URL: feed.URL, Enrichment: feedEnrichmentConfig(feed),
 		}); err != nil {
 			report.Feeds = append(report.Feeds, FeedReport{
 				FeedID: feed.ID, RequestedURL: feed.URL, Status: "failed",
@@ -165,6 +166,18 @@ func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool, 
 		)
 		return report, 0, false
 	}
+	if state.PendingSnapshot == "" && state.EntryStorageVersion < store.CompactEntryVersion {
+		scheduled, err := r.replayLatestSnapshot(feed, &state)
+		if err != nil {
+			report.Status = "failed"
+			report.FailureClass = "storage"
+			report.Error = err.Error()
+			return report, 0, false
+		}
+		if scheduled {
+			report.Warnings = append(report.Warnings, "replaying retained snapshot to upgrade stored feed text")
+		}
+	}
 	storageReady := state.EntryStorageVersion == store.CompactEntryVersion
 	if state.EntryStorageVersion < store.CompactEntryVersion {
 		ready, budgetReached := r.upgradeEntryStorage(ctx, feed, &state, now, &report)
@@ -179,13 +192,15 @@ func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool, 
 			report.Status = "skipped"
 			return report, 0, false
 		}
-		pending, budgetReached := r.processPending(ctx, feed, state, report, now)
+		pending, requests, budgetReached := r.processPending(
+			ctx, feed, state, report, now, requestBudget,
+		)
 		if !storageReady && (pending.Status == "completed" || pending.Status == "partial") {
 			upgradeState, budgetUsed := r.finishEntryStorageUpgrade(ctx, feed, now, &pending)
 			pending = upgradeState
 			budgetReached = budgetReached || budgetUsed
 		}
-		return pending, 0, budgetReached
+		return pending, requests, budgetReached
 	}
 	if !force && !due(state, now, feed.PollIntervalSeconds) {
 		report.Status = "skipped"
@@ -235,6 +250,27 @@ func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool, 
 	if result.NotModified {
 		report.NotModified = true
 		report.Conditional = "not_modified"
+		enrichmentBudgetReached := false
+		if feed.Enrichment != nil {
+			entries, enrichErr := r.Store.EntriesNeedingEnrichment(
+				feed.ID, feed.Enrichment.Provider, feed.Enrichment.URL,
+			)
+			if enrichErr != nil {
+				report.Status = "failed"
+				report.FailureClass = "storage"
+				report.Error = fmt.Sprintf("list pending enrichments: %v", enrichErr)
+				r.recordFailure(&report, feed, &state, now, enrichErr)
+				return report, requests, false
+			}
+			enrichmentRequests, budgetReached := r.persistEnrichments(
+				ctx, feed, entries, requestBudget-requests, now, &report, &state,
+			)
+			requests += enrichmentRequests
+			enrichmentBudgetReached = budgetReached
+			if report.Status == "failed" {
+				return report, requests, budgetReached
+			}
+		}
 		state.LastSuccess = now.UTC().Format(time.RFC3339)
 		clearFailure(&state)
 		if err := r.Store.SaveState(feed.ID, state); err != nil {
@@ -242,7 +278,7 @@ func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool, 
 			report.FailureClass = "storage"
 			report.Error = err.Error()
 		}
-		return report, requests, false
+		return report, requests, enrichmentBudgetReached
 	}
 
 	lowDisk, err := r.Store.CheckCapacity(int64(len(result.Body)))
@@ -263,8 +299,10 @@ func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool, 
 		r.recordFailure(&report, feed, &state, now, err)
 		return report, requests, false
 	}
-	pending, budgetReached := r.processPending(ctx, feed, state, report, now)
-	return pending, requests, budgetReached
+	pending, enrichmentRequests, budgetReached := r.processPending(
+		ctx, feed, state, report, now, requestBudget-requests,
+	)
+	return pending, requests + enrichmentRequests, budgetReached
 }
 
 func (r *Runner) upgradeEntryStorage(
@@ -357,7 +395,42 @@ func (r *Runner) persistFetched(feed config.Feed, state *store.State, result fet
 	return nil
 }
 
-func (r *Runner) processPending(ctx context.Context, feed config.Feed, state store.State, report FeedReport, now time.Time) (FeedReport, bool) {
+func (r *Runner) replayLatestSnapshot(feed config.Feed, state *store.State) (bool, error) {
+	metadata, found, err := r.Store.LatestSnapshot(
+		feed.ID, state.LastSuccess, state.ETag, state.LastModified,
+	)
+	if err != nil {
+		return false, fmt.Errorf("find retained snapshot for full-text upgrade: %w", err)
+	}
+	if !found {
+		return false, nil
+	}
+	effectiveURL := metadata.EffectiveURL
+	if effectiveURL == "" {
+		effectiveURL = feed.URL
+	}
+	state.PendingSnapshot = metadata.Hash
+	state.PendingETag = metadata.ETag
+	state.PendingLastMod = metadata.LastModified
+	state.PendingEffectiveURL = effectiveURL
+	state.PendingRetrievedAt = metadata.RetrievedAt
+	state.PendingEncoding = metadata.ContentEncoding
+	state.PendingContentType = metadata.ContentType
+	state.PendingOffset = 0
+	if err := r.Store.SaveState(feed.ID, *state); err != nil {
+		return false, fmt.Errorf("mark retained snapshot pending for full-text upgrade: %w", err)
+	}
+	return true, nil
+}
+
+func (r *Runner) processPending(
+	ctx context.Context,
+	feed config.Feed,
+	state store.State,
+	report FeedReport,
+	now time.Time,
+	requestBudget int,
+) (FeedReport, int, bool) {
 	report.Snapshot = state.PendingSnapshot
 	report.EffectiveURL = state.PendingEffectiveURL
 	body, err := r.Store.ReadSnapshot(feed.ID, state.PendingSnapshot)
@@ -366,12 +439,12 @@ func (r *Runner) processPending(ctx context.Context, feed config.Feed, state sto
 		report.FailureClass = "storage"
 		report.Error = fmt.Sprintf("read pending snapshot: %v", err)
 		r.recordFailure(&report, feed, &state, now, err)
-		return report, false
+		return report, 0, false
 	}
 	decoded, err := fetch.DecodeBody(body, state.PendingEncoding, r.Config.HTTP.MaxBodyBytes)
 	if err != nil {
 		r.recordSnapshotFailure(&report, feed, &state, now, "content", err)
-		return report, false
+		return report, 0, false
 	}
 	retrievedAt, err := time.Parse(time.RFC3339, state.PendingRetrievedAt)
 	if err != nil || state.PendingRetrievedAt == "" {
@@ -383,7 +456,7 @@ func (r *Runner) processPending(ctx context.Context, feed config.Feed, state sto
 	)
 	if err != nil {
 		r.recordSnapshotFailure(&report, feed, &state, now, "parse", err)
-		return report, false
+		return report, 0, false
 	}
 	report.Format = parsed.Format
 	report.Warnings = append(report.Warnings, parsed.Warnings...)
@@ -397,7 +470,7 @@ func (r *Runner) processPending(ctx context.Context, feed config.Feed, state sto
 			report.FailureClass = "budget"
 			report.Error = err.Error()
 			r.recordFailure(&report, feed, &state, now, err)
-			return report, errors.Is(err, context.DeadlineExceeded)
+			return report, 0, errors.Is(err, context.DeadlineExceeded)
 		}
 		newEntry, changed, err := r.Store.SaveEntry(entry, now)
 		if err != nil {
@@ -405,7 +478,7 @@ func (r *Runner) processPending(ctx context.Context, feed config.Feed, state sto
 			report.FailureClass = "storage"
 			report.Error = fmt.Sprintf("persist entry %s: %v", entry.EntryKey, err)
 			r.recordFailure(&report, feed, &state, now, err)
-			return report, false
+			return report, 0, false
 		}
 		report.Counts.EntriesSeen++
 		if newEntry {
@@ -415,6 +488,12 @@ func (r *Runner) processPending(ctx context.Context, feed config.Feed, state sto
 		} else {
 			report.Counts.Unchanged++
 		}
+	}
+	enrichmentRequests, budgetReached := r.persistEnrichments(
+		ctx, feed, parsed.Entries, requestBudget, now, &report, &state,
+	)
+	if report.Status == "failed" {
+		return report, enrichmentRequests, budgetReached
 	}
 
 	state.PendingOffset += len(parsed.Entries)
@@ -426,9 +505,9 @@ func (r *Runner) processPending(ctx context.Context, feed config.Feed, state sto
 			report.Status = "failed"
 			report.FailureClass = "storage"
 			report.Error = fmt.Sprintf("save pending progress: %v", err)
-			return report, false
+			return report, enrichmentRequests, false
 		}
-		return report, true
+		return report, enrichmentRequests, true
 	}
 
 	state.ETag = state.PendingETag
@@ -441,7 +520,145 @@ func (r *Runner) processPending(ctx context.Context, feed config.Feed, state sto
 		report.FailureClass = "storage"
 		report.Error = fmt.Sprintf("commit feed state: %v", err)
 	}
-	return report, false
+	return report, enrichmentRequests, false
+}
+
+func (r *Runner) persistEnrichments(
+	ctx context.Context,
+	feed config.Feed,
+	entries []parse.Entry,
+	requestBudget int,
+	now time.Time,
+	report *FeedReport,
+	state *store.State,
+) (int, bool) {
+	enrichments, requests, deferred, warnings := r.resolveEnrichments(
+		ctx, feed, entries, now, requestBudget,
+	)
+	report.Warnings = append(report.Warnings, warnings...)
+	report.Counts.EnrichmentDeferred += deferred
+	for _, entry := range entries {
+		record, ok := enrichments[entry.EntryKey]
+		if !ok {
+			continue
+		}
+		if err := ctx.Err(); err != nil {
+			report.Status = "failed"
+			report.FailureClass = "budget"
+			report.Error = err.Error()
+			r.recordFailure(report, feed, state, now, err)
+			return requests, errors.Is(err, context.DeadlineExceeded)
+		}
+		newArtifact, changed, err := r.Store.SaveEnrichment(entry, record)
+		if err != nil {
+			report.Status = "failed"
+			report.FailureClass = "storage"
+			report.Error = fmt.Sprintf("persist enrichment %s: %v", entry.EntryKey, err)
+			r.recordFailure(report, feed, state, now, err)
+			return requests, false
+		}
+		if newArtifact {
+			report.Counts.Enrichments++
+		}
+		if changed && !newArtifact {
+			report.Counts.EnrichmentRevisions++
+		}
+	}
+	return requests, false
+}
+
+func feedEnrichmentConfig(feed config.Feed) *store.FeedEnrichment {
+	if feed.Enrichment == nil {
+		return nil
+	}
+	return &store.FeedEnrichment{
+		Provider: feed.Enrichment.Provider, URL: feed.Enrichment.URL,
+		IDField: feed.Enrichment.IDField, ContentField: feed.Enrichment.ContentField,
+		ContentType:        feed.Enrichment.ContentType,
+		MaxItemsPerRequest: feed.Enrichment.MaxItemsPerRequest,
+	}
+}
+
+func (r *Runner) resolveEnrichments(
+	ctx context.Context,
+	feed config.Feed,
+	entries []parse.Entry,
+	now time.Time,
+	requestBudget int,
+) (map[string]store.EnrichmentRecord, int, int, []string) {
+	records := make(map[string]store.EnrichmentRecord)
+	if feed.Enrichment == nil {
+		return records, 0, 0, nil
+	}
+	candidates := make([]enrich.Candidate, 0, len(entries))
+	eligible := make(map[string]parse.Entry, len(entries))
+	sourceIDs := make(map[string]string, len(entries))
+	missingIDs := 0
+	for _, entry := range entries {
+		if strings.TrimSpace(entry.Content) != "" {
+			continue
+		}
+		sourceID := strings.TrimSpace(entry.SourceID)
+		if sourceID == "" {
+			missingIDs++
+			continue
+		}
+		candidates = append(candidates, enrich.Candidate{SourceID: sourceID})
+		eligible[entry.EntryKey] = entry
+		sourceIDs[entry.EntryKey] = sourceID
+	}
+	warnings := make([]string, 0, 2)
+	if missingIDs > 0 {
+		warnings = append(warnings, fmt.Sprintf(
+			"content enrichment skipped for %d entries without a source ID", missingIDs,
+		))
+	}
+	if len(candidates) == 0 {
+		return records, 0, missingIDs, warnings
+	}
+	result := enrich.OData(
+		ctx,
+		enrich.Options{
+			Provider: feed.Enrichment.Provider, URL: feed.Enrichment.URL,
+			IDField: feed.Enrichment.IDField, ContentField: feed.Enrichment.ContentField,
+			ContentType:        feed.Enrichment.ContentType,
+			MaxItemsPerRequest: feed.Enrichment.MaxItemsPerRequest,
+		},
+		enrich.HTTPOptions{
+			Timeout: r.Config.HTTPTimeout(), MaxBodyBytes: r.Config.HTTP.MaxBodyBytes,
+			MaxRedirects: r.Config.HTTP.MaxRedirects, UserAgent: r.Config.HTTP.UserAgent,
+			AllowPrivateNetwork: r.Config.HTTP.AllowPrivateNetworks,
+			PublicDNSFallback:   r.Config.HTTP.PublicDNSFallback,
+		},
+		candidates,
+		requestBudget,
+	)
+	warnings = append(warnings, result.Warnings...)
+	retrievedAt := now.UTC().Format(time.RFC3339)
+	for entryKey, entry := range eligible {
+		sourceID := sourceIDs[entryKey]
+		content, ok := result.Content[sourceID]
+		if !ok {
+			continue
+		}
+		records[entryKey] = store.EnrichmentRecord{
+			SchemaVersion: 1, EntryKey: entry.EntryKey, EntryRevision: entry.ContentHash,
+			Provider: feed.Enrichment.Provider, SourceID: sourceID,
+			SourceURL: feed.Enrichment.URL, ArticleURL: entry.URL,
+			ContentType: "text/plain", Content: content, RetrievedAt: retrievedAt,
+		}
+	}
+	deferred := result.Deferred
+	missing := len(eligible) - len(records)
+	if missing > 0 {
+		if deferred < missing {
+			deferred = missing
+		}
+		warnings = append(warnings, fmt.Sprintf(
+			"content enrichment unavailable for %d entries", missing,
+		))
+	}
+	return records, result.Requests, missingIDs + deferred, warnings
 }
 
 func (r *Runner) recordSnapshotFailure(report *FeedReport, feed config.Feed, state *store.State, now time.Time, class string, err error) {

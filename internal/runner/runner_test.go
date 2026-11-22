@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -22,7 +23,8 @@ import (
 func TestRunIsIdempotentAndPreservesChangedRevision(t *testing.T) {
 	var mu sync.Mutex
 	etag := `"v1"`
-	description := "Original"
+	prefix := strings.Repeat("The first paragraph stays the same. ", 20)
+	ending := "Original ending."
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		mu.Lock()
 		defer mu.Unlock()
@@ -32,9 +34,11 @@ func TestRunIsIdempotentAndPreservesChangedRevision(t *testing.T) {
 			w.WriteHeader(http.StatusNotModified)
 			return
 		}
-		_, _ = fmt.Fprintf(w, `<?xml version="1.0"?><rss version="2.0"><channel><title>Test</title>`+
-			`<item><guid>stable-id</guid><title>Hello</title><description>%s</description>`+
-			`<link>/post/1</link></item></channel></rss>`, description)
+		_, _ = fmt.Fprintf(w, `<?xml version="1.0"?><rss version="2.0"`+
+			` xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Test</title>`+
+			`<item><guid>stable-id</guid><title>Hello</title><description>Short summary.</description>`+
+			`<content:encoded><![CDATA[<p>%s%s</p>]]></content:encoded>`+
+			`<link>/post/1</link></item></channel></rss>`, prefix, ending)
 	}))
 	defer server.Close()
 
@@ -76,7 +80,7 @@ func TestRunIsIdempotentAndPreservesChangedRevision(t *testing.T) {
 
 	mu.Lock()
 	etag = `"v2"`
-	description = "Updated"
+	ending = "Updated ending."
 	mu.Unlock()
 	third, err := collector.Run(context.Background(), "", true)
 	if err != nil {
@@ -86,6 +90,299 @@ func TestRunIsIdempotentAndPreservesChangedRevision(t *testing.T) {
 		t.Fatalf("third report = %+v", third)
 	}
 	assertRevisionCount(t, entryDir, 2)
+}
+
+func TestRunStoresODataEnrichmentSeparately(t *testing.T) {
+	var mu sync.Mutex
+	apiRequests := 0
+	feedBody := `<?xml version="1.0"?><rss version="2.0"
+		xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Test</title>
+		<item><guid>one</guid><title>One</title><link>/one</link><description>First excerpt.</description></item>
+		<item><guid>two</guid><title>Two</title><link>/two</link><description>Second excerpt.</description></item>
+		<item><guid>three</guid><title>Three</title><link>/three</link><description>Third excerpt.</description>
+		<content:encoded><![CDATA[<p>Third body supplied by the feed.</p>]]></content:encoded></item>
+		</channel></rss>`
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, request *http.Request) {
+		switch request.URL.Path {
+		case "/feed":
+			w.Header().Set("Content-Type", "application/rss+xml")
+			_, _ = fmt.Fprint(w, feedBody)
+		case "/api":
+			mu.Lock()
+			apiRequests++
+			mu.Unlock()
+			if strings.Contains(request.URL.Query().Get("$filter"), "'three'") {
+				t.Error("provider request included an entry that has feed-supplied content")
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = fmt.Fprint(w, `{"value":[
+				{"id":"one","description":"<p>First complete body.</p><script>ignored()</script>"},
+				{"id":"two","description":"<p>Second complete body.</p>"}
+			]}`)
+		default:
+			http.NotFound(w, request)
+		}
+	}))
+	defer server.Close()
+
+	cfg := runnerConfig(t, server.URL+"/feed")
+	cfg.Feeds[0].Enrichment = &config.Enrichment{
+		Provider: "odata", URL: server.URL + "/api",
+		IDField: "id", ContentField: "description", ContentType: "text/html",
+		MaxItemsPerRequest: 100,
+	}
+	collector := New(cfg)
+	first, err := collector.Run(context.Background(), "", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first.Failed != 0 || first.Requests != 2 ||
+		first.Feeds[0].Counts.NewEntries != 3 ||
+		first.Feeds[0].Counts.Enrichments != 2 {
+		t.Fatalf("first report = %+v", first)
+	}
+	mu.Lock()
+	if apiRequests != 1 {
+		t.Fatalf("API requests = %d, want 1", apiRequests)
+	}
+	mu.Unlock()
+
+	var storedFeed store.FeedConfig
+	if err := readJSONFile(
+		filepath.Join(cfg.DataDir, "feeds", "test", "feed.json"), &storedFeed,
+	); err != nil {
+		t.Fatal(err)
+	}
+	if storedFeed.Enrichment == nil ||
+		storedFeed.Enrichment.Provider != "odata" ||
+		storedFeed.Enrichment.URL != server.URL+"/api" {
+		t.Fatalf("stored feed enrichment = %+v", storedFeed.Enrichment)
+	}
+
+	entriesRoot := filepath.Join(cfg.DataDir, "feeds", "test", "entries")
+	entries, err := os.ReadDir(entriesRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	enriched := 0
+	for _, directory := range entries {
+		indexPath := filepath.Join(entriesRoot, directory.Name(), "enrichment.json")
+		var index store.EnrichmentIndex
+		if err := readJSONFile(indexPath, &index); err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			t.Fatal(err)
+		}
+		enriched++
+		artifactPath := filepath.Join(
+			entriesRoot, directory.Name(), "enrichments", index.CurrentArtifact+".json",
+		)
+		var artifact store.EnrichmentRecord
+		if err := readJSONFile(artifactPath, &artifact); err != nil {
+			t.Fatal(err)
+		}
+		if artifact.ContentType != "text/plain" ||
+			!strings.HasSuffix(artifact.Content, "complete body.") ||
+			strings.Contains(artifact.Content, "script") {
+			t.Fatalf("artifact = %+v", artifact)
+		}
+	}
+	if enriched != 2 {
+		t.Fatalf("enriched entries = %d, want 2", enriched)
+	}
+
+	second, err := collector.Run(context.Background(), "", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if second.Failed != 0 || second.Requests != 2 ||
+		second.Feeds[0].Counts.NewEntries != 0 ||
+		second.Feeds[0].Counts.Revisions != 0 ||
+		second.Feeds[0].Counts.Enrichments != 0 {
+		t.Fatalf("second report = %+v", second)
+	}
+}
+
+func TestRunKeepsFeedWhenProviderEnrichmentFails(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, request *http.Request) {
+		if request.URL.Path == "/api" {
+			http.Error(w, "temporarily unavailable", http.StatusServiceUnavailable)
+			return
+		}
+		_, _ = fmt.Fprint(w, `<?xml version="1.0"?><rss version="2.0"><channel>
+			<title>Test</title><item><guid>one</guid><title>One</title>
+			<description>Source excerpt.</description></item></channel></rss>`)
+	}))
+	defer server.Close()
+
+	cfg := runnerConfig(t, server.URL+"/feed")
+	cfg.Feeds[0].Enrichment = &config.Enrichment{
+		Provider: "odata", URL: server.URL + "/api", MaxItemsPerRequest: 100,
+	}
+	report, err := New(cfg).Run(context.Background(), "", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if report.Failed != 0 || report.Feeds[0].Status != "completed" ||
+		report.Feeds[0].Counts.NewEntries != 1 ||
+		report.Feeds[0].Counts.EnrichmentDeferred != 1 ||
+		len(report.Feeds[0].Warnings) == 0 {
+		t.Fatalf("report = %+v", report)
+	}
+	artifacts, err := filepath.Glob(filepath.Join(
+		cfg.DataDir, "feeds", "test", "entries", "*", "enrichment.json",
+	))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(artifacts) != 0 {
+		t.Fatalf("enrichment artifacts = %v", artifacts)
+	}
+}
+
+func TestRunRetriesMissingEnrichmentAfterNotModified(t *testing.T) {
+	var apiCalls atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, request *http.Request) {
+		switch request.URL.Path {
+		case "/api":
+			if apiCalls.Add(1) == 1 {
+				http.Error(w, "temporarily unavailable", http.StatusServiceUnavailable)
+				return
+			}
+			_, _ = fmt.Fprint(w, `{"value":[{"id":"one","description":"Complete body."}]}`)
+		case "/feed":
+			w.Header().Set("ETag", `"v1"`)
+			if request.Header.Get("If-None-Match") == `"v1"` {
+				w.WriteHeader(http.StatusNotModified)
+				return
+			}
+			_, _ = fmt.Fprint(w, `<?xml version="1.0"?><rss version="2.0"><channel>
+				<title>Test</title><item><guid>one</guid><title>One</title>
+				<link>/one</link><description>Source excerpt.</description></item>
+				</channel></rss>`)
+		default:
+			http.NotFound(w, request)
+		}
+	}))
+	defer server.Close()
+
+	cfg := runnerConfig(t, server.URL+"/feed")
+	cfg.Feeds[0].Enrichment = &config.Enrichment{
+		Provider: "odata", URL: server.URL + "/api",
+		IDField: "id", ContentField: "description", ContentType: "text/html",
+		MaxItemsPerRequest: 100,
+	}
+	collector := New(cfg)
+	first, err := collector.Run(context.Background(), "", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first.Failed != 0 || first.Feeds[0].Counts.EnrichmentDeferred != 1 {
+		t.Fatalf("first report = %+v", first)
+	}
+
+	second, err := collector.Run(context.Background(), "", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if second.Failed != 0 || second.Requests != 2 ||
+		!second.Feeds[0].NotModified ||
+		second.Feeds[0].Counts.Enrichments != 1 ||
+		second.Feeds[0].Counts.EnrichmentDeferred != 0 {
+		t.Fatalf("second report = %+v", second)
+	}
+	if apiCalls.Load() != 2 {
+		t.Fatalf("API calls = %d, want 2", apiCalls.Load())
+	}
+}
+
+func TestRunReplaysLatestSnapshotForFullTextUpgrade(t *testing.T) {
+	var requests atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		requests.Add(1)
+		t.Error("full-text migration unexpectedly fetched the feed")
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer server.Close()
+
+	now := time.Date(2026, 11, 22, 11, 0, 0, 0, time.UTC)
+	longSummary := strings.Repeat("Complete summary. ", 30) + "Final summary sentence."
+	longContent := strings.Repeat("Complete body. ", 80) + "Final body sentence."
+	body := []byte(`<?xml version="1.0"?><rss version="2.0"
+		xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Upgrade</title>
+		<item><guid>stable</guid><title>Upgrade entry</title><link>/upgrade</link>
+		<description><![CDATA[<p>` + longSummary + `</p>]]></description>
+		<content:encoded><![CDATA[<p>` + longContent + `</p>]]></content:encoded>
+		</item></channel></rss>`)
+	parsed, err := parse.Parse(body, server.URL+"/feed", "test", hashHex(body), now, 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	entry := parsed.Entries[0]
+
+	cfg := runnerConfig(t, server.URL+"/feed")
+	collector := New(cfg)
+	collector.Now = func() time.Time { return now }
+	old := entry
+	old.Summary = "Truncated old summary..."
+	old.Content = ""
+	old.ContentHash = old.Record().Hash()
+	if _, _, err := collector.Store.SaveEntry(old, now.Add(-time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	metadata := store.SnapshotMetadata{
+		SchemaVersion: 1, FeedID: "test",
+		RequestedURL: server.URL + "/feed", EffectiveURL: server.URL + "/feed",
+		Status: http.StatusOK, ContentType: "application/rss+xml",
+		ETag: `"full"`, RetrievedAt: now.Add(-time.Minute).Format(time.RFC3339),
+	}
+	if err := collector.Store.SaveSnapshot("test", body, metadata); err != nil {
+		t.Fatal(err)
+	}
+	if err := collector.Store.SaveState("test", store.State{
+		SchemaVersion: 1, EntryStorageVersion: store.CompactEntryVersion - 1,
+		ETag: `"full"`, LastSuccess: now.Format(time.RFC3339),
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	report, err := collector.Run(context.Background(), "", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if report.Failed != 0 || report.Requests != 0 ||
+		report.Feeds[0].Status != "completed" ||
+		report.Feeds[0].Counts.Revisions != 1 {
+		t.Fatalf("migration report = %+v", report)
+	}
+	if requests.Load() != 0 {
+		t.Fatalf("network requests = %d, want 0", requests.Load())
+	}
+	state, err := collector.Store.LoadState("test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if state.EntryStorageVersion != store.CompactEntryVersion ||
+		state.PendingSnapshot != "" || state.ETag != `"full"` {
+		t.Fatalf("state after migration = %+v", state)
+	}
+	base := filepath.Join(
+		cfg.DataDir, "feeds", "test", "entries", entry.EntryKey,
+	)
+	var index store.EntryIndex
+	if err := readJSONFile(filepath.Join(base, "index.json"), &index); err != nil {
+		t.Fatal(err)
+	}
+	var record parse.Record
+	if err := readJSONFile(filepath.Join(
+		base, "revisions", index.CurrentRevision+".json",
+	), &record); err != nil {
+		t.Fatal(err)
+	}
+	if record.Summary != longSummary || record.Content != longContent {
+		t.Fatalf("migrated record = %+v", record)
+	}
 }
 
 func TestRunProcessesPendingSnapshotAcrossEntryBatches(t *testing.T) {
@@ -470,6 +767,14 @@ func assertRevisionCount(t *testing.T, entryDir string, want int) {
 	if len(revisions) != want {
 		t.Fatalf("revisions = %d, want %d", len(revisions), want)
 	}
+}
+
+func readJSONFile(path string, target any) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(data, target)
 }
 
 func runnerConfig(t *testing.T, feedURL string) *config.Config {

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -33,8 +34,36 @@ func TestSaveSnapshotRejectsCorruptExistingArtifact(t *testing.T) {
 	}
 }
 
+func TestLatestSnapshotUsesLastSuccessfulFetch(t *testing.T) {
+	st := New(t.TempDir())
+	good := []byte("<rss>good</rss>")
+	bad := []byte("<rss>incomplete")
+	if err := st.SaveSnapshot("test", good, SnapshotMetadata{
+		SchemaVersion: 1, FeedID: "test", ETag: `"good"`,
+		RetrievedAt: "2026-11-22T10:00:00Z",
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.SaveSnapshot("test", bad, SnapshotMetadata{
+		SchemaVersion: 1, FeedID: "test", ETag: `"rejected"`,
+		RetrievedAt: "2026-11-22T11:00:00Z",
+	}); err != nil {
+		t.Fatal(err)
+	}
+	metadata, found, err := st.LatestSnapshot(
+		"test", "2026-11-22T10:30:00Z", `"good"`, "",
+	)
+	if err != nil || !found {
+		t.Fatalf("latest snapshot: found=%t error=%v", found, err)
+	}
+	if metadata.Hash != hashOf(good) {
+		t.Fatalf("selected metadata hash = %s, want %s", metadata.Hash, hashOf(good))
+	}
+}
+
 func TestSaveEntryStoresOnlyCompactRecord(t *testing.T) {
 	st := New(t.TempDir())
+	body := strings.Repeat("Article text. ", 30) + "Final sentence."
 	entry := parse.Entry{
 		SchemaVersion: 1,
 		EntryKey:      "entry-key",
@@ -44,7 +73,7 @@ func TestSaveEntryStoresOnlyCompactRecord(t *testing.T) {
 		URL:           "https://example.com/update",
 		PublishedAt:   "2026-11-12T16:00:02Z",
 		Summary:       "<p>Important <strong>summary</strong>.</p>",
-		Content:       "<p>Long body that is already retained in the raw snapshot.</p>",
+		Content:       "<p>" + body + "</p>",
 		Provenance: parse.Provenance{
 			SourceURL: "https://example.com/feed",
 		},
@@ -65,17 +94,133 @@ func TestSaveEntryStoresOnlyCompactRecord(t *testing.T) {
 	if err := json.Unmarshal(data, &decoded); err != nil {
 		t.Fatal(err)
 	}
-	if len(decoded) != 4 {
+	if len(decoded) != 5 {
 		t.Fatalf("compact revision has %d fields: %s", len(decoded), data)
 	}
-	for _, field := range []string{"url", "title", "published_at", "summary"} {
+	for _, field := range []string{"url", "title", "published_at", "summary", "content"} {
 		if _, ok := decoded[field]; !ok {
 			t.Fatalf("compact revision is missing %q: %s", field, data)
 		}
 	}
 	if decoded["published_at"] != float64(1794499202) ||
-		decoded["summary"] != "Important summary." {
+		decoded["summary"] != "Important summary." ||
+		decoded["content"] != body {
 		t.Fatalf("compact revision = %s", data)
+	}
+}
+
+func TestSaveEnrichmentStoresImmutableProviderContent(t *testing.T) {
+	st := New(t.TempDir())
+	entry := parse.Entry{
+		EntryKey: "entry-key", FeedID: "test", IdentityBasis: "id",
+		SourceID: "42", Title: "An entry", URL: "https://example.com/update",
+		Summary: "An RSS excerpt.",
+	}
+	entry.ContentHash = entry.Record().Hash()
+	if _, _, err := st.SaveEntry(entry, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	record := EnrichmentRecord{
+		SchemaVersion: 1, EntryKey: entry.EntryKey, EntryRevision: entry.ContentHash,
+		Provider: "odata", SourceID: entry.SourceID,
+		SourceURL: "https://example.com/api", ArticleURL: entry.URL,
+		ContentType: "text/plain", Content: "The complete provider content.",
+		RetrievedAt: "2026-11-22T10:00:00Z",
+	}
+	newArtifact, changed, err := st.SaveEnrichment(entry, record)
+	if err != nil || !newArtifact || !changed {
+		t.Fatalf("first save: new=%t changed=%t error=%v", newArtifact, changed, err)
+	}
+	record.RetrievedAt = "2026-11-22T11:00:00Z"
+	newArtifact, changed, err = st.SaveEnrichment(entry, record)
+	if err != nil || newArtifact || changed {
+		t.Fatalf("idempotent save: new=%t changed=%t error=%v", newArtifact, changed, err)
+	}
+
+	base := filepath.Join(st.Root(), "feeds", "test", "entries", entry.EntryKey)
+	artifacts, err := os.ReadDir(filepath.Join(base, "enrichments"))
+	if err != nil || len(artifacts) != 1 {
+		t.Fatalf("artifacts = %d, error = %v", len(artifacts), err)
+	}
+	var stored EnrichmentRecord
+	if err := readJSON(filepath.Join(base, "enrichments", artifacts[0].Name()), &stored); err != nil {
+		t.Fatal(err)
+	}
+	if stored.Content != "The complete provider content." ||
+		stored.RetrievedAt != "2026-11-22T10:00:00Z" {
+		t.Fatalf("stored enrichment = %+v", stored)
+	}
+
+	record.Content = "A later complete provider version."
+	newArtifact, changed, err = st.SaveEnrichment(entry, record)
+	if err != nil || !newArtifact || !changed {
+		t.Fatalf("changed save: new=%t changed=%t error=%v", newArtifact, changed, err)
+	}
+	artifacts, err = os.ReadDir(filepath.Join(base, "enrichments"))
+	if err != nil || len(artifacts) != 2 {
+		t.Fatalf("changed artifacts = %d, error = %v", len(artifacts), err)
+	}
+}
+
+func TestEntriesNeedingEnrichmentUsesCurrentRevisionAndProvider(t *testing.T) {
+	st := New(t.TempDir())
+	entry := parse.Entry{
+		EntryKey: "entry-key", FeedID: "test", IdentityBasis: "id",
+		SourceID: "42", Title: "An entry", URL: "https://example.com/update",
+		Summary: "Source excerpt.",
+	}
+	entry.ContentHash = entry.Record().Hash()
+	if _, _, err := st.SaveEntry(entry, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	pending, err := st.EntriesNeedingEnrichment("test", "odata", "https://example.com/api")
+	if err != nil || len(pending) != 1 {
+		t.Fatalf("pending before enrichment = %d, error = %v", len(pending), err)
+	}
+	record := EnrichmentRecord{
+		SchemaVersion: 1, EntryKey: entry.EntryKey, EntryRevision: entry.ContentHash,
+		Provider: "odata", SourceID: entry.SourceID, SourceURL: "https://example.com/api",
+		ArticleURL: entry.URL, ContentType: "text/plain", Content: "Complete text.",
+		RetrievedAt: "2026-11-22T10:00:00Z",
+	}
+	if _, _, err := st.SaveEnrichment(entry, record); err != nil {
+		t.Fatal(err)
+	}
+	pending, err = st.EntriesNeedingEnrichment("test", "odata", "https://example.com/api")
+	if err != nil || len(pending) != 0 {
+		t.Fatalf("pending after enrichment = %d, error = %v", len(pending), err)
+	}
+
+	pending, err = st.EntriesNeedingEnrichment("test", "other", "https://example.com/api")
+	if err != nil || len(pending) != 1 {
+		t.Fatalf("pending for different provider = %d, error = %v", len(pending), err)
+	}
+	entry.Summary = "Changed source excerpt."
+	entry.ContentHash = entry.Record().Hash()
+	if _, _, err := st.SaveEntry(entry, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	pending, err = st.EntriesNeedingEnrichment("test", "odata", "https://example.com/api")
+	if err != nil || len(pending) != 1 || pending[0].ContentHash != entry.ContentHash {
+		t.Fatalf("pending after revision = %+v, error = %v", pending, err)
+	}
+
+	feedContentEntry := entry
+	feedContentEntry.EntryKey = "feed-content"
+	feedContentEntry.SourceID = "43"
+	feedContentEntry.Content = entry.Summary
+	feedContentEntry.ContentHash = feedContentEntry.Record().Hash()
+	if _, _, err := st.SaveEntry(feedContentEntry, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	pending, err = st.EntriesNeedingEnrichment("test", "odata", "https://example.com/api")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, candidate := range pending {
+		if candidate.EntryKey == feedContentEntry.EntryKey {
+			t.Fatal("entry with feed-supplied content was queued for provider enrichment")
+		}
 	}
 }
 
@@ -91,7 +236,7 @@ func TestUpgradeEntryStorageCompactsLegacyRevisions(t *testing.T) {
 		URL:           "https://example.com/legacy",
 		PublishedAt:   "2026-11-12T16:00:02Z",
 		Summary:       "<p>Legacy <em>summary</em>.</p>",
-		Content:       "<p>Bulky legacy body.</p>",
+		Content:       "<p>Complete legacy body.</p>",
 	}
 	legacyHash := "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 	legacy.ContentHash = legacyHash
@@ -140,6 +285,9 @@ func TestUpgradeEntryStorageCompactsLegacyRevisions(t *testing.T) {
 	}
 	if stored != record {
 		t.Fatalf("stored record = %#v, want %#v", stored, record)
+	}
+	if stored.Summary != "Legacy summary." || stored.Content != "Complete legacy body." {
+		t.Fatalf("legacy summary or article text was lost: %#v", stored)
 	}
 }
 

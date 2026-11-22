@@ -17,7 +17,7 @@ import (
 )
 
 const dirMode = 0o700
-const CompactEntryVersion = 2
+const CompactEntryVersion = 3
 
 type Store struct {
 	root string
@@ -66,22 +66,59 @@ type EntryIndex struct {
 	SchemaVersion   int    `json:"schema_version"`
 	EntryKey        string `json:"entry_key"`
 	IdentityBasis   string `json:"identity_basis"`
+	SourceID        string `json:"source_id,omitempty"`
+	URL             string `json:"url,omitempty"`
+	HasFeedContent  bool   `json:"has_feed_content,omitempty"`
 	CurrentRevision string `json:"current_revision"`
 	FirstSeen       string `json:"first_seen"`
 	LastSeen        string `json:"last_seen"`
 }
 
+type EnrichmentIndex struct {
+	SchemaVersion   int    `json:"schema_version"`
+	EntryKey        string `json:"entry_key"`
+	CurrentArtifact string `json:"current_artifact"`
+	FirstEnrichedAt string `json:"first_enriched_at"`
+	UpdatedAt       string `json:"updated_at"`
+}
+
+type EnrichmentRecord struct {
+	SchemaVersion int    `json:"schema_version"`
+	EntryKey      string `json:"entry_key"`
+	EntryRevision string `json:"entry_revision"`
+	Provider      string `json:"provider"`
+	SourceID      string `json:"source_id"`
+	SourceURL     string `json:"source_url"`
+	ArticleURL    string `json:"article_url"`
+	ContentType   string `json:"content_type"`
+	Content       string `json:"content"`
+	RetrievedAt   string `json:"retrieved_at"`
+}
+
 type FeedCounts struct {
-	EntriesSeen int `json:"entries_seen"`
-	NewEntries  int `json:"new_entries"`
-	Revisions   int `json:"revisions"`
-	Unchanged   int `json:"unchanged"`
+	EntriesSeen         int `json:"entries_seen"`
+	NewEntries          int `json:"new_entries"`
+	Revisions           int `json:"revisions"`
+	Unchanged           int `json:"unchanged"`
+	Enrichments         int `json:"enrichments,omitempty"`
+	EnrichmentRevisions int `json:"enrichment_revisions,omitempty"`
+	EnrichmentDeferred  int `json:"enrichment_deferred,omitempty"`
 }
 
 type FeedConfig struct {
-	SchemaVersion int    `json:"schema_version"`
-	ID            string `json:"id"`
-	URL           string `json:"url"`
+	SchemaVersion int             `json:"schema_version"`
+	ID            string          `json:"id"`
+	URL           string          `json:"url"`
+	Enrichment    *FeedEnrichment `json:"enrichment,omitempty"`
+}
+
+type FeedEnrichment struct {
+	Provider           string `json:"provider"`
+	URL                string `json:"url"`
+	IDField            string `json:"id_field,omitempty"`
+	ContentField       string `json:"content_field,omitempty"`
+	ContentType        string `json:"content_type,omitempty"`
+	MaxItemsPerRequest int    `json:"max_items_per_request,omitempty"`
 }
 
 func New(root string) *Store {
@@ -174,6 +211,77 @@ func (s *Store) ReadSnapshot(feedID, hash string) ([]byte, error) {
 	return body, nil
 }
 
+func (s *Store) LatestSnapshot(
+	feedID, lastSuccess, etag, lastModified string,
+) (SnapshotMetadata, bool, error) {
+	root := filepath.Join(s.feedDir(feedID), "snapshot-metadata")
+	files, err := os.ReadDir(root)
+	if errors.Is(err, os.ErrNotExist) {
+		return SnapshotMetadata{}, false, nil
+	}
+	if err != nil {
+		return SnapshotMetadata{}, false, err
+	}
+	var latest SnapshotMetadata
+	var latestAt time.Time
+	var cutoff time.Time
+	if lastSuccess != "" {
+		var err error
+		cutoff, err = time.Parse(time.RFC3339, lastSuccess)
+		if err != nil {
+			return SnapshotMetadata{}, false, fmt.Errorf(
+				"invalid last success time %q: %w", lastSuccess, err,
+			)
+		}
+	}
+	found := false
+	for _, file := range files {
+		if file.Type().IsRegular() && strings.HasPrefix(file.Name(), ".tmp-") {
+			continue
+		}
+		if !file.Type().IsRegular() || filepath.Ext(file.Name()) != ".json" {
+			return SnapshotMetadata{}, false, fmt.Errorf(
+				"snapshot metadata path %q is not a regular JSON file",
+				filepath.Join(root, file.Name()),
+			)
+		}
+		var metadata SnapshotMetadata
+		if err := readJSON(filepath.Join(root, file.Name()), &metadata); err != nil {
+			return SnapshotMetadata{}, false, err
+		}
+		retrievedAt, err := time.Parse(time.RFC3339Nano, metadata.RetrievedAt)
+		if err != nil {
+			return SnapshotMetadata{}, false, fmt.Errorf(
+				"invalid retrieval time in snapshot metadata %s: %w",
+				file.Name(), err,
+			)
+		}
+		if metadata.FeedID != feedID || metadata.Hash == "" ||
+			file.Name() != metadata.Hash+".json" {
+			return SnapshotMetadata{}, false, fmt.Errorf(
+				"snapshot metadata %s does not match its feed and immutable path",
+				file.Name(),
+			)
+		}
+		if !cutoff.IsZero() && retrievedAt.After(cutoff) {
+			continue
+		}
+		if etag != "" && metadata.ETag != etag {
+			continue
+		}
+		if lastModified != "" && metadata.LastModified != lastModified {
+			continue
+		}
+		if !found || retrievedAt.After(latestAt) ||
+			(retrievedAt.Equal(latestAt) && metadata.Hash > latest.Hash) {
+			latest = metadata
+			latestAt = retrievedAt
+			found = true
+		}
+	}
+	return latest, found, nil
+}
+
 func (s *Store) SaveEntry(entry parse.Entry, observedAt time.Time) (newEntry, changed bool, err error) {
 	base := filepath.Join(s.feedDir(entry.FeedID), "entries", entry.EntryKey)
 	revisions := filepath.Join(base, "revisions")
@@ -198,6 +306,9 @@ func (s *Store) SaveEntry(entry parse.Entry, observedAt time.Time) (newEntry, ch
 	} else {
 		index.CurrentRevision = entry.ContentHash
 	}
+	index.SourceID = strings.TrimSpace(entry.SourceID)
+	index.URL = entry.URL
+	index.HasFeedContent = strings.TrimSpace(entry.Content) != ""
 	index.LastSeen = now
 	revisionPath := filepath.Join(revisions, entry.ContentHash+".json")
 	record := entry.Record()
@@ -223,6 +334,168 @@ func (s *Store) SaveEntry(entry parse.Entry, observedAt time.Time) (newEntry, ch
 		return false, false, err
 	}
 	return newEntry, changed, nil
+}
+
+func (s *Store) EntriesNeedingEnrichment(
+	feedID, provider, sourceURL string,
+) ([]parse.Entry, error) {
+	root := filepath.Join(s.feedDir(feedID), "entries")
+	directories, err := os.ReadDir(root)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	entries := make([]parse.Entry, 0)
+	for _, directory := range directories {
+		if !directory.IsDir() {
+			return nil, fmt.Errorf("entry path %q is not a directory", directory.Name())
+		}
+		base := filepath.Join(root, directory.Name())
+		var index EntryIndex
+		if err := readJSON(filepath.Join(base, "index.json"), &index); err != nil {
+			return nil, fmt.Errorf("read entry index %s: %w", directory.Name(), err)
+		}
+		if index.EntryKey != directory.Name() {
+			return nil, fmt.Errorf("entry index %s does not match its directory", directory.Name())
+		}
+		if index.SourceID == "" {
+			continue
+		}
+		record, err := s.readRevision(filepath.Join(
+			base, "revisions", index.CurrentRevision+".json",
+		))
+		if err != nil {
+			return nil, fmt.Errorf("read current revision for %s: %w", index.EntryKey, err)
+		}
+		if index.HasFeedContent || record.Content != "" {
+			continue
+		}
+
+		var enrichmentIndex EnrichmentIndex
+		err = readJSON(filepath.Join(base, "enrichment.json"), &enrichmentIndex)
+		if errors.Is(err, os.ErrNotExist) {
+			entries = append(entries, pendingEnrichmentEntry(feedID, index))
+			continue
+		}
+		if err != nil {
+			return nil, fmt.Errorf("read enrichment index for %s: %w", index.EntryKey, err)
+		}
+		var enrichment EnrichmentRecord
+		artifactPath := filepath.Join(
+			base, "enrichments", enrichmentIndex.CurrentArtifact+".json",
+		)
+		if err := readJSON(artifactPath, &enrichment); err != nil {
+			return nil, fmt.Errorf("read enrichment artifact for %s: %w", index.EntryKey, err)
+		}
+		if enrichment.EntryRevision == index.CurrentRevision &&
+			enrichment.Provider == provider && enrichment.SourceURL == sourceURL {
+			continue
+		}
+		entries = append(entries, pendingEnrichmentEntry(feedID, index))
+	}
+	return entries, nil
+}
+
+func pendingEnrichmentEntry(feedID string, index EntryIndex) parse.Entry {
+	return parse.Entry{
+		FeedID: feedID, EntryKey: index.EntryKey, ContentHash: index.CurrentRevision,
+		SourceID: index.SourceID, URL: index.URL,
+	}
+}
+
+func (s *Store) SaveEnrichment(
+	entry parse.Entry,
+	record EnrichmentRecord,
+) (newArtifact, changed bool, err error) {
+	if entry.EntryKey == "" || entry.ContentHash == "" {
+		return false, false, errors.New("entry identity and revision are required for enrichment")
+	}
+	if record.SchemaVersion == 0 {
+		record.SchemaVersion = 1
+	}
+	if record.SchemaVersion != 1 {
+		return false, false, fmt.Errorf("unsupported enrichment schema version %d", record.SchemaVersion)
+	}
+	if record.EntryKey != entry.EntryKey || record.EntryRevision != entry.ContentHash {
+		return false, false, errors.New("enrichment record does not match its entry revision")
+	}
+	if record.Provider == "" || record.SourceID == "" || record.SourceURL == "" ||
+		record.ContentType == "" || record.Content == "" || record.RetrievedAt == "" {
+		return false, false, errors.New("enrichment record is incomplete")
+	}
+	if _, err := time.Parse(time.RFC3339Nano, record.RetrievedAt); err != nil {
+		return false, false, fmt.Errorf("invalid enrichment retrieval time: %w", err)
+	}
+
+	base := filepath.Join(s.feedDir(entry.FeedID), "entries", entry.EntryKey)
+	artifacts := filepath.Join(base, "enrichments")
+	if err := os.MkdirAll(artifacts, dirMode); err != nil {
+		return false, false, err
+	}
+	artifactHash := record.Hash()
+	artifactPath := filepath.Join(artifacts, artifactHash+".json")
+	_, statErr := os.Stat(artifactPath)
+	switch {
+	case errors.Is(statErr, os.ErrNotExist):
+		if err := writeJSON(artifactPath, record); err != nil {
+			return false, false, err
+		}
+		newArtifact = true
+	case statErr != nil:
+		return false, false, statErr
+	default:
+		var existing EnrichmentRecord
+		if err := readJSON(artifactPath, &existing); err != nil {
+			return false, false, fmt.Errorf("read enrichment artifact: %w", err)
+		}
+		if !sameEnrichment(existing, record) {
+			return false, false, errors.New("enrichment artifact does not match its immutable path")
+		}
+	}
+
+	indexPath := filepath.Join(base, "enrichment.json")
+	var index EnrichmentIndex
+	err = readJSON(indexPath, &index)
+	switch {
+	case errors.Is(err, os.ErrNotExist):
+		index = EnrichmentIndex{
+			SchemaVersion: 1, EntryKey: entry.EntryKey, CurrentArtifact: artifactHash,
+			FirstEnrichedAt: record.RetrievedAt, UpdatedAt: record.RetrievedAt,
+		}
+		changed = true
+	case err != nil:
+		return false, false, fmt.Errorf("read enrichment index: %w", err)
+	case index.EntryKey != entry.EntryKey:
+		return false, false, errors.New("enrichment index does not match its entry")
+	case index.CurrentArtifact != artifactHash:
+		index.CurrentArtifact = artifactHash
+		index.UpdatedAt = record.RetrievedAt
+		changed = true
+	}
+	if changed {
+		if err := writeJSON(indexPath, index); err != nil {
+			return newArtifact, false, err
+		}
+	}
+	return newArtifact, changed, nil
+}
+
+func (record EnrichmentRecord) Hash() string {
+	record.RetrievedAt = ""
+	data, err := json.Marshal(record)
+	if err != nil {
+		panic("JSON enrichment content must always marshal: " + err.Error())
+	}
+	sum := sha256.Sum256(data)
+	return hex.EncodeToString(sum[:])
+}
+
+func sameEnrichment(left, right EnrichmentRecord) bool {
+	left.RetrievedAt = ""
+	right.RetrievedAt = ""
+	return left == right
 }
 
 func (s *Store) UpgradeEntryStorage(ctx context.Context, feedID string, allowIncomplete bool) (bool, error) {

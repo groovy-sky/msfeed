@@ -25,8 +25,8 @@ every malformed feed.
 - Persistent retry state and bounded execution.
 - Structured logs and useful exit codes.
 
-### Optional, later
-- Provider-specific enrichment, including MCP.
+### Optional, provider-aware
+- Provider-specific APIs, including additional adapters or MCP.
 - Article fetching.
 - Summarization through an external service.
 - Export to JSON Lines or Markdown.
@@ -151,7 +151,10 @@ data/
       entries/
         <entry-key>/
           index.json
+          enrichment.json
           revisions/
+            <content-hash>.json
+          enrichments/
             <content-hash>.json
   runs/
     <run-id>.json
@@ -161,9 +164,12 @@ data/
 - `state.json`: HTTP validators, last success, retry schedule, pending snapshot.
 - Snapshots: immutable downloaded bodies; extension does not determine format.
 - Snapshot metadata: retrieval time, effective URL, status, content type, hash.
-- `index.json`: identity basis, first/last seen, current revision.
+- `index.json`: identity basis, source URL/ID, first/last seen, current revision.
 - Revisions: immutable compact records containing URL, title, Unix publication
-  timestamp, and bounded plain-text summary.
+  timestamp, uncropped plain-text summary, and optional article text.
+- `enrichment.json`: current provider-derived artifact for an entry.
+- Enrichments: immutable plain-text artifacts linked to the exact entry revision,
+  provider, source URL, article URL, source ID, and retrieval time.
 - Run reports: counts, timings, failures, and budget exhaustion.
 
 Reuse identical snapshot and revision hashes rather than rewriting them.
@@ -176,7 +182,8 @@ Observation timestamps belong in indexes/state, not in content hashes.
   "url": "https://example.com/original-update",
   "title": "Original update title",
   "published_at": 1794499202,
-  "summary": "A concise plain-text summary."
+  "summary": "The description supplied by the feed.",
+  "content": "The full article text supplied by the feed, when different from the summary."
 }
 ```
 
@@ -186,13 +193,15 @@ Rules:
   update timestamp.
 - Store missing or invalid publication dates as `0`.
 - Resolve relative links against the relevant document/base URL.
-- Strip HTML from summaries and bound them to 320 Unicode characters.
-- Keep source URL, HTTP validators, retrieval time, extensions, and full content
-  in the snapshot and its metadata rather than duplicating them per entry.
+- Convert summaries and article bodies to plain text without truncation. Use
+  the article text as `summary` when the feed does not supply a description;
+  include `content` only when the article text differs from the summary.
+- Keep source URL, HTTP validators, retrieval time, extensions, and original
+  markup in the snapshot and its metadata rather than duplicating them per entry.
 - Do not invent source fields or silently discard parsing warnings.
 
 The snapshot is the exact source artifact. A stored entry is a compact derived
-representation; its content hash is calculated from these four fields.
+representation; its content hash includes all stored fields.
 
 ## 8. Identity and Revisions
 
@@ -213,7 +222,7 @@ Record the identity basis so fallback decisions are auditable.
 Fallback fingerprints cannot guarantee stable identity: edits may appear as
 new entries. Report that limitation rather than attempting unsafe merges.
 
-Compute revision hashes from the canonical serialization of the four stored
+Compute revision hashes from the canonical serialization of the stored
 record fields, excluding retrieval timestamps and fields not retained in the
 compact record.
 
@@ -268,6 +277,12 @@ Commit order:
 
 File writes do not form a multi-file transaction. Recovery must replay the
 pending snapshot idempotently and reconcile indexes with stored revisions.
+Optional provider content is stored after the feed revision in a separate
+artifact. A provider failure leaves the completed feed usable; the next run
+retries entries that lack an artifact for the configured provider, including
+after a `304 Not Modified` response. Storage-format upgrades replay the latest
+successfully processed retained snapshot before fetching, so validator-backed
+feeds are backfilled from preserved source bytes without relying on a 200.
 
 Protect local directories with restrictive permissions. Do not delete corrupt
 artifacts automatically: quarantine/report them and preserve recoverable data.
@@ -360,6 +375,7 @@ Coverage:
 - ETag/Last-Modified, 304, redirects, 429, timeouts, oversized responses.
 - Malformed XML and hostile payloads.
 - Interrupted writes, pending replay, corrupt state, lock contention.
+- Missing or changed OData results, request budgets, and 304 enrichment replay.
 - Deterministic normalization and hash results.
 
 Acceptance:
@@ -391,9 +407,11 @@ Conditional requests, durable retry state, pending recovery, resource budgets,
 status command, run reports, failure-injection tests.
 
 ### Phase 3 — Optional downstream processing
-Add a separate `enrich` command only if needed. Preserve separate task state,
-source provenance, and retries. Provider-specific MCP and remote summarization
-must not alter the universal collector's identity or storage semantics.
+Keep configured enrichment separate from RSS identity and revision storage.
+The OData adapter is available for bounded provider-backed text. Future
+provider-specific MCP, article fetching, and remote summarization adapters
+must preserve separate source provenance and retries without altering the
+universal collector's identity or storage semantics.
 
 ## 15. Definition of Done
 

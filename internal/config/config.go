@@ -17,6 +17,7 @@ const SchemaVersion = 1
 
 var feedIDPattern = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$`)
 var headerNamePattern = regexp.MustCompile(`^[!#$%&'*+\-.^_` + "`" + `|~0-9A-Za-z]+$`)
+var odataFieldPattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
 
 type Config struct {
 	SchemaVersion  int      `json:"schema_version"`
@@ -59,12 +60,22 @@ type Feed struct {
 	PollIntervalSeconds int             `json:"poll_interval_seconds,omitempty"`
 	MaxEntriesPerRun    int             `json:"max_entries_per_run,omitempty"`
 	Authentication      *Authentication `json:"authentication,omitempty"`
+	Enrichment          *Enrichment     `json:"enrichment,omitempty"`
 }
 
 type Authentication struct {
 	HeaderName string `json:"header_name"`
 	ValueEnv   string `json:"value_env,omitempty"`
 	ValueFile  string `json:"value_file,omitempty"`
+}
+
+type Enrichment struct {
+	Provider           string `json:"provider"`
+	URL                string `json:"url"`
+	IDField            string `json:"id_field,omitempty"`
+	ContentField       string `json:"content_field,omitempty"`
+	ContentType        string `json:"content_type,omitempty"`
+	MaxItemsPerRequest int    `json:"max_items_per_request,omitempty"`
 }
 
 func Load(path string) (*Config, error) {
@@ -189,6 +200,9 @@ func (c *Config) ApplyDefaultsAndValidate() error {
 		if err := validateAuthentication(feed.Authentication); err != nil {
 			return fmt.Errorf("feed %q authentication: %w", feed.ID, err)
 		}
+		if err := validateEnrichment(feed.Enrichment); err != nil {
+			return fmt.Errorf("feed %q enrichment: %w", feed.ID, err)
+		}
 	}
 	if len(c.Feeds) == 0 {
 		return errors.New("at least one feed is required")
@@ -234,6 +248,45 @@ func validateAuthentication(auth *Authentication) error {
 	}
 	if (auth.ValueEnv == "") == (auth.ValueFile == "") {
 		return errors.New("exactly one of value_env or value_file is required")
+	}
+	return nil
+}
+
+func validateEnrichment(enrichment *Enrichment) error {
+	if enrichment == nil {
+		return nil
+	}
+	if enrichment.Provider != "odata" {
+		return fmt.Errorf("unsupported provider %q", enrichment.Provider)
+	}
+	if err := validateURL(enrichment.URL); err != nil {
+		return err
+	}
+	if enrichment.IDField == "" {
+		enrichment.IDField = "id"
+	}
+	if enrichment.ContentField == "" {
+		enrichment.ContentField = "description"
+	}
+	if enrichment.ContentType == "" {
+		enrichment.ContentType = "text/html"
+	}
+	if enrichment.MaxItemsPerRequest == 0 {
+		enrichment.MaxItemsPerRequest = 100
+	}
+	if !odataFieldPattern.MatchString(enrichment.IDField) {
+		return errors.New("id_field is invalid")
+	}
+	if !odataFieldPattern.MatchString(enrichment.ContentField) {
+		return errors.New("content_field is invalid")
+	}
+	switch enrichment.ContentType {
+	case "text", "text/plain", "html", "text/html", "application/xhtml+xml":
+	default:
+		return fmt.Errorf("unsupported content_type %q", enrichment.ContentType)
+	}
+	if enrichment.MaxItemsPerRequest < 1 || enrichment.MaxItemsPerRequest > 500 {
+		return errors.New("max_items_per_request must be between 1 and 500")
 	}
 	return nil
 }
