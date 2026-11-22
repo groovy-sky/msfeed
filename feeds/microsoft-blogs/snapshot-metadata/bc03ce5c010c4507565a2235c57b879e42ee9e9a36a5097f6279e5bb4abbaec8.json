@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "feed_id": "microsoft-blogs",
+  "hash": "bc03ce5c010c4507565a2235c57b879e42ee9e9a36a5097f6279e5bb4abbaec8",
+  "bytes": 38668,
+  "requested_url": "https://blogs.microsoft.com/?feed=rss2",
+  "effective_url": "https://blogs.microsoft.com/feed/",
+  "status": 200,
+  "content_type": "application/rss+xml; charset=UTF-8",
+  "content_encoding": "gzip",
+  "etag": "W/\"cdc07e28b70a1b93fafa0c205bd6db76\"",
+  "last_modified": "Tue, 17 Nov 2026 20:57:44 GMT",
+  "retrieved_at": "2026-11-22T06:51:17Z",
+  "redirects": [
+    "https://blogs.microsoft.com/feed/"
+  ]
+}
