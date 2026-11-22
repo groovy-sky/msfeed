@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "entry_key": "e92caa6e4099127f1e2e397aa684d817114cd6661b73386a1839f24886364d6b",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "580261",
+  "title": "[Launched] Generally Available: Azure Monitor Health Models",
+  "url": "https://azure.microsoft.com/updates?id=580261",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "Azure Monitor Health Models is now Generally Available.  You can now build a Azure Monitor Health Model that defines and operationalizes workload health as a first-class construct by aggregating signals across metrics, logs, and dependencies into a single",
+  "categories": [
+    "Launched",
+    "DevOps",
+    "Management and governance",
+    "Azure Monitor",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "ee69ea0a114a45b8b503b8253ca1d2a238c16643dc739469cfcf2f2443b905f8",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

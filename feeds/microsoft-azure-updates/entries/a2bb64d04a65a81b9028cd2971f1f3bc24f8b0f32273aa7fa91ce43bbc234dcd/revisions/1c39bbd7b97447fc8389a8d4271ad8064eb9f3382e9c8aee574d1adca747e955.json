@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "entry_key": "a2bb64d04a65a81b9028cd2971f1f3bc24f8b0f32273aa7fa91ce43bbc234dcd",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "579938",
+  "title": "[Launched] Generally Available:  Azure HorizonDB now integrates with Azure Advisor",
+  "url": "https://azure.microsoft.com/updates?id=579938",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "Azure HorizonDB now\r\nintegrates with Azure Advisor to provide personalized recommendations that help\r\nyou optimize your database environment. Azure Advisor analyzes your HorizonDB\r\nresources and surfaces actionable guidance to help improve reliability,\r\nperfo",
+  "categories": [
+    "Launched",
+    "Databases",
+    "Azure HorizonDB",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "1c39bbd7b97447fc8389a8d4271ad8064eb9f3382e9c8aee574d1adca747e955",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "entry_key": "9eb30dd84468395404b5a108c74a811cf044fbf0eb7bed0c1f112286d815dbc1",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "579766",
+  "title": "[Launched] Generally Available: Azure Multicloud Interconnect new cloud service provider support",
+  "url": "https://azure.microsoft.com/updates?id=579766",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "Announcing the general\r\navailability of Azure Multicloud Interconnect, a managed service that provides\r\nprivate connectivity between Azure and supported cloud providers, with Google\r\nCloud Platform now available in public preview and Amazon Web Services in g",
+  "categories": [
+    "Launched",
+    "Microsoft Ignite",
+    "Services",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "72c0243ccaf80f72900e68bee5e3089fa11eae3434841b568e13443ab02184ff",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

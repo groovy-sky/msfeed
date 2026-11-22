@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "entry_key": "9a53a454d4a6781154942c2c567bae35c13bac8e491fb724349a5358ea71be99",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "578845",
+  "title": "[In preview] Public Preview: Hosted Skill and Agent Bindings for Azure Functions",
+  "url": "https://azure.microsoft.com/updates?id=578845",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "Hosted Skill and Agent bindings for Azure Functions are now available in public preview. Adding agents to an application often requires setup and lifecycle code before developers can focus on business logic. These bindings reduce that plumbing while keepi",
+  "categories": [
+    "In preview",
+    "Compute",
+    "Containers",
+    "Internet of Things",
+    "Azure Functions",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "8899fbd893881a578a58be533601d19f8499db259bac311c52fed587b8911ebb",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

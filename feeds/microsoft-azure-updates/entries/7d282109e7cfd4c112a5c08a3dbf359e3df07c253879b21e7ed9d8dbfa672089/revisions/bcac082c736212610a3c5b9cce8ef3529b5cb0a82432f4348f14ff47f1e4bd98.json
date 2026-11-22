@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "entry_key": "7d282109e7cfd4c112a5c08a3dbf359e3df07c253879b21e7ed9d8dbfa672089",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "579746",
+  "title": "Public Preview: Azure Route Server dual-stack IPv4/IPv6 support",
+  "url": "https://azure.microsoft.com/updates?id=579746",
+  "authors": [],
+  "published_at": "2026-11-10T18:21:41Z",
+  "updated_at": "2026-11-10T18:21:41Z",
+  "raw_published_date": "Tue, 10 Nov 2026 18:21:41 Z",
+  "raw_updated_date": "2026-11-10T18:21:41Z",
+  "summary": "Azure Route Server now supports IPv4/IPv6 dual-stack mode in public preview, enabling route exchange for both address families across supported hybrid networking connections. Existing IPv4 connections remain unchanged, so organizations can adopt IPv6 rout",
+  "categories": [
+    "Networking",
+    "Azure Route Server",
+    "Features"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-10T18:21:41Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "bcac082c736212610a3c5b9cce8ef3529b5cb0a82432f4348f14ff47f1e4bd98",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

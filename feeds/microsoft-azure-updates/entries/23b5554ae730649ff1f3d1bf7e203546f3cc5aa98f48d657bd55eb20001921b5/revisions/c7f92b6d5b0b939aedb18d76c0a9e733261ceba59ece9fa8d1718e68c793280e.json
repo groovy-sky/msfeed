@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "entry_key": "23b5554ae730649ff1f3d1bf7e203546f3cc5aa98f48d657bd55eb20001921b5",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "581244",
+  "title": "[In preview] Public Preview: VM adaptive placement",
+  "url": "https://azure.microsoft.com/updates?id=581244",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "VM adaptive placement, now in public preview, helps increase Azure VM deployment success when capacity is constrained.With a standard VM create, you specify one exact size, and the deployment fails if that size isn't available. With adaptive placement, yo",
+  "categories": [
+    "In preview",
+    "Compute",
+    "Virtual Machines",
+    "Features",
+    "Microsoft Ignite"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "c7f92b6d5b0b939aedb18d76c0a9e733261ceba59ece9fa8d1718e68c793280e",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

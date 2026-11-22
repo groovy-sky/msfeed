@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "entry_key": "751c5451bdd48afe027586486bf9efe8979ef83cd82429f404fa7465fede81ac",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "581277",
+  "title": "[In preview] Public Preview: Azure API Management Application",
+  "url": "https://azure.microsoft.com/updates?id=581277",
+  "authors": [],
+  "published_at": "2026-11-17T20:15:03Z",
+  "updated_at": "2026-11-17T20:15:03Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:15:03 Z",
+  "raw_updated_date": "2026-11-17T20:15:03Z",
+  "summary": "The Applications feature in Azure API Management is now available in public preview to all customers, with no sign-up or registration required.Applications provide a streamlined way to organize APIs around consuming applications and manage application-lev",
+  "categories": [
+    "In preview",
+    "Integration",
+    "Internet of Things",
+    "Mobile",
+    "Web",
+    "API Management",
+    "Microsoft Ignite"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:15:03Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "5323b64aadc3442e7a9108181c62e4a022aac45c3c37250f8fda33ede8e3c869",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

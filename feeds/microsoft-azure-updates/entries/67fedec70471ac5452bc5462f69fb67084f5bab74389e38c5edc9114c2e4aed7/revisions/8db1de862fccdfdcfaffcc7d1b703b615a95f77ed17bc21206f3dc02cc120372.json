@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "entry_key": "67fedec70471ac5452bc5462f69fb67084f5bab74389e38c5edc9114c2e4aed7",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "579585",
+  "title": "[Launched] Generally Available: Cobalt 200 compute for Azure Database for PostgreSQL",
+  "url": "https://azure.microsoft.com/updates?id=579585",
+  "authors": [],
+  "published_at": "2026-11-17T23:50:40Z",
+  "updated_at": "2026-11-17T23:50:40Z",
+  "raw_published_date": "Tue, 17 Nov 2026 23:50:40 Z",
+  "raw_updated_date": "2026-11-17T23:50:40Z",
+  "summary": "Azure Database for PostgreSQL Flexible Server is announcing the general availability of Cobalt 200 ARM-based compute. Cobalt 200 expands the Flexible Server compute portfolio with Microsoft-designed ARM64-based compute, giving you an additional architectu",
+  "categories": [
+    "Launched",
+    "Databases",
+    "Hybrid + multicloud",
+    "Azure Database for PostgreSQL",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T23:50:40Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "8db1de862fccdfdcfaffcc7d1b703b615a95f77ed17bc21206f3dc02cc120372",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

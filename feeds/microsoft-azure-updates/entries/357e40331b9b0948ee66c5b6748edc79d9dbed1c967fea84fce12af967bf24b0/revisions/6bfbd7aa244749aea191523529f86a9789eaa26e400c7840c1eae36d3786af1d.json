@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "entry_key": "357e40331b9b0948ee66c5b6748edc79d9dbed1c967fea84fce12af967bf24b0",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "580418",
+  "title": "[In preview] Public Preview: Centralized user authentication + JWT validation for Azure Application Gateway",
+  "url": "https://azure.microsoft.com/updates?id=580418",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "Announcing the public preview of centralized user authentication for\r\nAzure Application Gateway, along with an updated JWT validation\r\nexperience. User authentication enables Application Gateway to sign\r\nusers in with OpenID Connect before traffic reaches a",
+  "categories": [
+    "In preview",
+    "Networking",
+    "Security",
+    "Application Gateway",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "6bfbd7aa244749aea191523529f86a9789eaa26e400c7840c1eae36d3786af1d",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

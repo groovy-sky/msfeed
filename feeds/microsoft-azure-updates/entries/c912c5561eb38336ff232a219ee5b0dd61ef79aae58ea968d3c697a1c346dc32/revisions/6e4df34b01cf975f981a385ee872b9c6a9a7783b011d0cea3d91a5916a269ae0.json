@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "entry_key": "c912c5561eb38336ff232a219ee5b0dd61ef79aae58ea968d3c697a1c346dc32",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "579031",
+  "title": "[In preview] Public Preview: Azure Blob Storage turbo tier",
+  "url": "https://azure.microsoft.com/updates?id=579031",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "Azure Blob\r\nStorage turbo tier is now in Public Preview, bringing SSD-backed performance to\r\nperformance-sensitive data in eligible Azure Blob Storage accounts. Designed\r\nfor AI training, inference, analytics, and other demanding data workloads, turbo tier d",
+  "categories": [
+    "In preview",
+    "Storage",
+    "Analytics",
+    "Azure Blob Storage",
+    "Azure Data Lake Storage",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "6e4df34b01cf975f981a385ee872b9c6a9a7783b011d0cea3d91a5916a269ae0",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

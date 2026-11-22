@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "entry_key": "40caa5093fd54cfec73b4fcd5f46245e63d101453b626ba549f3b0e81b65c52c",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "579665",
+  "title": "[In preview] Public Preview: Azure SQL Database container provisioning in SQL Server Management Studio",
+  "url": "https://azure.microsoft.com/updates?id=579665",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "Now in public preview, you can provision an Azure SQL Database development environment in seconds directly from SQL Server Management Studio (SSMS), with no Azure subscription, credit card, or existing database required.Azure SQL Database container brings",
+  "categories": [
+    "In preview",
+    "Databases",
+    "Hybrid + multicloud",
+    "Azure SQL Database",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "a65c73756152a906f3bd0fc96fc0a4857034cbb04bc6c0e820f15cc85f99f0c4",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

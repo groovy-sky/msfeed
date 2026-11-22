@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "entry_key": "ed00f54879f6cca780557f24284bec76d7c3b0bad0aeff4c75a591511f56d26f",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "580758",
+  "title": "[In preview] Public Preview: Agent-to-Agent (A2A) protocol support in Azure SRE Agent",
+  "url": "https://azure.microsoft.com/updates?id=580758",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "Azure SRE Agent now supports the open Agent-to-Agent (A2A)\r\nprotocol in public preview. SRE agents can hand tasks to other agents and\r\naccept tasks from them while each agent retains its own team’s permissions. For\r\nexample, an application team’s agent inves",
+  "categories": [
+    "In preview",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "83c76c55dfa07ee324eae3171f20e61e079a48dd2622d11f790c4eed8d8664f0",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "entry_key": "cd917dc591632b95bb1b3f952472d4ccaa37dea8b83f3fb9b95fc1a236bfeb45",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "580700",
+  "title": "Announcing: Multiparty private offers in Microsoft Marketplace expands to Malaysia and Saudi Arabia",
+  "url": "https://azure.microsoft.com/updates?id=580700",
+  "authors": [],
+  "published_at": "2026-11-20T00:00:14Z",
+  "updated_at": "2026-11-20T00:00:14Z",
+  "raw_published_date": "Fri, 20 Nov 2026 00:00:14 Z",
+  "raw_updated_date": "2026-11-20T00:00:14Z",
+  "summary": "Multiparty private offers give Microsoft partners a way to procure third-party cloud and AI solutions for customers through Marketplace. Software companies can expand into new markets by working with partners that bring established customer relationships,",
+  "categories": [
+    "Microsoft Ignite",
+    "Announcement"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-20T00:00:14Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "3bc7fae9cbcf1828428b0e228b4908637f27e933017d1dcddff1c597b66fae23",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "entry_key": "9c22283da9ccc4239b8ba02ee2c5fc3c26ff041d0efe25bcba056bfeb9cf7085",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "578768",
+  "title": "[Launched] Generally Available: Customer-managed keys for Azure Functions durable task scheduler",
+  "url": "https://azure.microsoft.com/updates?id=578768",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "Customer-managed keys for Azure Functions Durable Task Scheduler are now generally available for Dedicated SKU schedulers.Organizations that need to manage their own encryption keys can now use customer-managed keys to protect their workflow data, support",
+  "categories": [
+    "Launched",
+    "Compute",
+    "Containers",
+    "Internet of Things",
+    "Azure Functions",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "ebd0207a9d903d523547335f9b7bc1540bf6ff29a6efcee6d0095687cf1a995c",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

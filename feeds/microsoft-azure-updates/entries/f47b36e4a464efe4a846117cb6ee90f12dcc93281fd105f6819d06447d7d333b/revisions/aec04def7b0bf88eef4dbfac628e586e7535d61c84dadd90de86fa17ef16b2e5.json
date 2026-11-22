@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "entry_key": "f47b36e4a464efe4a846117cb6ee90f12dcc93281fd105f6819d06447d7d333b",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "579221",
+  "title": "[In preview] Public Preview: Azure SQL DB Hyperscale Cross Database Querying",
+  "url": "https://azure.microsoft.com/updates?id=579221",
+  "authors": [],
+  "published_at": "2026-11-17T22:35:29Z",
+  "updated_at": "2026-11-17T22:35:29Z",
+  "raw_published_date": "Tue, 17 Nov 2026 22:35:29 Z",
+  "raw_updated_date": "2026-11-17T22:35:29Z",
+  "summary": "Native cross-database queries in Azure SQL Database Hyperscale let applications access and join data across databases in the same Hyperscale elastic pool on a logical server, using familiar T-SQL three-part names such as `database.schema.object`. This ena",
+  "categories": [
+    "In preview",
+    "Databases",
+    "Hybrid + multicloud",
+    "Azure SQL Database",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T22:35:29Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "aec04def7b0bf88eef4dbfac628e586e7535d61c84dadd90de86fa17ef16b2e5",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "entry_key": "85bdaf3c46e03d25d00d5fdb6fda4a1d0ad5e6b96991a1393af6bf2d2a070cc9",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "580306",
+  "title": "[In preview] Public Preview: Session-based authentication for Azure Blob and Data Lake Storage",
+  "url": "https://azure.microsoft.com/updates?id=580306",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "Session-based authentication is now in public preview\r\nfor Azure Blob and Data Lake Storage.Session-based\r\nauthentication reduces the per-request authentication and authorization time\r\nfor AI agents and applications while preserving the security controls\r\norg",
+  "categories": [
+    "In preview",
+    "Storage",
+    "Azure Blob Storage",
+    "Microsoft Ignite",
+    "Security",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "8d8967cf31c1b3e952c98cc3c3c02e342fb7c97dfd7e3362d62cd59b28aaa790",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "entry_key": "56dfcabeb13b26f40a827ddbbadc30be58c44f572b8c1c73ab6994a42cb6304a",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "574168",
+  "title": "[Launched] Generally Available: Geo-redundant backup and restore for Azure HorizonDB",
+  "url": "https://azure.microsoft.com/updates?id=574168",
+  "authors": [],
+  "published_at": "2026-11-17T23:47:55Z",
+  "updated_at": "2026-11-17T23:47:55Z",
+  "raw_published_date": "Tue, 17 Nov 2026 23:47:55 Z",
+  "raw_updated_date": "2026-11-17T23:47:55Z",
+  "summary": "Geo-redundant backup and restore for Azure HorizonDB is now available. You can use geo-redundant backups to strengthen data protection and restore your HorizonDB deployment in another Azure region when needed.  With this capability, you have an additional",
+  "categories": [
+    "Launched",
+    "Databases",
+    "Azure HorizonDB",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T23:47:55Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "6f0dbf0ea62b046b47db45b833e301d242abc2f8628a48663b02a84de5b5d064",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

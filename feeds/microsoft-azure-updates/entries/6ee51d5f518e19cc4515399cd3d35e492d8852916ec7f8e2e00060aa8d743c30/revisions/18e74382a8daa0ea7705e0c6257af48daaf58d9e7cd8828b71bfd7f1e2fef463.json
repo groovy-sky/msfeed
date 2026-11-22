@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "entry_key": "6ee51d5f518e19cc4515399cd3d35e492d8852916ec7f8e2e00060aa8d743c30",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "580624",
+  "title": "[In preview] Limited Preview: Compute templates for Azure",
+  "url": "https://azure.microsoft.com/updates?id=580624",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:24Z",
+  "updated_at": "2026-11-17T20:00:24Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:24 Z",
+  "raw_updated_date": "2026-11-17T20:00:24Z",
+  "summary": "Announcing the limited preview of Azure compute templates, a new capability that simplifies virtual machine (VM) configuration management by enabling customers to define, version, and reuse standardized VM configurations across deployments.With compute te",
+  "categories": [
+    "In preview",
+    "Compute",
+    "Virtual Machines",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:24Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "18e74382a8daa0ea7705e0c6257af48daaf58d9e7cd8828b71bfd7f1e2fef463",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

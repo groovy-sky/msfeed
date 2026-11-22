@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "entry_key": "536ac98e481d83f6a031a11fd8b152fde6258bd5447165f876d0ce1a1d3a7310",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "580694",
+  "title": "[In preview] Public Preview: AI Security add-on for Azure Firewall Premium",
+  "url": "https://azure.microsoft.com/updates?id=580694",
+  "authors": [],
+  "published_at": "2026-11-17T20:27:29Z",
+  "updated_at": "2026-11-17T20:27:29Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:27:29 Z",
+  "raw_updated_date": "2026-11-17T20:27:29Z",
+  "summary": "AI Security, a new add-on for Azure\r\nFirewall Premium, is now in public preview. Announced at Microsoft Ignite, it\r\nintroduces five capabilities to help you protect AI applications, safeguard\r\nsensitive data, strengthen malware and application defenses, and",
+  "categories": [
+    "In preview",
+    "Networking",
+    "Security",
+    "Azure Firewall",
+    "Microsoft Ignite",
+    "Security",
+    "Services",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:27:29Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "7904aa41a925ec85a0c130e2a777d510306d9e9b0a83d749102562126fbac97b",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

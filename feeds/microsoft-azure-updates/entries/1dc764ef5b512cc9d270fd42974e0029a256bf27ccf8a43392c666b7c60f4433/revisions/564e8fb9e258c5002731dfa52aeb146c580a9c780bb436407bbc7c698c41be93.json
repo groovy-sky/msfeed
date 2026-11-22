@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "entry_key": "1dc764ef5b512cc9d270fd42974e0029a256bf27ccf8a43392c666b7c60f4433",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "578444",
+  "title": "[In preview] Public Preview:  AI-assisted data modeler and other updates in Azure Cosmos DB extension for VS Code",
+  "url": "https://azure.microsoft.com/updates?id=578444",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "You can now use the AI-assisted Data Modeler in Visual Studio Code to design an effective Azure Cosmos DB data model earlier in the development lifecycle. It analyzes document structure, query patterns, write distribution, expected scale, and data growth",
+  "categories": [
+    "In preview",
+    "Databases",
+    "Internet of Things",
+    "Azure Cosmos DB",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "564e8fb9e258c5002731dfa52aeb146c580a9c780bb436407bbc7c698c41be93",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

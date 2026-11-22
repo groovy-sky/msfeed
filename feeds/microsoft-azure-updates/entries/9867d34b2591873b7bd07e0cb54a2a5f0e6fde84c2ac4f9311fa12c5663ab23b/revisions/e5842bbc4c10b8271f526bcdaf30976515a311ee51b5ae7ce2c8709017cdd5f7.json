@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "entry_key": "9867d34b2591873b7bd07e0cb54a2a5f0e6fde84c2ac4f9311fa12c5663ab23b",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "578998",
+  "title": "[Launched] Generally Available: Fuzzy string match is available across Microsoft SQL offerings",
+  "url": "https://azure.microsoft.com/updates?id=578998",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "Fuzzy string match is now generally available across Microsoft SQL offerings, including Azure SQL Database, Azure SQL Managed Instanced, SQL database in Microsoft Fabric, and SQL Server 2025. You can compare strings based on how similar or different they",
+  "categories": [
+    "Launched",
+    "Databases",
+    "Hybrid + multicloud",
+    "Azure SQL Database",
+    "Azure SQL Managed Instance",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "e5842bbc4c10b8271f526bcdaf30976515a311ee51b5ae7ce2c8709017cdd5f7",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

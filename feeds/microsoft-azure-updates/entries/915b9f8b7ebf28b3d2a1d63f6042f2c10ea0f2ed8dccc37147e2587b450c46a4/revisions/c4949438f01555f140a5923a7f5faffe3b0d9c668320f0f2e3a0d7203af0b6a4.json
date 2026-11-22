@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "entry_key": "915b9f8b7ebf28b3d2a1d63f6042f2c10ea0f2ed8dccc37147e2587b450c46a4",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "578579",
+  "title": "[In preview] Public Preview: SQL Server 2025 support on Ubuntu 26.04 LTS",
+  "url": "https://azure.microsoft.com/updates?id=578579",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "Announcing Public Preview support for SQL Server 2025 on Ubuntu 26.04 LTS, allowing you to evaluate, test, and deploy SQL Server on Canonical's latest long-term supported platform.  Learn more.",
+  "categories": [
+    "In preview",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "c4949438f01555f140a5923a7f5faffe3b0d9c668320f0f2e3a0d7203af0b6a4",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

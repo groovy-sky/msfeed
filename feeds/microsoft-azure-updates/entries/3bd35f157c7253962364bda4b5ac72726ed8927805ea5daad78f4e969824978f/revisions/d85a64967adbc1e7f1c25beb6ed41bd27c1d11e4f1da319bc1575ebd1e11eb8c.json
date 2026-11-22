@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "entry_key": "3bd35f157c7253962364bda4b5ac72726ed8927805ea5daad78f4e969824978f",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "578255",
+  "title": "[In preview] Public Preview: DocumentDB on Azure Local",
+  "url": "https://azure.microsoft.com/updates?id=578255",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "With the public preview of DocumentDB on Azure Local, you can run MongoDB-compatible document workloads on your own infrastructure. Deploy applications and their data close together to address latency and data-location requirements in datacenters, retail",
+  "categories": [
+    "In preview",
+    "Databases",
+    "Azure DocumentDB",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "d85a64967adbc1e7f1c25beb6ed41bd27c1d11e4f1da319bc1575ebd1e11eb8c",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "entry_key": "347dd277474a9ea73dd75e0deaea0abf8825751df0b118a70a056b15eb551f22",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "581214",
+  "title": "[In preview] Limited Preview: Azure Workload Center for Oracle and Azure Copilot Run Oracle Agent",
+  "url": "https://azure.microsoft.com/updates?id=581214",
+  "authors": [],
+  "published_at": "2026-11-17T22:46:30Z",
+  "updated_at": "2026-11-17T22:46:30Z",
+  "raw_published_date": "Tue, 17 Nov 2026 22:46:30 Z",
+  "raw_updated_date": "2026-11-17T22:46:30Z",
+  "summary": "Azure Workload Center for Oracle, together with the Azure Copilot Run Oracle Agent, is a workload-aware experience, powered by Workload Virtual Instance (WVI) for operating Oracle workloads on Azure. Azure Workload Center for Oracle helps teams understand",
+  "categories": [
+    "In preview",
+    "Microsoft Ignite"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T22:46:30Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "0577c7699045e4b14efd1760da638fa07b5008c5d734df0899a83907dc77e779",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

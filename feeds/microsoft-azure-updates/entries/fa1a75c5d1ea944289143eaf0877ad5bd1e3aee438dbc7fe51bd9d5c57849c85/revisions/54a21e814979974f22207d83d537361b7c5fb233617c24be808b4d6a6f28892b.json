@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "entry_key": "fa1a75c5d1ea944289143eaf0877ad5bd1e3aee438dbc7fe51bd9d5c57849c85",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "581221",
+  "title": "Announcing: Production Touch Ledger (PTL) Assessment Report",
+  "url": "https://azure.microsoft.com/updates?id=581221",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "The Production Touch Ledger (PTL) Assessment Report is now available. Capgemini, an independent third party, has validated the design of PTL for its ability to preserve the completeness, tamper-evidence, and non-repudiation of production-access records. T",
+  "categories": [
+    "Microsoft Ignite",
+    "Announcement"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "54a21e814979974f22207d83d537361b7c5fb233617c24be808b4d6a6f28892b",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

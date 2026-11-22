@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "entry_key": "8340713eab838e4825f6f2cbb059f5b9e8668a91410ad04987d20e30d58112ad",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "579359",
+  "title": "[In preview] Public Preview: Azure SQL updates for mid-November 2026",
+  "url": "https://azure.microsoft.com/updates?id=579359",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "In mid-November 2026, the following updates and\r\nenhancements were made to Azure SQL:  \r\n In\r\n     SSMS, the new Create and Apply wizards make it simpler to create and use\r\n     .dacpac and .bacpac files. The new feature consolidates and replaces the\r\n     var",
+  "categories": [
+    "In preview",
+    "Databases",
+    "Hybrid + multicloud",
+    "Azure SQL Database",
+    "Azure SQL Managed Instance",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "46a80ecaad60ab0a39790fc3e2fa76fd2a3ca01ff323759126b4bb92efdcb0cb",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

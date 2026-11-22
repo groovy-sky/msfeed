@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "entry_key": "e0c676ddcc1991212c754def808bf17e900adbf805ac96f2a8e91a1390b9f875",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "580428",
+  "title": "[In preview] Public Preview: Next-generation elastic architecture for Azure Application Gateway v2",
+  "url": "https://azure.microsoft.com/updates?id=580428",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "A next-generation elastic architecture for Azure Application\r\nGateway v2 is now available in public preview. Built for demanding\r\nworkloads and dynamic traffic patterns, it reduces provisioning time by up\r\nto 50% and autoscaling time by up to 70% compared to",
+  "categories": [
+    "In preview",
+    "Networking",
+    "Security",
+    "Application Gateway",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "76108527591c2732df6d0af8d2ff66dd796c7f5975314555ffcef1eedb5a2154",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

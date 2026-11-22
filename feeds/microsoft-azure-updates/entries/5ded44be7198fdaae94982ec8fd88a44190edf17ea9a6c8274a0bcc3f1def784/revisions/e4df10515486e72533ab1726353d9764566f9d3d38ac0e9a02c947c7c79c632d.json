@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "entry_key": "5ded44be7198fdaae94982ec8fd88a44190edf17ea9a6c8274a0bcc3f1def784",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "580091",
+  "title": "[In preview] Public Preview: Database Agent for SQL with contextual Copilot",
+  "url": "https://azure.microsoft.com/updates?id=580091",
+  "authors": [],
+  "published_at": "2026-11-17T22:43:01Z",
+  "updated_at": "2026-11-17T22:43:01Z",
+  "raw_published_date": "Tue, 17 Nov 2026 22:43:01 Z",
+  "raw_updated_date": "2026-11-17T22:43:01Z",
+  "summary": "Database Agent now gives you AI-generated, evidence-grounded recommendations for detected database issues, including why the issue matters, the likely cause, and the recommended next step. Recommendations draw on available issue evidence and Microsoft-aut",
+  "categories": [
+    "In preview",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T22:43:01Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "e4df10515486e72533ab1726353d9764566f9d3d38ac0e9a02c947c7c79c632d",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "entry_key": "1a26ca727da7fdea44f983739b74719a6a0a69433a9460d39ea8b9109981ac7b",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "578439",
+  "title": "[Launched] Generally Available: Azure Cosmos DB Shell",
+  "url": "https://azure.microsoft.com/updates?id=578439",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "We’re excited to announce the general availability of Azure Cosmos DB Shell, a command-line experience that makes it easier for you and for AI agents to work with Azure Cosmos DB.  Azure Cosmos DB Shell provides a consistent, scriptable workflow for navig",
+  "categories": [
+    "Launched",
+    "Databases",
+    "Internet of Things",
+    "Azure Cosmos DB",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "a38761873ed3e1ea4a92b01771626fc83acbfc5c9a0664ab5756a675a63542b8",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

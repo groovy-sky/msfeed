@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "entry_key": "c38c0654c6c8cb44355cdb7b6a80a5a6c21a64a6ea9adc2aba1918c4a9e9cba7",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "581463",
+  "title": "[Launched] Generally Available: Governance policy guidance in Foundry Canvas and VS Code",
+  "url": "https://azure.microsoft.com/updates?id=581463",
+  "authors": [],
+  "published_at": "2026-11-21T00:45:13Z",
+  "updated_at": "2026-11-21T00:45:13Z",
+  "raw_published_date": "Sat, 21 Nov 2026 00:45:13 Z",
+  "raw_updated_date": "2026-11-21T00:45:13Z",
+  "summary": "Microsoft Foundry governance guidance is now available in Foundry Canvas and the Foundry Toolkit for Visual Studio Code. As developers build agents, both experiences surface relevant policies for agent types, models, toolboxes, and guardrails, with warnin",
+  "categories": [
+    "Launched",
+    "AI + machine learning",
+    "Microsoft Foundry",
+    "Features",
+    "Microsoft Ignite"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-21T00:45:13Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "9a1df18b3e48607588b2292cf443b454bbadec84a885f186722d2dfeb5b6f0dd",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

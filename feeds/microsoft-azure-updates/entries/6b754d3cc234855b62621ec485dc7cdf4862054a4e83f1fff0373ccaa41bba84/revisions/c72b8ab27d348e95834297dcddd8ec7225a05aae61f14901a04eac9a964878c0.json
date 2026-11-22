@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "entry_key": "6b754d3cc234855b62621ec485dc7cdf4862054a4e83f1fff0373ccaa41bba84",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "579201",
+  "title": "[In preview] Public Preview: Service tags for inbound rules in network security perimeter",
+  "url": "https://azure.microsoft.com/updates?id=579201",
+  "authors": [],
+  "published_at": "2026-11-17T20:52:28Z",
+  "updated_at": "2026-11-17T20:52:28Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:52:28 Z",
+  "raw_updated_date": "2026-11-17T20:52:28Z",
+  "summary": "Announcing the public preview of 'service tags as\r\ninbound rules' support for third-party customers in network security perimeter. This new capability simplifies how customers manage\r\naccess to in network security\r\nperimeter-protected resources by allowing t",
+  "categories": [
+    "In preview",
+    "Networking",
+    "Azure Private Link",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:52:28Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "c72b8ab27d348e95834297dcddd8ec7225a05aae61f14901a04eac9a964878c0",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "entry_key": "d1d443ebf9658a1017a84a0cbe58a7b51258cb9f0c14aa3719d3d4ff5055105e",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "581604",
+  "title": "[In preview] Public Preview: AI bot ruleset for Azure Front Door Premium WAF",
+  "url": "https://azure.microsoft.com/updates?id=581604",
+  "authors": [],
+  "published_at": "2026-11-18T18:27:29Z",
+  "updated_at": "2026-11-18T18:27:29Z",
+  "raw_published_date": "Wed, 18 Nov 2026 18:27:29 Z",
+  "raw_updated_date": "2026-11-18T18:27:29Z",
+  "summary": "Announcing the public preview\r\nof the AI bot ruleset for Azure Web Application Firewall (WAF) on Azure Front\r\nDoor Premium. AI crawlers and agents visit your site for different reasons,\r\nand you may want to allow some but not others. Robots.txt only works wh",
+  "categories": [
+    "In preview",
+    "Networking",
+    "Security",
+    "Azure Front Door",
+    "Web Application Firewall",
+    "Features",
+    "Microsoft Ignite",
+    "Security"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-18T18:27:29Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "3a0ceb77ed566e68f87968c62b8f40295c334ef763503876506e554bfea0aea4",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

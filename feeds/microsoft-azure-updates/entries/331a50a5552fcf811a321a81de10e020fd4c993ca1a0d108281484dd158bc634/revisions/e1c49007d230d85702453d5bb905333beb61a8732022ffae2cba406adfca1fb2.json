@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "entry_key": "331a50a5552fcf811a321a81de10e020fd4c993ca1a0d108281484dd158bc634",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "578812",
+  "title": "[Launched] Generally Available: Golang support on Azure Functions Flex Consumption",
+  "url": "https://azure.microsoft.com/updates?id=578812",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "First-class Go support on Azure Functions Flex Consumption is now generally available.The Go worker offers a code-first programming model with typed Go handlers, standard Go modules, and integration with Azure Functions Core Tools and Azure CLI. Developer",
+  "categories": [
+    "Launched",
+    "Compute",
+    "Containers",
+    "Internet of Things",
+    "Azure Functions",
+    "Microsoft Ignite",
+    "SDK and Tools",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "e1c49007d230d85702453d5bb905333beb61a8732022ffae2cba406adfca1fb2",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

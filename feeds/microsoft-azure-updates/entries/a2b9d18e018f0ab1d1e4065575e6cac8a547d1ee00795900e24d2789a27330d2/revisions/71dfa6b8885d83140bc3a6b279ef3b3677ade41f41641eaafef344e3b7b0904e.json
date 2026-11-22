@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "entry_key": "a2b9d18e018f0ab1d1e4065575e6cac8a547d1ee00795900e24d2789a27330d2",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "580559",
+  "title": "[In preview] Public Preview: Enhanced developer experience in Azure Logic Apps Automation",
+  "url": "https://azure.microsoft.com/updates?id=580559",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "Azure Logic Apps Automation introduces new developer experiences that make it faster and easier to build, manage, and scale business process automation. Enhancements include a refreshed workflow designer, reusable templates, faster environment and applica",
+  "categories": [
+    "In preview",
+    "Integration",
+    "Internet of Things",
+    "Logic Apps",
+    "Microsoft Ignite"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "71dfa6b8885d83140bc3a6b279ef3b3677ade41f41641eaafef344e3b7b0904e",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

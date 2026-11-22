@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "entry_key": "74512580ef91993f6df0d5b42914e78a30edd67e484c23af8996ab079da0f816",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "578617",
+  "title": "[In preview] Public Preview: Azure Network Watcher – Connection analyzer",
+  "url": "https://azure.microsoft.com/updates?id=578617",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "Connection analyzer for ExpressRoute Circuit introduces a faster, evidence-based way to find where packet loss\r\noccurs on an ExpressRoute circuit. When customers see packet loss between Azure\r\nand on-premises today, it is often hard to tell whether the prob",
+  "categories": [
+    "In preview",
+    "Hybrid + multicloud",
+    "Networking",
+    "Management and governance",
+    "Azure ExpressRoute",
+    "Network Watcher",
+    "Management",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "27baf56642a008129f3fc904215b9ade32873a8b34611cbf88ecbea428ba2f20",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}

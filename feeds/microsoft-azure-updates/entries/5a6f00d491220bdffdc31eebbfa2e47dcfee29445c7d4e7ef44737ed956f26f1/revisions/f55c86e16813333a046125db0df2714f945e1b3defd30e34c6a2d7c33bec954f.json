@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "entry_key": "5a6f00d491220bdffdc31eebbfa2e47dcfee29445c7d4e7ef44737ed956f26f1",
+  "feed_id": "microsoft-azure-updates",
+  "identity_basis": "id",
+  "source_id": "575111",
+  "title": "[Launched] Generally Available: Microsoft Entra authentication for Azure HorizonDB",
+  "url": "https://azure.microsoft.com/updates?id=575111",
+  "authors": [],
+  "published_at": "2026-11-17T20:00:32Z",
+  "updated_at": "2026-11-17T20:00:32Z",
+  "raw_published_date": "Tue, 17 Nov 2026 20:00:32 Z",
+  "raw_updated_date": "2026-11-17T20:00:32Z",
+  "summary": "Microsoft Entra authentication is now generally available for Azure HorizonDB, providing a more secure, identity-based approach to database authentication. You can use Microsoft Entra authentication to centrally manage identities and access instead of rel",
+  "categories": [
+    "Launched",
+    "Databases",
+    "Azure HorizonDB",
+    "Microsoft Ignite",
+    "Feature"
+  ],
+  "attachments": [],
+  "extensions": {
+    "atom": {
+      "updated": [
+        {
+          "name": "updated",
+          "value": "2026-11-17T20:00:32Z"
+        }
+      ]
+    }
+  },
+  "content_hash": "f55c86e16813333a046125db0df2714f945e1b3defd30e34c6a2d7c33bec954f",
+  "provenance": {
+    "snapshot_hash": "460fb7c13141caa13a4434cfb1682fcd6d8433a456594a2a0701924b52327ef4",
+    "retrieved_at": "2026-11-22T06:51:25Z",
+    "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss"
+  }
+}
