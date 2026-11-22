@@ -2,7 +2,10 @@
   "schema_version": 1,
   "entry_key": "0a1c0c3a06a64361ca78044dde379fa5ca8bb40b1a2828a7492ce0188df7c1cd",
   "identity_basis": "id",
-  "current_revision": "a7353af4b261f6165e0f74cf095263e075121068bb3202dd6a07ddc0f20e88b9",
+  "source_id": "https://devblogs.microsoft.com/?p=22461",
+  "url": "https://devblogs.microsoft.com/blog/from-spec-first-to-enterprise-ready-extending-github-spec-kit/",
+  "has_feed_content": true,
+  "current_revision": "66bf15caf9733f05bf6f5abd3fea3f9c116489e7d696f99f32d78fa1d2c8e697",
   "first_seen": "2026-11-22T06:51:26Z",
-  "last_seen": "2026-11-22T06:51:26Z"
+  "last_seen": "2026-11-22T14:10:24Z"
 }

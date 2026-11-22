@@ -2,7 +2,10 @@
   "schema_version": 1,
   "entry_key": "4cf9657ea4cded36b049b221740b114b7a1091256d76261239cf72f2ce261a9a",
   "identity_basis": "id",
-  "current_revision": "79330cb796b8b446ed473573629e30e42463a611fc9be0d44b7a73437a64c3aa",
+  "source_id": "https://devblogs.microsoft.com/?p=22566",
+  "url": "https://devblogs.microsoft.com/blog/postgresql-like-a-pro-vscode/",
+  "has_feed_content": true,
+  "current_revision": "4446dc5f74e65223da3f90e5880d576918fe70949e89cae371eb9e8637b802a6",
   "first_seen": "2026-11-22T06:51:26Z",
-  "last_seen": "2026-11-22T06:51:26Z"
+  "last_seen": "2026-11-22T14:10:24Z"
 }

@@ -2,7 +2,10 @@
   "schema_version": 1,
   "entry_key": "3dabac3ad43956a7047ff369e93261851b9bb9690eedf256cb5430597c883386",
   "identity_basis": "id",
-  "current_revision": "0f345827ed020af08855dea56a97224eb38e80c8cc51b6f7dfa95f835b8888c2",
+  "source_id": "https://devblogs.microsoft.com/?p=22486",
+  "url": "https://devblogs.microsoft.com/blog/build-azure-canvases-with-canvas-authoring/",
+  "has_feed_content": true,
+  "current_revision": "7a501231d5223d7e0871adea32c139d0f8a53da4c81153f091ad6458886e28be",
   "first_seen": "2026-11-22T06:51:26Z",
-  "last_seen": "2026-11-22T06:51:26Z"
+  "last_seen": "2026-11-22T14:10:24Z"
 }

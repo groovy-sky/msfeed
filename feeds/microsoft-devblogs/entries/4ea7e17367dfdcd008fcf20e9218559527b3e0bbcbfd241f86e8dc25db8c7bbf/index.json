@@ -2,7 +2,10 @@
   "schema_version": 1,
   "entry_key": "4ea7e17367dfdcd008fcf20e9218559527b3e0bbcbfd241f86e8dc25db8c7bbf",
   "identity_basis": "id",
-  "current_revision": "0995ec1811a5af25377a59d5bddf54dab1ea10fd5e449a5d19eb0c090f452f8e",
+  "source_id": "https://devblogs.microsoft.com/?p=22671",
+  "url": "https://devblogs.microsoft.com/blog/your-best-ax-fixes-are-hiding-in-agent-trajectories/",
+  "has_feed_content": true,
+  "current_revision": "e3c518570d52923d1b9de733b02564a25bf7c049e9dd07f6f4a6a94245b0bde9",
   "first_seen": "2026-11-22T06:51:26Z",
-  "last_seen": "2026-11-22T06:51:26Z"
+  "last_seen": "2026-11-22T14:10:24Z"
 }

@@ -2,7 +2,10 @@
   "schema_version": 1,
   "entry_key": "65bfea53002a17cf93cb85be23f1abe01d9738c00e13ef58d02e793cfaf581d0",
   "identity_basis": "id",
-  "current_revision": "577ba954f54b50359bcb111ed41bafe2ef52bc122f9f7848854c69e31d6fe16c",
+  "source_id": "https://devblogs.microsoft.com/?p=22513",
+  "url": "https://devblogs.microsoft.com/blog/introducing-the-agent-experience-ax-practitioner-playbook/",
+  "has_feed_content": true,
+  "current_revision": "aa767434a487256d853012c8e8755eadfee18d0af008efaa29ef45d26ca45cb5",
   "first_seen": "2026-11-22T06:51:26Z",
-  "last_seen": "2026-11-22T06:51:26Z"
+  "last_seen": "2026-11-22T14:10:24Z"
 }

@@ -2,7 +2,10 @@
   "schema_version": 1,
   "entry_key": "dfcf91a5151e261d7e35edf03a93b9e1d612c0597bd13b61b5dee99704b9350a",
   "identity_basis": "id",
-  "current_revision": "318b06fe40fa2a3bb197e89574075a7d680f7c321febc063a73d2af8e0c495bd",
+  "source_id": "https://devblogs.microsoft.com/?p=22686",
+  "url": "https://devblogs.microsoft.com/blog/do-ai-coding-agents-care-about-semver/",
+  "has_feed_content": true,
+  "current_revision": "7640b12d09bbe9ce70105ff3ff6ba7db5d5daee479f7e01258fdc62e82a90dfc",
   "first_seen": "2026-11-22T06:51:26Z",
-  "last_seen": "2026-11-22T06:51:26Z"
+  "last_seen": "2026-11-22T14:10:24Z"
 }

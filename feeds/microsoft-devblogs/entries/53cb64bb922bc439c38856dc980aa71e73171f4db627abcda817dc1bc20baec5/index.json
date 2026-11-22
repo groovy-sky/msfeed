@@ -2,7 +2,10 @@
   "schema_version": 1,
   "entry_key": "53cb64bb922bc439c38856dc980aa71e73171f4db627abcda817dc1bc20baec5",
   "identity_basis": "id",
-  "current_revision": "d4c2d996eae2bd9e749baed7e0492a5c3ec0fab1d5c98273976ce70f773d82e6",
+  "source_id": "https://devblogs.microsoft.com/?p=22481",
+  "url": "https://devblogs.microsoft.com/blog/what-is-agent-experience-ax/",
+  "has_feed_content": true,
+  "current_revision": "b66893b6419caf704e5d55cffe0fcad7e75f1232ce437f3498acfa6fb5ec9a3d",
   "first_seen": "2026-11-22T06:51:26Z",
-  "last_seen": "2026-11-22T06:51:26Z"
+  "last_seen": "2026-11-22T14:10:24Z"
 }

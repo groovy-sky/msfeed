@@ -2,7 +2,10 @@
   "schema_version": 1,
   "entry_key": "eee5f3e01fef7ea52d0c581fe91ecbab38fb8399cf21b96eb8683a42a50435da",
   "identity_basis": "id",
-  "current_revision": "ee9e0b834dc592af63a57c3db17a0e5b36f277cdfff01919109ef0ebc7969703",
+  "source_id": "https://devblogs.microsoft.com/?p=22551",
+  "url": "https://devblogs.microsoft.com/blog/can-a-local-git-remote-replace-github-in-your-agent-eval/",
+  "has_feed_content": true,
+  "current_revision": "ca9e0293d2ea7fea2dbc94c97c92a51f76909b927daec33b485469612d6f25d1",
   "first_seen": "2026-11-22T06:51:26Z",
-  "last_seen": "2026-11-22T06:51:26Z"
+  "last_seen": "2026-11-22T14:10:24Z"
 }
