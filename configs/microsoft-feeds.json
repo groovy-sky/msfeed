@@ -19,7 +19,7 @@
   },
   "defaults": {
     "poll_interval_seconds": 3600,
-    "max_entries_per_run": 500
+    "max_entries_per_run": 5000
   },
   "feeds": [
     {

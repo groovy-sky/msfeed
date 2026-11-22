@@ -60,6 +60,17 @@ URL, so a URL change can be made without changing the branch or entry identity.
 The command rejects duplicate configured URLs and refuses to process a branch
 that contains another feed or unrelated or symlinked paths.
 
+The Microsoft configuration publishes these isolated archives:
+
+| Branch | RSS URL |
+| --- | --- |
+| `rss/microsoft-news` | https://news.microsoft.com/source/feed/ |
+| `rss/microsoft-blogs` | https://blogs.microsoft.com/?feed=rss2 |
+| `rss/microsoft-m365-updates` | https://www.microsoft.com/releasecommunications/api/v2/m365/rss |
+| `rss/microsoft-azure-updates` | https://www.microsoft.com/releasecommunications/api/v2/azure/rss |
+| `rss/microsoft-devblogs` | https://devblogs.microsoft.com/feed |
+| `rss/microsoft-msrc` | https://api.msrc.microsoft.com/update-guide/rss |
+
 The archive path is deliberately batched:
 
 1. Resolve all enabled feed branches with one remote query.
@@ -76,9 +87,10 @@ being reimplemented by the workflow. A run may be inspected without publishing
 by adding `--dry-run`; `--feed ID` selects one branch and `--force` bypasses
 the normal poll and retry schedules.
 
-`.github/workflows/archive.yml` runs this mode hourly with one checkout and one
-Go build. A workflow concurrency group prevents two archive runs from writing
-the same branches concurrently. Ensure Actions has write permission for the
+`.github/workflows/archive.yml` runs this mode daily at 03:17 UTC with one
+checkout and one Go build. It can also be started manually, optionally for one
+feed. A workflow concurrency group prevents two archive runs from writing the
+same branches concurrently. Ensure Actions has write permission for the
 repository before enabling scheduled publishing. Authentication values for
 private feeds must be supplied through Actions secrets; never place the secret
 itself in the configuration or feed branch.
