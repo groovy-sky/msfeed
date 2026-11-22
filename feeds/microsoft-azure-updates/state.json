@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "entry_storage_version": 3,
+  "entry_storage_version": 4,
   "effective_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss",
-  "last_success": "2026-11-22T14:10:21Z",
-  "last_attempt": "2026-11-22T14:10:21Z"
+  "last_success": "2026-11-22T21:15:52Z",
+  "last_attempt": "2026-11-22T21:15:52Z"
 }

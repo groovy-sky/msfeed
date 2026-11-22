@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "fca09086104bcff9519304fd51f0723c08aec76936fea6740f56058f2c657ea5",
+  "identity_basis": "id",
+  "identity": "580544",
+  "source_id": "580544",
+  "url": "https://azure.microsoft.com/updates?id=580544",
+  "canonical_week": "2026-W47",
+  "current_revision": "08e6e6e2a2ab4053b0078d9a2f1faa9e8b6362aa6aa4e9e1665bb625b6f4cc32",
+  "first_seen": "2026-11-22T06:51:25Z",
+  "last_seen": "2026-11-22T21:15:52Z"
+}
