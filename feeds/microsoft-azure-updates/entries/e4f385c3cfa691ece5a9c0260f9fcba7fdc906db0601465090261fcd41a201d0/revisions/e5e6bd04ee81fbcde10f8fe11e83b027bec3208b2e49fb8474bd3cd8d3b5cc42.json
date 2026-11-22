@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=563661",
+  "title": "[Launched] Generally Available: Semantic chunking and image descriptions with Azure Content Understanding in Foundry IQ",
+  "published_at": 1780599634,
+  "summary": "Foundry IQ—formerly Azure AI Search—now offers generally available semantic chunking and optional AI-generated image descriptions through the Azure Content Understanding skill.The skill uses document structure to create chunks with Markdown and location m"
+}

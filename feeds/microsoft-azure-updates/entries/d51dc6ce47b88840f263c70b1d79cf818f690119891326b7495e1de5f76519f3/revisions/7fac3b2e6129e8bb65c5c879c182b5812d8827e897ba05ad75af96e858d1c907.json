@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=580055",
+  "title": "[Launched] Generally Available: Microsoft Agent 365 integration with Azure API Management and Azure AI Gateway",
+  "published_at": 1794945632,
+  "summary": "The integration between Microsoft Agent 365 and Azure API Management is now generally available, enabling organizations to centrally govern AI agents and MCP tools while enforcing security and access policies at runtime through Azure API Management and Az"
+}

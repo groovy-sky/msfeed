@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579383",
+  "title": "[In preview] Public Preview: Azure Front Door adds native gRPC support",
+  "published_at": 1794336953,
+  "summary": "Announcing the public preview of gRPC support in Azure Front Door. Build and deliver gRPC applications through Azure Front Door Standard and Premium. Now in preview, gRPC support lets you route calls to specific services and methods, distribute traffic ac"
+}

@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579595",
+  "title": "[Launched] Generally Available: Intel and AMD v5 diskless tier for Azure Database for PostgreSQL",
+  "published_at": 1794959504,
+  "summary": "Azure Database for PostgreSQL Flexible Server is announcing the general availability of Intel and AMD V5 diskless compute. These new options expand the v5 compute portfolio with General Purpose and Memory Optimized SKUs that do not include local temporary"
+}

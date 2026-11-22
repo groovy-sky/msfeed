@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578255",
+  "title": "[In preview] Public Preview: DocumentDB on Azure Local",
+  "published_at": 1794945632,
+  "summary": "With the public preview of DocumentDB on Azure Local, you can run MongoDB-compatible document workloads on your own infrastructure. Deploy applications and their data close together to address latency and data-location requirements in datacenters, retail"
+}

@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578262",
+  "title": "[In preview] Public Preview: Fine-grained role-based access control for databases and collections in Azure DocumentDB",
+  "published_at": 1794945632,
+  "summary": "Azure DocumentDB now offers granular role-based access control (RBAC) , well beyond the cluster-level permissions that have been offered in the service. You can now use database-level and collection-level RBAC to manage data access. Instead of relying onl"
+}

@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579525",
+  "title": "[In preview] Public Preview: Build with Azure SQL Database container locally without an Azure subscription or credit card",
+  "published_at": 1794945632,
+  "summary": "You can now build and test applications using Azure SQL Database container, which runs the same Azure SQL Database engine locally that you run in the cloud. It’s free for local dev and CI, with no Azure subscription or credit card required. This cross-pl"
+}

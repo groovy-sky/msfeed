@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579952",
+  "title": "Retirement: Support for Azure Functions OpenAI Extension ends on April 20, 2027",
+  "published_at": 1795216591,
+  "summary": "Support for Azure Functions OpenAI extension will end on April 20, 2027. Please migrate to OpenAI, Microsoft Foundry, or Azure AI Search SDKs directly, depending on your scenario, by that date. Until you migrate to the appropriate scenario SDK, .NET app"
+}

@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=577579",
+  "title": "[Launched] Generally Available: Azure Cache for Redis to Azure Managed Redis migration tooling",
+  "published_at": 1794945632,
+  "summary": "The general availability of built-in DNS migration tooling simplifies endpoint migration from Azure Cache for Redis Basic, Standard, and Premium tiers to Azure Managed Redis. The tooling lets you redirect the existing cache hostname to an existing Azure M"
+}

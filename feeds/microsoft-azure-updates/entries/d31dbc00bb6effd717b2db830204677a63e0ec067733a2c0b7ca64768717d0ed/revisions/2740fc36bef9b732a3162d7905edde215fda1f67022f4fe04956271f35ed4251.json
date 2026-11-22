@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578232",
+  "title": "[In preview] Public Preview: Full-text search in Azure DocumentDB",
+  "published_at": 1794945632,
+  "summary": "You can use full-text search in Azure DocumentDB, in public preview, with BM25 indexing, relevance-based sorting, and access to relevance scores. Fuzzy and proximity search help you handle typos and find documents where search terms occur near one another"
+}

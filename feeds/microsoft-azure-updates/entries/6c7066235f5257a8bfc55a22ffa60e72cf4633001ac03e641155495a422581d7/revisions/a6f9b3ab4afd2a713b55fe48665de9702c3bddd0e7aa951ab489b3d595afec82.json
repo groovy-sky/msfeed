@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=580763",
+  "title": "[In preview] Public Preview: Microsoft Entra Agent ID and Agent 365 for Azure SRE Agent",
+  "published_at": 1794945632,
+  "summary": "Azure SRE Agent now supports Microsoft Entra Agent ID and Microsoft Agent 365 in public preview, so security and IT teams can see and govern SRE agents alongside other agents in the organization. Each agent can have its own Agent ID in addition to its man"
+}

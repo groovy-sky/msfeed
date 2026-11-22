@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578044",
+  "title": "[Launched] Generally Available: Azure Backup for Azure Cosmos DB",
+  "published_at": 1794945632,
+  "summary": "Vaulted backups add an independent protection layer by storing immutable backup copies in an Azure Backup vault, isolated from the source Azure Cosmos DB account, and managed through Azure Backup. This update helps you meet a key requirement of many regul"
+}

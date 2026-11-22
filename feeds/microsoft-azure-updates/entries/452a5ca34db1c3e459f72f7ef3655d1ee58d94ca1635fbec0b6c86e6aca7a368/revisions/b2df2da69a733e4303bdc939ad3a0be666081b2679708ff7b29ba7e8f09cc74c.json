@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579014",
+  "title": "[In preview] Public Preview: MSSQL extension for Visual Studio Code - local-to-cloud deployment wizard",
+  "published_at": 1794945632,
+  "summary": "The MSSQL extension now provides a guided local-to-cloud deployment experience for Azure SQL Database. You can move from a local Azure SQL Database container to the cloud directly from Visual Studio Code. The wizard supports schema-only or schema-and-data"
+}

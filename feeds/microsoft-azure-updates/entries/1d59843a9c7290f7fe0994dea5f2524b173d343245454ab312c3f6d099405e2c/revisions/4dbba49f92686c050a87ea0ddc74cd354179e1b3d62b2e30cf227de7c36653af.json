@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578237",
+  "title": "[Launched] Generally Available: DocumentDB extension for VS Code",
+  "published_at": 1794945632,
+  "summary": "DocumentDB for VS Code is now generally available. This free, open-source extension brings Azure DocumentDB and the open-source DocumentDB project into Visual Studio Code, supporting any MongoDB API-compatible workload. You can connect to Azure DocumentDB"
+}

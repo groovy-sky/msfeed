@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578839",
+  "title": "[In preview] Public Preview: Geo-redundancy on Azure App Service",
+  "published_at": 1794945632,
+  "summary": "Geo-redundancy in Azure App Service, now in public preview, helps customers build more resilient web applications across Azure regions without independently creating and managing an App Service deployment in each region. App Service creates and manages re"
+}

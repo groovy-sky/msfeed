@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=581259",
+  "title": "[Launched] Generally Available: IBM Spectrum LSF integration with Azure Compute Fleet",
+  "published_at": 1794945632,
+  "summary": "IBM Spectrum LSF integrates with Azure Compute Fleet for elastic, cost-efficient HPC workload orchestration.The IBM LSF Resource Connector for Azure Compute Fleet provisions and releases compute capacity based on workload demand. Extend on-premises LSF en"
+}

@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579540",
+  "title": "[In preview] Public Preview: Encryption at rest with customer-managed keys in Azure HorizonDB",
+  "published_at": 1794945632,
+  "summary": "Customer-managed keys (CMK) for encryption at rest are now available in public preview for Azure HorizonDB. By default, Azure HorizonDB uses service\\-managed keys (SMK) to encrypt data at rest, with Azure managing the encryption keys on your behalf. Wit"
+}

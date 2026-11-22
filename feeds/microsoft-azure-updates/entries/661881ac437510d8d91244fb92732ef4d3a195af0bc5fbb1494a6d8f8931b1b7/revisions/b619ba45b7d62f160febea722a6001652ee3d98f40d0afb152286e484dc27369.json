@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=580155",
+  "title": "[In preview] Public Preview: Rate limit grouping for Azure Front Door Premium WAF",
+  "published_at": 1794421107,
+  "summary": "Announcing the public preview of rate limit grouping for Azure Web Application Firewall (WAF) on Azure Front Door Premium. By default, a rate limit rule counts requests separately for each client IP address. Distributed attacks get around this by spreadin"
+}

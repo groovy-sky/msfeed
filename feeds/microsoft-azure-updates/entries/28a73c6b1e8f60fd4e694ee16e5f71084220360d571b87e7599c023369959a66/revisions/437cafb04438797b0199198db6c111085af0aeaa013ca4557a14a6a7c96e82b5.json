@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579040",
+  "title": "[Launched] Generally Available: Smart Tier (Azure Blob and Data Lake Storage) in Azure Government and China regions",
+  "published_at": 1794945632,
+  "summary": "Announcing the GA of smart tier for Azure Blob and Data Lake Storage (ADLS) in Azure Government and China regions.Smart tier is a fully managed and automated data tiering solution, avoiding manual tier placement for object storage standard online tiers."
+}

@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=576382",
+  "title": "[In preview] Public Preview: JWT validation for Application Gateway for Containers",
+  "published_at": 1793740628,
+  "summary": "Application Gateway for Containers now supports centralized JSON Web Token validation through the AuthPolicy custom resource. Teams can validate a token signature, issuer, lifetime, and configured audience by using signing keys retrieved from a trusted HT"
+}

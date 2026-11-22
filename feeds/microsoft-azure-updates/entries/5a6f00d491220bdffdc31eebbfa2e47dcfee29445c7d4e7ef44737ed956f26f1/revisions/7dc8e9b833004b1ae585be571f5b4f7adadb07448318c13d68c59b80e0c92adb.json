@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=575111",
+  "title": "[Launched] Generally Available: Microsoft Entra authentication for Azure HorizonDB",
+  "published_at": 1794945632,
+  "summary": "Microsoft Entra authentication is now generally available for Azure HorizonDB, providing a more secure, identity-based approach to database authentication. You can use Microsoft Entra authentication to centrally manage identities and access instead of rel"
+}

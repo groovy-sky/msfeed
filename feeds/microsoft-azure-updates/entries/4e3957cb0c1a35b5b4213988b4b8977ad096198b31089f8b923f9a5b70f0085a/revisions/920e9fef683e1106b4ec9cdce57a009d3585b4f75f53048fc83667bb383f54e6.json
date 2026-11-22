@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578207",
+  "title": "[In preview] Public Preview: Auto scaling of ingestion limits in Azure Monitor workspace",
+  "published_at": 1794507832,
+  "summary": "Auto scaling introduces a per-workspace capability in Azure Monitor Workspace (AMW) to automatically scale ingestion limits based on observed usage patterns. When enabled, the system dynamically adjusts ingestion limits (quota ceiling) to maintain healthy"
+}

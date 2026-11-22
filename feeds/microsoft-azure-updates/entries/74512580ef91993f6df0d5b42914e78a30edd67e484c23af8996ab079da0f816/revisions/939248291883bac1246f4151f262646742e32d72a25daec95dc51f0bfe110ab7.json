@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578617",
+  "title": "[In preview] Public Preview: Azure Network Watcher – Connection analyzer",
+  "published_at": 1794945632,
+  "summary": "Connection analyzer for ExpressRoute Circuit introduces a faster, evidence-based way to find where packet loss occurs on an ExpressRoute circuit. When customers see packet loss between Azure and on-premises today, it is often hard to tell whether the prob"
+}

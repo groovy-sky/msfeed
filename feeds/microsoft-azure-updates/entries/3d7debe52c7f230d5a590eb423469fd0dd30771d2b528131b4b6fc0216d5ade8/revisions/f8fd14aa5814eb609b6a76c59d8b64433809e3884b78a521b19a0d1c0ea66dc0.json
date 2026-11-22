@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=581254",
+  "title": "[In preview] Public Preview: Zone resilience for Azure VMs",
+  "published_at": 1795120459,
+  "summary": "Zone resilience for Azure VMs, now in public preview, lets you recover an eligible zonal VM in another availability zone in the same region, retaining the existing VM resource and configuration.ZRS managed disks replicate data synchronously across zones b"
+}

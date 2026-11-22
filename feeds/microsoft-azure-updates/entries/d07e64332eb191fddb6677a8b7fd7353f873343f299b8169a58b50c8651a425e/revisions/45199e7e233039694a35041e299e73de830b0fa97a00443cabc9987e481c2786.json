@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579531",
+  "title": "[Launched] Generally Available: Transparent data encryption (TDE) in Azure SQL Database AES keys",
+  "published_at": 1794945624,
+  "summary": "You can now use AES-256 keys stored in Azure Key Vault Premium or Managed HSM as TDE protectors, providing an alternative to RSA keys for protecting data at rest. While RSA may remain secure against today’s classical computing capabilities, advances in qu"
+}

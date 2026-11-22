@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=577673",
+  "title": "[In preview] Public Preview: JWT validation with Azure Front Door Auth Policy",
+  "published_at": 1794522997,
+  "summary": "JSON Web Token (JWT) validation through Azure Front Door Auth Policy is now in public preview on Azure Front Door Premium. Validate bearer tokens issued by Microsoft Entra ID at the edge before requests reach your APIs or web applications, helping you cen"
+}

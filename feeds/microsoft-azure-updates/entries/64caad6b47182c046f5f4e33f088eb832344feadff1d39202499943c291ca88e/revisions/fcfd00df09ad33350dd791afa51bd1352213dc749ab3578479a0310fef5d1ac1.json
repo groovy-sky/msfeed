@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579612",
+  "title": "[In preview] Public Preview: Migrate Azure Database for PostgreSQL to Azure HorizonDB with Azure Database Migration Service (DMS)",
+  "published_at": 1794945624,
+  "summary": "Now you can migrate existing Azure Database for PostgreSQL workloads to Azure HorizonDB through a seamless, managed experience powered by Azure Database Migration Service (DMS). With this update, you can extend the DMS V2 architecture with HorizonDB as a"
+}

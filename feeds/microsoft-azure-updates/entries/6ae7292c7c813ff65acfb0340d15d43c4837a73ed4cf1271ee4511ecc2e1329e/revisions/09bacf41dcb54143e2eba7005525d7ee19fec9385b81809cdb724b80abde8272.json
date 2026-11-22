@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579649",
+  "title": "[In preview] Public Preview: Azure Application Gateway confidential compute support",
+  "published_at": 1794945632,
+  "summary": "Azure Application Gateway confidential compute helps organizations protect sensitive data not only in transit, but also while the gateway processes it. By running the Application Gateway data plane in a confidential computing environment, decrypted reques"
+}

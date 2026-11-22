@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578975",
+  "title": "[In preview] Public Preview: OS-level dependency support via containers for Azure Functions Flex Consumption",
+  "published_at": 1794945632,
+  "summary": "OS-level dependency support via containers for Azure Functions Flex Consumption is now in preview. Previously, Flex Consumption apps ran in a Microsoft-managed worker environment that customers couldn’t extend with native executables, system libraries, or"
+}

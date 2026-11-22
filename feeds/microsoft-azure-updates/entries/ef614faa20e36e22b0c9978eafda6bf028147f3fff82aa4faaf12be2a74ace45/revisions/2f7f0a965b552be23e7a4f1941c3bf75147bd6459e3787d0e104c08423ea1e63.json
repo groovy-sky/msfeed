@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579354",
+  "title": "[Launched] Generally Available: Azure DocumentDB elasticity—query from any node",
+  "published_at": 1794945632,
+  "summary": "You can now send a query to any node in a multi-shard Azure DocumentDB cluster. The node can handle the query locally or route it to the shard or shards that contain the data. In effect, the nodes in a multi-shard cluster function as a router, being fully"
+}

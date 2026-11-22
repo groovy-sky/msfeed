@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578998",
+  "title": "[Launched] Generally Available: Fuzzy string match is available across Microsoft SQL offerings",
+  "published_at": 1794945632,
+  "summary": "Fuzzy string match is now generally available across Microsoft SQL offerings, including Azure SQL Database, Azure SQL Managed Instanced, SQL database in Microsoft Fabric, and SQL Server 2025. You can compare strings based on how similar or different they"
+}

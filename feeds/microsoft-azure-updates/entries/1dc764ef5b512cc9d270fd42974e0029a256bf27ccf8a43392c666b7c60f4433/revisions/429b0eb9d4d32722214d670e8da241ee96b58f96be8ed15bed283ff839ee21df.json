@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578444",
+  "title": "[In preview] Public Preview:  AI-assisted data modeler and other updates in Azure Cosmos DB extension for VS Code",
+  "published_at": 1794945632,
+  "summary": "You can now use the AI-assisted Data Modeler in Visual Studio Code to design an effective Azure Cosmos DB data model earlier in the development lifecycle. It analyzes document structure, query patterns, write distribution, expected scale, and data growth"
+}

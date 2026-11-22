@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=575106",
+  "title": "Retirement: Support for .NET 8 and .NET 9 on Static Web Apps is ending November 10, 2026",
+  "published_at": 1794264601,
+  "summary": "Support for .NET 8 and .NET 9 will end on November 10, 2026. Please transition your managed Functions APIs to .NET 10 by that date. Your apps will continue to operate, but security updates will no longer be provided and support for .NET 8 and .NET 9 on Az"
+}

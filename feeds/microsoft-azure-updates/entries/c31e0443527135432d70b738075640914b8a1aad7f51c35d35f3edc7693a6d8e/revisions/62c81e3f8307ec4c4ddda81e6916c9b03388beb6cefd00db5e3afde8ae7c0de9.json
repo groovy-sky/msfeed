@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579369",
+  "title": "[In preview] Public Preview: Azure Files NFS shares on HDD",
+  "published_at": 1794945632,
+  "summary": "Azure Files now supports NFS shares on HDD in public preview, expanding beyond the existing SSD offering with a cost-effective, fully managed option for Linux workloads such as general-purpose applications, shared datasets, and backups where cost efficien"
+}

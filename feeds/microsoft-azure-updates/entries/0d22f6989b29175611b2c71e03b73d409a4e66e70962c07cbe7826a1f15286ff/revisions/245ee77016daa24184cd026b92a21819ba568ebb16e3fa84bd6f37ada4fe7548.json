@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=580184",
+  "title": "[In preview] Public Preview: Azure Monitor traces and Trace Analytics",
+  "published_at": 1794945632,
+  "summary": "You can now analyze and compare thousands of traces, isolate the transactions that matter, and move from trends to root cause with advanced distributed tracing within Azure Monitor Application Insights.Azure Monitor traces (preview) provides a dedicated t"
+}

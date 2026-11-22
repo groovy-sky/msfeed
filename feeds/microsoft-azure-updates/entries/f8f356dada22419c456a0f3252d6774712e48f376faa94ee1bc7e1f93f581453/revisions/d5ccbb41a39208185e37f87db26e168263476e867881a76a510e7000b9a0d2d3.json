@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579607",
+  "title": "[In preview] Public Preview: Migrate Oracle databases to Azure Database for PostgreSQL using Azure Database Migration Service",
+  "published_at": 1794945632,
+  "summary": "Azure Database Migration Service now supports offline data migrations from Oracle to Azure Database for PostgreSQL servers. You can configure source and target connections, select the schemas to migrate, start the data transfer, and track migration status"
+}

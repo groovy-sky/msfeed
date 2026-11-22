@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=577678",
+  "title": "[Launched] Generally Available: Azure Front Door mutual TLS authentication",
+  "published_at": 1794522455,
+  "summary": "Mutual TLS (mTLS), also known as client certificate authentication, is now generally available on Azure Front Door Premium. Use X.509 client certificates to help protect sensitive applications and APIs in business-to-business, Internet of Things, financia"
+}

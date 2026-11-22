@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=580921",
+  "title": "[In preview] Public Preview: Pod snapshot cluster extension",
+  "published_at": 1794945632,
+  "summary": "Restarting a sandboxed workload means losing in-memory state and repeating costly initialization. AI environments must reload models and rebuild runtime context; other sandboxed applications must repeat Java Virtual Machine (JVM) warmup or repopulate cach"
+}

@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=580261",
+  "title": "[Launched] Generally Available: Azure Monitor Health Models",
+  "published_at": 1794945632,
+  "summary": "Azure Monitor Health Models is now Generally Available. You can now build a Azure Monitor Health Model that defines and operationalizes workload health as a first-class construct by aggregating signals across metrics, logs, and dependencies into a single"
+}

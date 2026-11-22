@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=581604",
+  "title": "[In preview] Public Preview: AI bot ruleset for Azure Front Door Premium WAF",
+  "published_at": 1795026449,
+  "summary": "Announcing the public preview of the AI bot ruleset for Azure Web Application Firewall (WAF) on Azure Front Door Premium. AI crawlers and agents visit your site for different reasons, and you may want to allow some but not others. Robots.txt only works wh"
+}

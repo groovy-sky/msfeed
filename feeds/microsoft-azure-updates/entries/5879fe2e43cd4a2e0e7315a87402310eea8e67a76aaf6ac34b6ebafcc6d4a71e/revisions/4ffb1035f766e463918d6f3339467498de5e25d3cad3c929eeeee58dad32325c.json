@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=577668",
+  "title": "[Launched] Generally Available: Azure Front Door TLS key exchange policy with post-quantum support",
+  "published_at": 1793920788,
+  "summary": "Azure Front Door now supports configurable TLS key exchange policies, including hybrid post-quantum key exchange, to help you prepare for evolving cryptographic threats while meeting your security and client compatibility requirements. Choose a predefined"
+}

@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=580689",
+  "title": "[In preview] Public Preview: Azure Adaptive Virtual Patching",
+  "published_at": 1794947353,
+  "summary": "Azure Adaptive Virtual Patching introduces an AI-orchestrated Adaptive Shield designed to reduce exposure to new, emerging, and newly disclosed zero-day vulnerabilities while customers test and deploy software patches. The initial workload focus is Linux"
+}

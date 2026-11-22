@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=563411",
+  "title": "[Launched] Generally Available: MCP server knowledge sources in Foundry IQ",
+  "published_at": 1780426847,
+  "summary": "Foundry IQ supported Model Context Protocol (MCP) servers as federated knowledge sources, is generally available. Customers register an MCP server as a read-only knowledge source in Foundry IQ. MCP knowledge sources participate in Foundry IQ cross-source"
+}

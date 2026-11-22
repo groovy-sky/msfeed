@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=581125",
+  "title": "[In preview] Public Preview: Confidential VMs with OS Disk Encryption support on AKS",
+  "published_at": 1794949205,
+  "summary": "Regulated customers running AKS Confidential VM node pools protect workloads in memory today, but the OS disk isn't encrypted at rest, so they have to close the data-at-rest gap outside the platform. In Preview, Ubuntu 26.04 Confidential VM node pools ena"
+}

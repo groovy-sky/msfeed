@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578623",
+  "title": "[In preview] Public Preview: Azure Network Watcher – Resource health and topology in connection monitor tests",
+  "published_at": 1794945632,
+  "summary": "Resource health metrics in connection monitor brings resource health and key performance metrics into the Connection Monitor test topology, powered by Network Watcher topology. Until now, the topology showed the path between source and destination, but it"
+}

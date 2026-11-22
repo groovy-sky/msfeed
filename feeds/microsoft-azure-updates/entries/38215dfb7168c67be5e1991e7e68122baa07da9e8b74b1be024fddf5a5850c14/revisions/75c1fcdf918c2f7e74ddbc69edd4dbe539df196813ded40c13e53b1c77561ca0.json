@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578049",
+  "title": "[In preview] Public Preview: Embedding generation in Azure Cosmos DB",
+  "published_at": 1794945632,
+  "summary": "Embedding generation converts content into vector embeddings that capture semantic meaning, helping applications find relevant information beyond exact keyword matches. It uses specialized Azure Data-developed models to support semantic search and retriev"
+}

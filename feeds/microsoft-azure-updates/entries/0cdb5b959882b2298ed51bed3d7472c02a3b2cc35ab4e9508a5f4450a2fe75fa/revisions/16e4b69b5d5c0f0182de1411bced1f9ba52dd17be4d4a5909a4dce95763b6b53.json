@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=581048",
+  "title": "[Launched] Generally Available: Cross-subscription backup for Azure Virtual Machines in Azure Backup",
+  "published_at": 1795024804,
+  "summary": "Azure Backup now supports cross-subscription backup for Azure Virtual Machines, enabling customers to protect VMs using a Recovery Services vault located in a different Azure subscription within the same tenant.This capability allows organizations to cent"
+}

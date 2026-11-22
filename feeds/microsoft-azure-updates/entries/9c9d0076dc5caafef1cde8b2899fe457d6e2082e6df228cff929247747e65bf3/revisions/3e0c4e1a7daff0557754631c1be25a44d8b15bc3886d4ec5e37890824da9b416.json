@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579660",
+  "title": "[Launched] Generally Available: Improved Apache AGE graph query and ingestion performance on Azure HorizonDB",
+  "published_at": 1794945632,
+  "summary": "Azure HorizonDB introduces substantial Apache AGE performance improvements for querying and building knowledge graphs. Enhanced query planning and optimized graph joins accelerate eligible read queries, while faster duplicate detection and improved memory"
+}

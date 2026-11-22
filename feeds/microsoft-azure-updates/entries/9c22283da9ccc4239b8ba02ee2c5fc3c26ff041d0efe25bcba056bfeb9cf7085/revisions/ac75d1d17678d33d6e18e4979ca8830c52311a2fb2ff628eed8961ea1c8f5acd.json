@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578768",
+  "title": "[Launched] Generally Available: Customer-managed keys for Azure Functions durable task scheduler",
+  "published_at": 1794945632,
+  "summary": "Customer-managed keys for Azure Functions Durable Task Scheduler are now generally available for Dedicated SKU schedulers.Organizations that need to manage their own encryption keys can now use customer-managed keys to protect their workflow data, support"
+}

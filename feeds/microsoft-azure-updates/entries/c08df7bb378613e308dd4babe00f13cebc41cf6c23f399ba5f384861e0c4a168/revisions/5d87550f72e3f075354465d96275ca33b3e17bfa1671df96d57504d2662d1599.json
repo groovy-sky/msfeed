@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=580916",
+  "title": "[In preview] Public Preview: Agent Sandbox cluster extension",
+  "published_at": 1794946503,
+  "summary": "Running AI agents that execute untrusted, model-generated code requires isolated environments for each session. Today, teams building on Kubernetes assemble their own sandbox lifecycle, storage, and warm-up logic, adding operational overhead and making us"
+}

@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579221",
+  "title": "[In preview] Public Preview: Azure SQL DB Hyperscale Cross Database Querying",
+  "published_at": 1794954929,
+  "summary": "Native cross-database queries in Azure SQL Database Hyperscale let applications access and join data across databases in the same Hyperscale elastic pool on a logical server, using familiar T-SQL three-part names such as `database.schema.object`. This ena"
+}

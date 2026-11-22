@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=581244",
+  "title": "[In preview] Public Preview: VM adaptive placement",
+  "published_at": 1794945632,
+  "summary": "VM adaptive placement, now in public preview, helps increase Azure VM deployment success when capacity is constrained.With a standard VM create, you specify one exact size, and the deployment fails if that size isn't available. With adaptive placement, yo"
+}

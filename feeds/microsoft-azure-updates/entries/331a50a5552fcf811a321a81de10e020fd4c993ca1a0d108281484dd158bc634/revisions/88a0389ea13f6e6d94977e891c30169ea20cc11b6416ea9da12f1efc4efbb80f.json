@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578812",
+  "title": "[Launched] Generally Available: Golang support on Azure Functions Flex Consumption",
+  "published_at": 1794945632,
+  "summary": "First-class Go support on Azure Functions Flex Consumption is now generally available.The Go worker offers a code-first programming model with typed Go handlers, standard Go modules, and integration with Azure Functions Core Tools and Azure CLI. Developer"
+}

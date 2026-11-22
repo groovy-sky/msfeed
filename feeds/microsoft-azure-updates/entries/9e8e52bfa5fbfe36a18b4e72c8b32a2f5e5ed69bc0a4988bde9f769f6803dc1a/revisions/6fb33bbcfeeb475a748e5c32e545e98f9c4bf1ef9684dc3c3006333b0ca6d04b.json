@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579349",
+  "title": "[Launched] Generally Available: Near-instant provisioning for Azure DocumentDB clusters",
+  "published_at": 1794952661,
+  "summary": "Now the M10 to M30 computer tiers are available for near-instant provisioning. Historically, the free tier in Azure DocumentDB was made available for instant provisioning. The goal was to help you get started without having to wait for 10-15 minutes for"
+}

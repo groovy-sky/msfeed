@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578802",
+  "title": "[In preview] Public Preview: Azure Functions support for Python 3.15",
+  "published_at": 1794945632,
+  "summary": "Azure Functions support for Python 3.15 is now in public preview.Developers can evaluate Python applications, dependencies, native extensions and deployment workflows using the existing v1 and v2 programming models.Dependency overlap between the Python wo"
+}

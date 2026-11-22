@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578454",
+  "title": "[In preview] Public Preview: Distributed accelerator for cloud storage on AKS",
+  "published_at": 1794341312,
+  "summary": "Distributed accelerator for cloud storage (DACS) is now in public preview for AI workloads running on Azure Kubernetes Service (AKS). DACS is a distributed read-through cache that runs within your AKS cluster and uses local NVMe disks across nodes to keep"
+}

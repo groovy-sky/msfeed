@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579162",
+  "title": "[In preview] Public Preview: Multi-disk crash-consistent VM restore points for Premium SSD v2 and Ultra Disks on VMs with SCSI disk controller",
+  "published_at": 1793812431,
+  "summary": "Multi-disk crash-consistent restore points for Azure virtual machines with Premium SSD v2 and Ultra data disks are now available in public preview on VMs with SCSI disk controllers. You can use this to capture the agent-less crash consistent restore point"
+}

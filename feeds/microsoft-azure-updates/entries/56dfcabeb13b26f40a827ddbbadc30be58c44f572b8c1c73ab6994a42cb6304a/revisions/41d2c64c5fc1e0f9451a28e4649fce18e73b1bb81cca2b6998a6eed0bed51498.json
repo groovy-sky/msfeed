@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=574168",
+  "title": "[Launched] Generally Available: Geo-redundant backup and restore for Azure HorizonDB",
+  "published_at": 1794959275,
+  "summary": "Geo-redundant backup and restore for Azure HorizonDB is now available. You can use geo-redundant backups to strengthen data protection and restore your HorizonDB deployment in another Azure region when needed. With this capability, you have an additional"
+}

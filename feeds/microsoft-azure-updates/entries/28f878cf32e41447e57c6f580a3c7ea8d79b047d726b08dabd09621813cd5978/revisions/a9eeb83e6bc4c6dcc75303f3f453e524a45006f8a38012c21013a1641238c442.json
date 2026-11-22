@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579206",
+  "title": "[In preview] Public Preview: Perimeter link (cross perimeter) in network security perimeter",
+  "published_at": 1794948673,
+  "summary": "This capability enables secure connectivity between resources protected by different network security perimeters, while maintaining strong perimeter-based access controls. With this release, customers can confidently adopt network security perimeter acros"
+}

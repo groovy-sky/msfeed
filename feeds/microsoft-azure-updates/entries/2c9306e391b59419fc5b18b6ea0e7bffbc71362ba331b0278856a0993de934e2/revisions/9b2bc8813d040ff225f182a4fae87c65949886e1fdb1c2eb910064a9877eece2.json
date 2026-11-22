@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=571821",
+  "title": "[Launched] Generally Available: Network egress controls for hosted agents in Microsoft Foundry",
+  "published_at": 1789752201,
+  "summary": "Network egress controls for hosted agents in Foundry Agent Service are now generally available.Create rules that allow or deny destinations, or rewrite destinations. Audit mode logs deny decisions without blocking them. Rewrite rules still take effect.Hea"
+}

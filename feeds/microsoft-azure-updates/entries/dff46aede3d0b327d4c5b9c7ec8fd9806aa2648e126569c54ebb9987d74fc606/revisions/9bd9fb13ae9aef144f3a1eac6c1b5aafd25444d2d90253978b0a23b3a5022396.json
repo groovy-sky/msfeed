@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578172",
+  "title": "[In preview] Public Preview: Azure Network Watcher – Packet capture insights",
+  "published_at": 1794945632,
+  "summary": "Packet capture Insights uses AI-assisted analysis to surface key findings from packet captures and can ingest structured protocol logs into log analytics ingestion for deeper investigation. Packet capture insights help make capture data more accessible by"
+}

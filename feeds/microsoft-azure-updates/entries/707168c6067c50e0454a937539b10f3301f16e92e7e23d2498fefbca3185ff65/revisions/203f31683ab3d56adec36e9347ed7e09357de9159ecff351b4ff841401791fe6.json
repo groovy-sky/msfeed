@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579310",
+  "title": "[Launched] Generally Available: Azure Front Door edge actions",
+  "published_at": 1794336909,
+  "summary": "Announcing the general availability of Azure Front Door edge actions (serverless compute at the edge). With edge actions, customers can execute lightweight JavaScript functions during Azure Front Door client request/response processing to make real-time d"
+}

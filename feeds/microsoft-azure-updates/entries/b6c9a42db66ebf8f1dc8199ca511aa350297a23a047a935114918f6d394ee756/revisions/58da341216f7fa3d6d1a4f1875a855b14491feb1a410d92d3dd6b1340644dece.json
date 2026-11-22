@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=577594",
+  "title": "[In preview] Public Preview: Redis 8 in Azure Managed Redis",
+  "published_at": 1794945632,
+  "summary": "Redis 8 is now available in Azure Managed Redis, bringing the latest Redis innovation to Azure's fully managed Redis service. With richer queries, atomic JSON updates, field-level expiration, and fine-grained security, Redis 8 simplifies development and h"
+}

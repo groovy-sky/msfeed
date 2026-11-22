@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=581130",
+  "title": "[Launched] Generally Available: Confidential VMs with Intel TDX support on AKS",
+  "published_at": 1794949205,
+  "summary": "Customers standardized on Intel Trust Domain Extensions (TDX) for attestation and hardware confidentiality can't run those workloads on AKS Confidential VM node pools today, because CVM node images only support AMD SEV-SNP. AKS Confidential VM node pools"
+}

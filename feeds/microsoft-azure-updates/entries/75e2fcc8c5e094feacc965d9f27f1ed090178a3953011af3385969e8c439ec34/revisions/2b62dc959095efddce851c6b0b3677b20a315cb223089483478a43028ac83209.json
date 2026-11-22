@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579590",
+  "title": "[Launched] Generally Available: Intel and AMD v6 with temp disk for Azure Database for PostgreSQL",
+  "published_at": 1794959569,
+  "summary": "Azure Database for PostgreSQL Flexible Server is announcing the general availability of Intel and AMD v6 compute tiers with local temporary disk. The new v6 generation expands the Flexible Server compute portfolio with higher performance, larger scale, an"
+}

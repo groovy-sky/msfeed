@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=571488",
+  "title": "[Launched] Generally Available: Throughput buckets in Azure Cosmos DB",
+  "published_at": 1794959066,
+  "summary": "We're excited to announce the general availability of throughput buckets in Azure Cosmos DB. You can manage the resource consumption of multiple workloads using the same container by limiting the maximum throughput a workload can consume. You may need to"
+}

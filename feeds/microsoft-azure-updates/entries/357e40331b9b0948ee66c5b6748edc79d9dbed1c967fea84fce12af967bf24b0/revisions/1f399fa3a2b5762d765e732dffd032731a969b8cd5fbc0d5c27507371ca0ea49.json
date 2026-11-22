@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=580418",
+  "title": "[In preview] Public Preview: Centralized user authentication + JWT validation for Azure Application Gateway",
+  "published_at": 1794945632,
+  "summary": "Announcing the public preview of centralized user authentication for Azure Application Gateway, along with an updated JWT validation experience. User authentication enables Application Gateway to sign users in with OpenID Connect before traffic reaches a"
+}

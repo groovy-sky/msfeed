@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579226",
+  "title": "[In preview] Public Preview: Migrate Oracle databases to Azure HorizonDB using Azure Database Migration Service",
+  "published_at": 1794945632,
+  "summary": "Azure Database Migration Service now supports Oracle-to-Azure HorizonDB data migrations. You can configure source and target connections, select the schemas to migrate, initiate data transfer, and track migration progress through a single experience—witho"
+}

@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=579564",
+  "title": "[In preview] Public Preview: Migrate PostgreSQL servers to Azure HorizonDB",
+  "published_at": 1794945624,
+  "summary": "Azure Database Migration Service support for migrations to Azure HorizonDB is now available in public preview. You can use a guided, Azure portal–based experience to migrate supported PostgreSQL workloads to Azure HorizonDB, including Azure Database for P"
+}

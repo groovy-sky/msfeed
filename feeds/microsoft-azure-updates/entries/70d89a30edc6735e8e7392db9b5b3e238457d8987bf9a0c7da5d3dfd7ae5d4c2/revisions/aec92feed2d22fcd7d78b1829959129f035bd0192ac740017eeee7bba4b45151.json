@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=577520",
+  "title": "[Launched] Generally Available: Semantic Reranker in Azure Cosmos DB",
+  "published_at": 1794956862,
+  "summary": "Semantic Reranker in Azure Cosmos DB improves search relevance by reordering candidate results based on the meaning of the search text and surrounding context. It uses an AI model to evaluate candidate documents and promote the ones that best match the in"
+}

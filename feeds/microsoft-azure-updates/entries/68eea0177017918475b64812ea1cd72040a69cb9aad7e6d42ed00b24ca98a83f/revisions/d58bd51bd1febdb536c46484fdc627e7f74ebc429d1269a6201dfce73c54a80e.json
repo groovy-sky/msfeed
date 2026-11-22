@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=580862",
+  "title": "[In preview] Public Preview: Azure DDoS Protection support for NAT Gateway v2 IP",
+  "published_at": 1794945632,
+  "summary": "Azure DDoS Protection now covers the public IPs behind Azure NAT Gateway StandardV2, in public preview. You can protect the IPv4 and IPv6 addresses that carry your outbound internet traffic from network-layer DDoS attacks, using the same DDoS Network Prot"
+}

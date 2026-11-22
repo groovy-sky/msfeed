@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=578829",
+  "title": "[Launched] Generally Available: Durable Task extension for Microsoft Agent Framework",
+  "published_at": 1794945632,
+  "summary": "The Durable Task extension for Microsoft Agent Framework is now generally available for C# and Python. Build agents, multi-agent orchestrations, and Microsoft Agent Framework workflows that can run reliably for minutes, days, or weeks. The extension persi"
+}
