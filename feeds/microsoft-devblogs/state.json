@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "entry_storage_version": 3,
+  "entry_storage_version": 4,
   "etag": "W/\"296257d3cb9d77bfc5c71d3c14d44b84\"",
   "last_modified": "Sat, 21 Nov 2026 04:50:19 GMT",
   "effective_url": "https://devblogs.microsoft.com/feed/",
-  "last_success": "2026-11-22T14:10:24Z",
-  "last_attempt": "2026-11-22T14:10:24Z"
+  "last_success": "2026-11-22T21:15:54Z",
+  "last_attempt": "2026-11-22T21:15:54Z"
 }

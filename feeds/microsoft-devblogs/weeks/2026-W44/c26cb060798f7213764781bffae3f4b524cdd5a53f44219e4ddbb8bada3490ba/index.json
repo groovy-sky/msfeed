@@ -2,10 +2,12 @@
   "schema_version": 1,
   "entry_key": "c26cb060798f7213764781bffae3f4b524cdd5a53f44219e4ddbb8bada3490ba",
   "identity_basis": "id",
+  "identity": "https://devblogs.microsoft.com/?p=22597",
   "source_id": "https://devblogs.microsoft.com/?p=22597",
   "url": "https://devblogs.microsoft.com/blog/trusted-publishing-visual-studio-marketplace/",
   "has_feed_content": true,
+  "canonical_week": "2026-W44",
   "current_revision": "709d4a0a4bf752b631b8107a176fed965db61a5cd1d4429513c178cf5cdebfe6",
   "first_seen": "2026-11-22T06:51:26Z",
-  "last_seen": "2026-11-22T14:10:24Z"
+  "last_seen": "2026-11-22T21:15:54Z"
 }

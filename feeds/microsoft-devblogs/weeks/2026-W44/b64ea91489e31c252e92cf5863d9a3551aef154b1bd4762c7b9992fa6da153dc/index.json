@@ -2,10 +2,12 @@
   "schema_version": 1,
   "entry_key": "b64ea91489e31c252e92cf5863d9a3551aef154b1bd4762c7b9992fa6da153dc",
   "identity_basis": "id",
+  "identity": "https://devblogs.microsoft.com/?p=22641",
   "source_id": "https://devblogs.microsoft.com/?p=22641",
   "url": "https://devblogs.microsoft.com/blog/does-eval-in-the-workspace-path-change-what-your-agent-does/",
   "has_feed_content": true,
+  "canonical_week": "2026-W44",
   "current_revision": "9744d29525ab5f9ade5e12303b6568338f4ec4f3e1848d0e124e10d2556c7809",
   "first_seen": "2026-11-22T06:51:26Z",
-  "last_seen": "2026-11-22T14:10:24Z"
+  "last_seen": "2026-11-22T21:15:54Z"
 }
