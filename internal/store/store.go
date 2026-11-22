@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -17,7 +19,7 @@ import (
 )
 
 const dirMode = 0o700
-const CompactEntryVersion = 3
+const CompactEntryVersion = 4
 
 type Store struct {
 	root string
@@ -63,15 +65,26 @@ type SnapshotMetadata struct {
 }
 
 type EntryIndex struct {
-	SchemaVersion   int    `json:"schema_version"`
-	EntryKey        string `json:"entry_key"`
-	IdentityBasis   string `json:"identity_basis"`
-	SourceID        string `json:"source_id,omitempty"`
-	URL             string `json:"url,omitempty"`
-	HasFeedContent  bool   `json:"has_feed_content,omitempty"`
-	CurrentRevision string `json:"current_revision"`
-	FirstSeen       string `json:"first_seen"`
-	LastSeen        string `json:"last_seen"`
+	SchemaVersion   int      `json:"schema_version"`
+	EntryKey        string   `json:"entry_key"`
+	IdentityBasis   string   `json:"identity_basis"`
+	Identity        string   `json:"identity,omitempty"`
+	SourceID        string   `json:"source_id,omitempty"`
+	URL             string   `json:"url,omitempty"`
+	HasFeedContent  bool     `json:"has_feed_content,omitempty"`
+	CanonicalWeek   string   `json:"canonical_week"`
+	WeekAliases     []string `json:"week_aliases,omitempty"`
+	CurrentRevision string   `json:"current_revision"`
+	FirstSeen       string   `json:"first_seen"`
+	LastSeen        string   `json:"last_seen"`
+}
+
+type EntryLocation struct {
+	SchemaVersion int    `json:"schema_version"`
+	EntryKey      string `json:"entry_key"`
+	IdentityBasis string `json:"identity_basis"`
+	Identity      string `json:"identity,omitempty"`
+	CanonicalWeek string `json:"canonical_week"`
 }
 
 type EnrichmentIndex struct {
@@ -283,7 +296,22 @@ func (s *Store) LatestSnapshot(
 }
 
 func (s *Store) SaveEntry(entry parse.Entry, observedAt time.Time) (newEntry, changed bool, err error) {
-	base := filepath.Join(s.feedDir(entry.FeedID), "entries", entry.EntryKey)
+	location, found, err := s.entryLocation(entry.FeedID, entry.EntryKey)
+	if err != nil {
+		return false, false, err
+	}
+	incomingWeek := entryWeek(entry, observedAt)
+	identity := entryIdentity(entry)
+	if found && !sameIdentity(location, entry, identity) {
+		return false, false, fmt.Errorf(
+			"entry key %s collides with a different identity", entry.EntryKey,
+		)
+	}
+	week := incomingWeek
+	if found {
+		week = location.CanonicalWeek
+	}
+	base := filepath.Join(s.feedDir(entry.FeedID), "weeks", week, entry.EntryKey)
 	revisions := filepath.Join(base, "revisions")
 	if err := os.MkdirAll(revisions, dirMode); err != nil {
 		return false, false, err
@@ -295,16 +323,33 @@ func (s *Store) SaveEntry(entry parse.Entry, observedAt time.Time) (newEntry, ch
 	if err != nil && !isNew {
 		return false, false, fmt.Errorf("read entry index: %w", err)
 	}
+	if !isNew {
+		if index.EntryKey != entry.EntryKey || index.IdentityBasis != entry.IdentityBasis {
+			return false, false, errors.New("entry index does not match its immutable identity")
+		}
+		if index.Identity != "" && identity != "" && index.Identity != identity {
+			return false, false, errors.New("entry index collides with a different identity")
+		}
+	}
 	changed = index.CurrentRevision != entry.ContentHash
 	now := observedAt.UTC().Format(time.RFC3339)
 	if isNew {
 		index = EntryIndex{
 			SchemaVersion: 1, EntryKey: entry.EntryKey, IdentityBasis: entry.IdentityBasis,
-			CurrentRevision: entry.ContentHash, FirstSeen: now,
+			Identity: identity, CanonicalWeek: week, CurrentRevision: entry.ContentHash,
+			FirstSeen: now,
 		}
 		newEntry = true
 	} else {
 		index.CurrentRevision = entry.ContentHash
+		if index.Identity == "" {
+			index.Identity = identity
+		}
+		if entry.Record().PublishedAt != 0 && incomingWeek != week &&
+			!containsString(index.WeekAliases, incomingWeek) {
+			index.WeekAliases = append(index.WeekAliases, incomingWeek)
+			sort.Strings(index.WeekAliases)
+		}
 	}
 	index.SourceID = strings.TrimSpace(entry.SourceID)
 	index.URL = entry.URL
@@ -333,13 +378,25 @@ func (s *Store) SaveEntry(entry parse.Entry, observedAt time.Time) (newEntry, ch
 	if err := writeJSON(indexPath, index); err != nil {
 		return false, false, err
 	}
+	if !found || (location.Identity == "" && identity != "") {
+		location = EntryLocation{
+			SchemaVersion: 1, EntryKey: entry.EntryKey, IdentityBasis: entry.IdentityBasis,
+			Identity: identity, CanonicalWeek: week,
+		}
+		if err := writeJSON(s.locationPath(entry.FeedID, entry.EntryKey), location); err != nil {
+			return false, false, fmt.Errorf("write entry location: %w", err)
+		}
+	}
 	return newEntry, changed, nil
 }
 
 func (s *Store) EntriesNeedingEnrichment(
 	feedID, provider, sourceURL string,
 ) ([]parse.Entry, error) {
-	root := filepath.Join(s.feedDir(feedID), "entries")
+	if err := s.validateWeeklyLocations(feedID); err != nil {
+		return nil, err
+	}
+	root := filepath.Join(s.feedDir(feedID), "locations")
 	directories, err := os.ReadDir(root)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil, nil
@@ -349,16 +406,24 @@ func (s *Store) EntriesNeedingEnrichment(
 	}
 	entries := make([]parse.Entry, 0)
 	for _, directory := range directories {
-		if !directory.IsDir() {
-			return nil, fmt.Errorf("entry path %q is not a directory", directory.Name())
+		if !directory.Type().IsRegular() || filepath.Ext(directory.Name()) != ".json" {
+			return nil, fmt.Errorf("entry location path %q is not a regular JSON file", directory.Name())
 		}
-		base := filepath.Join(root, directory.Name())
+		var location EntryLocation
+		if err := readJSON(filepath.Join(root, directory.Name()), &location); err != nil {
+			return nil, fmt.Errorf("read entry location %s: %w", directory.Name(), err)
+		}
+		entryKey := strings.TrimSuffix(directory.Name(), ".json")
+		if location.EntryKey != entryKey {
+			return nil, fmt.Errorf("entry location %s does not match its path", directory.Name())
+		}
+		base := filepath.Join(s.feedDir(feedID), "weeks", location.CanonicalWeek, entryKey)
 		var index EntryIndex
 		if err := readJSON(filepath.Join(base, "index.json"), &index); err != nil {
-			return nil, fmt.Errorf("read entry index %s: %w", directory.Name(), err)
+			return nil, fmt.Errorf("read entry index %s: %w", entryKey, err)
 		}
-		if index.EntryKey != directory.Name() {
-			return nil, fmt.Errorf("entry index %s does not match its directory", directory.Name())
+		if index.EntryKey != entryKey || index.CanonicalWeek != location.CanonicalWeek {
+			return nil, fmt.Errorf("entry index %s does not match its location", entryKey)
 		}
 		if index.SourceID == "" {
 			continue
@@ -398,9 +463,46 @@ func (s *Store) EntriesNeedingEnrichment(
 	return entries, nil
 }
 
+func (s *Store) validateWeeklyLocations(feedID string) error {
+	weeksRoot := filepath.Join(s.feedDir(feedID), "weeks")
+	weeks, err := os.ReadDir(weeksRoot)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	for _, week := range weeks {
+		if !week.IsDir() || !validWeek(week.Name()) {
+			return fmt.Errorf("week path %q is not a valid ISO week directory", week.Name())
+		}
+		entries, err := os.ReadDir(filepath.Join(weeksRoot, week.Name()))
+		if err != nil {
+			return err
+		}
+		for _, entry := range entries {
+			if !entry.IsDir() {
+				return fmt.Errorf("weekly entry path %q is not a directory", entry.Name())
+			}
+			location, found, err := s.entryLocation(feedID, entry.Name())
+			if err != nil {
+				return err
+			}
+			if !found || location.CanonicalWeek != week.Name() {
+				return fmt.Errorf(
+					"weekly entry %s in %s is missing a matching location",
+					entry.Name(), week.Name(),
+				)
+			}
+		}
+	}
+	return nil
+}
+
 func pendingEnrichmentEntry(feedID string, index EntryIndex) parse.Entry {
 	return parse.Entry{
 		FeedID: feedID, EntryKey: index.EntryKey, ContentHash: index.CurrentRevision,
+		IdentityBasis: index.IdentityBasis, Identity: index.Identity,
 		SourceID: index.SourceID, URL: index.URL,
 	}
 }
@@ -429,7 +531,17 @@ func (s *Store) SaveEnrichment(
 		return false, false, fmt.Errorf("invalid enrichment retrieval time: %w", err)
 	}
 
-	base := filepath.Join(s.feedDir(entry.FeedID), "entries", entry.EntryKey)
+	location, found, err := s.entryLocation(entry.FeedID, entry.EntryKey)
+	if err != nil {
+		return false, false, err
+	}
+	if !found {
+		return false, false, errors.New("entry location is missing")
+	}
+	if !sameIdentity(location, entry, entryIdentity(entry)) {
+		return false, false, errors.New("entry location collides with a different identity")
+	}
+	base := filepath.Join(s.feedDir(entry.FeedID), "weeks", location.CanonicalWeek, entry.EntryKey)
 	artifacts := filepath.Join(base, "enrichments")
 	if err := os.MkdirAll(artifacts, dirMode); err != nil {
 		return false, false, err
@@ -502,33 +614,228 @@ func (s *Store) UpgradeEntryStorage(ctx context.Context, feedID string, allowInc
 	if err := ctx.Err(); err != nil {
 		return false, err
 	}
-	entriesRoot := filepath.Join(s.feedDir(feedID), "entries")
-	entries, err := os.ReadDir(entriesRoot)
-	if errors.Is(err, os.ErrNotExist) {
-		return true, nil
-	}
-	if err != nil {
+	complete := true
+
+	legacyRoot := filepath.Join(s.feedDir(feedID), "entries")
+	legacyEntries, err := os.ReadDir(legacyRoot)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return false, err
 	}
-	complete := true
-	for _, directory := range entries {
+	for _, directory := range legacyEntries {
 		if err := ctx.Err(); err != nil {
 			return false, err
 		}
 		if !directory.IsDir() {
 			return false, fmt.Errorf("entry path %q is not a directory", directory.Name())
 		}
+		legacyPath := filepath.Join(legacyRoot, directory.Name())
 		directoryComplete, err := s.upgradeEntryDirectory(
-			ctx, filepath.Join(entriesRoot, directory.Name()), directory.Name(), allowIncomplete,
+			ctx, legacyPath, directory.Name(), true,
 		)
 		if err != nil {
 			return false, err
 		}
 		if !directoryComplete {
+			recovered, recoverErr := s.removeRecoveredLegacyEntry(
+				feedID, directory.Name(), legacyPath,
+			)
+			if recoverErr != nil {
+				return false, recoverErr
+			}
+			if recovered {
+				continue
+			}
+			if !allowIncomplete {
+				return false, fmt.Errorf("entry index %s is missing", directory.Name())
+			}
 			complete = false
+			continue
+		}
+		if err := s.moveEntryToWeek(feedID, directory.Name(), legacyPath); err != nil {
+			return false, err
+		}
+	}
+	if len(legacyEntries) > 0 {
+		remaining, err := os.ReadDir(legacyRoot)
+		if err != nil {
+			return false, err
+		}
+		if len(remaining) == 0 {
+			if err := os.Remove(legacyRoot); err != nil {
+				return false, fmt.Errorf("remove empty legacy entry root: %w", err)
+			}
+		}
+	}
+
+	weeksRoot := filepath.Join(s.feedDir(feedID), "weeks")
+	weeks, err := os.ReadDir(weeksRoot)
+	if errors.Is(err, os.ErrNotExist) {
+		return complete, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	for _, week := range weeks {
+		if err := ctx.Err(); err != nil {
+			return false, err
+		}
+		if !week.IsDir() || !validWeek(week.Name()) {
+			return false, fmt.Errorf("week path %q is not a valid ISO week directory", week.Name())
+		}
+		weekPath := filepath.Join(weeksRoot, week.Name())
+		entries, err := os.ReadDir(weekPath)
+		if err != nil {
+			return false, err
+		}
+		for _, entry := range entries {
+			if err := ctx.Err(); err != nil {
+				return false, err
+			}
+			if !entry.IsDir() {
+				return false, fmt.Errorf("entry path %q is not a directory", entry.Name())
+			}
+			directory := filepath.Join(weekPath, entry.Name())
+			directoryComplete, err := s.upgradeEntryDirectory(
+				ctx, directory, entry.Name(), allowIncomplete,
+			)
+			if err != nil {
+				return false, err
+			}
+			if !directoryComplete {
+				complete = false
+				continue
+			}
+			if err := s.ensureLocation(feedID, week.Name(), entry.Name()); err != nil {
+				return false, err
+			}
 		}
 	}
 	return complete, ctx.Err()
+}
+
+func (s *Store) removeRecoveredLegacyEntry(feedID, entryKey, legacyPath string) (bool, error) {
+	location, found, err := s.entryLocation(feedID, entryKey)
+	if err != nil || !found {
+		return false, err
+	}
+	destination := filepath.Join(
+		s.feedDir(feedID), "weeks", location.CanonicalWeek, entryKey,
+	)
+	files, err := os.ReadDir(legacyPath)
+	if err != nil {
+		return false, err
+	}
+	for _, file := range files {
+		if strings.HasPrefix(file.Name(), ".tmp-") && file.Type().IsRegular() {
+			continue
+		}
+		switch file.Name() {
+		case "revisions":
+			if !file.IsDir() {
+				return false, errors.New("legacy recovered revisions path is not a directory")
+			}
+			revisions, err := os.ReadDir(filepath.Join(legacyPath, "revisions"))
+			if err != nil {
+				return false, err
+			}
+			for _, revision := range revisions {
+				if strings.HasPrefix(revision.Name(), ".tmp-") && revision.Type().IsRegular() {
+					continue
+				}
+				if !revision.Type().IsRegular() {
+					return false, errors.New("legacy recovered entry contains a non-regular revision")
+				}
+				record, err := s.readRevision(filepath.Join(legacyPath, "revisions", revision.Name()))
+				if err != nil {
+					return false, err
+				}
+				existing, err := readCompactRevision(filepath.Join(
+					destination, "revisions", record.Hash()+".json",
+				))
+				if err != nil {
+					return false, fmt.Errorf("recovered entry revision is not present: %w", err)
+				}
+				if existing != record {
+					return false, errors.New("recovered entry revision differs from weekly entry")
+				}
+			}
+		default:
+			return false, fmt.Errorf("legacy recovered entry contains unexpected path %s", file.Name())
+		}
+	}
+	if err := os.RemoveAll(legacyPath); err != nil {
+		return false, fmt.Errorf("remove recovered legacy entry %s: %w", entryKey, err)
+	}
+	return true, nil
+}
+
+func (s *Store) moveEntryToWeek(feedID, entryKey, source string) error {
+	var index EntryIndex
+	if err := readJSON(filepath.Join(source, "index.json"), &index); err != nil {
+		return fmt.Errorf("read migrated entry index %s: %w", entryKey, err)
+	}
+	week, err := indexWeek(feedID, source, index)
+	if err != nil {
+		return err
+	}
+	index.CanonicalWeek = week
+	index.WeekAliases = nil
+	index.Identity = indexIdentity(index)
+	if err := writeJSON(filepath.Join(source, "index.json"), index); err != nil {
+		return fmt.Errorf("update migrated entry index %s: %w", entryKey, err)
+	}
+	destination := filepath.Join(s.feedDir(feedID), "weeks", week, entryKey)
+	if err := os.MkdirAll(filepath.Dir(destination), dirMode); err != nil {
+		return err
+	}
+	if _, err := os.Stat(destination); err == nil {
+		return fmt.Errorf("weekly entry path already exists for %s in %s", entryKey, week)
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	if err := os.Rename(source, destination); err != nil {
+		return fmt.Errorf("move entry %s to week %s: %w", entryKey, week, err)
+	}
+	if err := s.ensureLocation(feedID, week, entryKey); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Store) ensureLocation(feedID, week, entryKey string) error {
+	base := filepath.Join(s.feedDir(feedID), "weeks", week, entryKey)
+	var index EntryIndex
+	if err := readJSON(filepath.Join(base, "index.json"), &index); err != nil {
+		return fmt.Errorf("read weekly entry index %s: %w", entryKey, err)
+	}
+	if index.EntryKey != entryKey || (index.CanonicalWeek != "" && index.CanonicalWeek != week) {
+		return fmt.Errorf("weekly entry index %s does not match %s", entryKey, week)
+	}
+	if index.CanonicalWeek == "" {
+		index.CanonicalWeek = week
+		if err := writeJSON(filepath.Join(base, "index.json"), index); err != nil {
+			return fmt.Errorf("set canonical week for %s: %w", entryKey, err)
+		}
+	}
+	path := s.locationPath(feedID, entryKey)
+	var existing EntryLocation
+	err := readJSON(path, &existing)
+	switch {
+	case errors.Is(err, os.ErrNotExist):
+		return writeJSON(path, EntryLocation{
+			SchemaVersion: 1, EntryKey: entryKey, IdentityBasis: index.IdentityBasis,
+			Identity: index.Identity, CanonicalWeek: week,
+		})
+	case err != nil:
+		return fmt.Errorf("read entry location %s: %w", entryKey, err)
+	case existing.EntryKey != entryKey || existing.CanonicalWeek != week ||
+		existing.IdentityBasis != index.IdentityBasis:
+		return fmt.Errorf("entry location %s conflicts with its weekly index", entryKey)
+	case existing.Identity != "" && index.Identity != "" && existing.Identity != index.Identity:
+		return fmt.Errorf("entry location %s collides with a different identity", entryKey)
+	default:
+		return nil
+	}
 }
 
 func (s *Store) upgradeEntryDirectory(
@@ -712,6 +1019,113 @@ func writeCompactRevisionIfMissing(path string, record parse.Record) error {
 
 func (s *Store) feedDir(feedID string) string {
 	return filepath.Join(s.root, "feeds", feedID)
+}
+
+func (s *Store) locationPath(feedID, entryKey string) string {
+	return filepath.Join(s.feedDir(feedID), "locations", entryKey+".json")
+}
+
+func (s *Store) entryLocation(feedID, entryKey string) (EntryLocation, bool, error) {
+	var location EntryLocation
+	path := s.locationPath(feedID, entryKey)
+	err := readJSON(path, &location)
+	if errors.Is(err, os.ErrNotExist) {
+		return EntryLocation{}, false, nil
+	}
+	if err != nil {
+		return EntryLocation{}, false, fmt.Errorf("read entry location %s: %w", entryKey, err)
+	}
+	if location.SchemaVersion != 1 || location.EntryKey != entryKey ||
+		!validWeek(location.CanonicalWeek) {
+		return EntryLocation{}, false, fmt.Errorf("invalid entry location %s", entryKey)
+	}
+	return location, true, nil
+}
+
+func entryWeek(entry parse.Entry, fallback time.Time) string {
+	publishedAt := entry.Record().PublishedAt
+	if publishedAt == 0 {
+		return isoWeek(fallback)
+	}
+	return isoWeek(time.Unix(publishedAt, 0).UTC())
+}
+
+func indexWeek(feedID, directory string, index EntryIndex) (string, error) {
+	record, err := readCompactRevision(filepath.Join(
+		directory, "revisions", index.CurrentRevision+".json",
+	))
+	if err != nil {
+		return "", fmt.Errorf("read migrated entry revision for %s: %w", index.EntryKey, err)
+	}
+	if record.PublishedAt != 0 {
+		return isoWeek(time.Unix(record.PublishedAt, 0).UTC()), nil
+	}
+	firstSeen, err := time.Parse(time.RFC3339, index.FirstSeen)
+	if err != nil {
+		return "", fmt.Errorf(
+			"entry %s in feed %s has neither a publication date nor valid first_seen: %w",
+			index.EntryKey, feedID, err,
+		)
+	}
+	return isoWeek(firstSeen), nil
+}
+
+func isoWeek(value time.Time) string {
+	year, week := value.UTC().ISOWeek()
+	return fmt.Sprintf("%04d-W%02d", year, week)
+}
+
+func validWeek(value string) bool {
+	if len(value) != 8 || value[4:6] != "-W" {
+		return false
+	}
+	year, err := strconv.Atoi(value[:4])
+	if err != nil || year < 1 {
+		return false
+	}
+	week, err := strconv.Atoi(value[6:])
+	return err == nil && week >= 1 && week <= 53
+}
+
+func entryIdentity(entry parse.Entry) string {
+	if entry.Identity != "" {
+		return entry.Identity
+	}
+	switch entry.IdentityBasis {
+	case "id":
+		return strings.TrimSpace(entry.SourceID)
+	case "link":
+		return entry.URL
+	default:
+		return ""
+	}
+}
+
+func indexIdentity(index EntryIndex) string {
+	switch index.IdentityBasis {
+	case "id":
+		return strings.TrimSpace(index.SourceID)
+	case "link":
+		return index.URL
+	default:
+		return ""
+	}
+}
+
+func sameIdentity(location EntryLocation, entry parse.Entry, identity string) bool {
+	if location.IdentityBasis != entry.IdentityBasis {
+		return false
+	}
+	return location.Identity == "" || identity == "" || location.Identity == identity
+}
+
+func containsString(values []string, value string) bool {
+	for _, existing := range values {
+		if existing == value {
+			return true
+		}
+	}
+	return false
 }
 
 func readJSON(path string, target any) error {

@@ -60,14 +60,14 @@ func TestRunIsIdempotentAndPreservesChangedRevision(t *testing.T) {
 	if state.EntryStorageVersion != store.CompactEntryVersion {
 		t.Fatalf("entry storage version = %d, want %d", state.EntryStorageVersion, store.CompactEntryVersion)
 	}
-	entryDirs, err := os.ReadDir(filepath.Join(dataDir, "feeds", "test", "entries"))
+	entryDirs, err := filepath.Glob(filepath.Join(dataDir, "feeds", "test", "weeks", "*", "*"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(entryDirs) != 1 {
 		t.Fatalf("entry directories = %d, want 1", len(entryDirs))
 	}
-	entryDir := filepath.Join(dataDir, "feeds", "test", "entries", entryDirs[0].Name())
+	entryDir := entryDirs[0]
 
 	second, err := collector.Run(context.Background(), "", true)
 	if err != nil {
@@ -159,14 +159,13 @@ func TestRunStoresODataEnrichmentSeparately(t *testing.T) {
 		t.Fatalf("stored feed enrichment = %+v", storedFeed.Enrichment)
 	}
 
-	entriesRoot := filepath.Join(cfg.DataDir, "feeds", "test", "entries")
-	entries, err := os.ReadDir(entriesRoot)
+	entries, err := filepath.Glob(filepath.Join(cfg.DataDir, "feeds", "test", "weeks", "*", "*"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	enriched := 0
 	for _, directory := range entries {
-		indexPath := filepath.Join(entriesRoot, directory.Name(), "enrichment.json")
+		indexPath := filepath.Join(directory, "enrichment.json")
 		var index store.EnrichmentIndex
 		if err := readJSONFile(indexPath, &index); err != nil {
 			if os.IsNotExist(err) {
@@ -176,7 +175,7 @@ func TestRunStoresODataEnrichmentSeparately(t *testing.T) {
 		}
 		enriched++
 		artifactPath := filepath.Join(
-			entriesRoot, directory.Name(), "enrichments", index.CurrentArtifact+".json",
+			directory, "enrichments", index.CurrentArtifact+".json",
 		)
 		var artifact store.EnrichmentRecord
 		if err := readJSONFile(artifactPath, &artifact); err != nil {
@@ -367,9 +366,7 @@ func TestRunReplaysLatestSnapshotForFullTextUpgrade(t *testing.T) {
 		state.PendingSnapshot != "" || state.ETag != `"full"` {
 		t.Fatalf("state after migration = %+v", state)
 	}
-	base := filepath.Join(
-		cfg.DataDir, "feeds", "test", "entries", entry.EntryKey,
-	)
+	base := entryDirectoryForKey(t, cfg.DataDir, "test", entry.EntryKey)
 	var index store.EntryIndex
 	if err := readJSONFile(filepath.Join(base, "index.json"), &index); err != nil {
 		t.Fatal(err)
@@ -485,7 +482,7 @@ func TestRunRecoversEntryWithoutIndexBeforeStorageUpgrade(t *testing.T) {
 		t.Fatalf("state after recovery = %+v", state)
 	}
 	index := filepath.Join(
-		collector.Store.Root(), "feeds", "test", "entries", entry.EntryKey, "index.json",
+		entryDirectoryForKey(t, collector.Store.Root(), "test", entry.EntryKey), "index.json",
 	)
 	if _, err := os.Stat(index); err != nil {
 		t.Fatalf("recovered index missing: %v", err)
@@ -767,6 +764,19 @@ func assertRevisionCount(t *testing.T, entryDir string, want int) {
 	if len(revisions) != want {
 		t.Fatalf("revisions = %d, want %d", len(revisions), want)
 	}
+}
+
+func entryDirectoryForKey(t *testing.T, dataDir, feedID, entryKey string) string {
+	t.Helper()
+	var location store.EntryLocation
+	if err := readJSONFile(filepath.Join(
+		dataDir, "feeds", feedID, "locations", entryKey+".json",
+	), &location); err != nil {
+		t.Fatal(err)
+	}
+	return filepath.Join(
+		dataDir, "feeds", feedID, "weeks", location.CanonicalWeek, entryKey,
+	)
 }
 
 func readJSONFile(path string, target any) error {

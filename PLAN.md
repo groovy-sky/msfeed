@@ -148,14 +148,17 @@ data/
         <sha256>.xml
       snapshot-metadata/
         <sha256>.json
-      entries/
-        <entry-key>/
-          index.json
-          enrichment.json
-          revisions/
-            <content-hash>.json
-          enrichments/
-            <content-hash>.json
+      locations/
+        <entry-key>.json
+      weeks/
+        <YYYY-Www>/
+          <entry-key>/
+            index.json
+            enrichment.json
+            revisions/
+              <content-hash>.json
+            enrichments/
+              <content-hash>.json
   runs/
     <run-id>.json
 ```
@@ -164,7 +167,9 @@ data/
 - `state.json`: HTTP validators, last success, retry schedule, pending snapshot.
 - Snapshots: immutable downloaded bodies; extension does not determine format.
 - Snapshot metadata: retrieval time, effective URL, status, content type, hash.
-- `index.json`: identity basis, source URL/ID, first/last seen, current revision.
+- `locations/<entry-key>.json`: immutable canonical week lookup for an entry.
+- `index.json`: identity, source URL/ID, canonical/corrected weeks, first/last
+  seen, current revision.
 - Revisions: immutable compact records containing URL, title, Unix publication
   timestamp, uncropped plain-text summary, and optional article text.
 - `enrichment.json`: current provider-derived artifact for an entry.

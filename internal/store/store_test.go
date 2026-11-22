@@ -83,7 +83,7 @@ func TestSaveEntryStoresOnlyCompactRecord(t *testing.T) {
 		t.Fatal(err)
 	}
 	path := filepath.Join(
-		st.Root(), "feeds", "test", "entries", entry.EntryKey, "revisions",
+		entryDirectory(t, st, "test", entry.EntryKey), "revisions",
 		entry.ContentHash+".json",
 	)
 	data, err := os.ReadFile(path)
@@ -137,7 +137,7 @@ func TestSaveEnrichmentStoresImmutableProviderContent(t *testing.T) {
 		t.Fatalf("idempotent save: new=%t changed=%t error=%v", newArtifact, changed, err)
 	}
 
-	base := filepath.Join(st.Root(), "feeds", "test", "entries", entry.EntryKey)
+	base := entryDirectory(t, st, "test", entry.EntryKey)
 	artifacts, err := os.ReadDir(filepath.Join(base, "enrichments"))
 	if err != nil || len(artifacts) != 1 {
 		t.Fatalf("artifacts = %d, error = %v", len(artifacts), err)
@@ -265,7 +265,10 @@ func TestUpgradeEntryStorageCompactsLegacyRevisions(t *testing.T) {
 		t.Fatal("entry storage upgrade is incomplete")
 	}
 	record := legacy.Record()
-	compactPath := filepath.Join(directory, "revisions", record.Hash()+".json")
+	destination := filepath.Join(
+		st.Root(), "feeds", "test", "weeks", "2026-W46", legacy.EntryKey,
+	)
+	compactPath := filepath.Join(destination, "revisions", record.Hash()+".json")
 	if _, err := os.Stat(legacyPath); !os.IsNotExist(err) {
 		t.Fatalf("legacy revision still exists: %v", err)
 	}
@@ -273,7 +276,7 @@ func TestUpgradeEntryStorageCompactsLegacyRevisions(t *testing.T) {
 		t.Fatalf("compact revision missing: %v", err)
 	}
 	var index EntryIndex
-	if err := readJSON(filepath.Join(directory, "index.json"), &index); err != nil {
+	if err := readJSON(filepath.Join(destination, "index.json"), &index); err != nil {
 		t.Fatal(err)
 	}
 	if index.CurrentRevision != record.Hash() {
@@ -350,7 +353,7 @@ func TestUpgradeEntryStorageIgnoresTemporaryRevisions(t *testing.T) {
 		t.Fatal(err)
 	}
 	revisions := filepath.Join(
-		st.Root(), "feeds", "test", "entries", entry.EntryKey, "revisions",
+		entryDirectory(t, st, "test", entry.EntryKey), "revisions",
 	)
 	tempPath := filepath.Join(revisions, ".tmp-abandoned")
 	if err := os.WriteFile(tempPath, []byte("partial"), dirMode); err != nil {
@@ -379,6 +382,78 @@ func TestUpgradeEntryStorageHonorsCancellation(t *testing.T) {
 	if err != context.Canceled {
 		t.Fatalf("error = %v, want context.Canceled", err)
 	}
+}
+
+func TestSaveEntryKeepsCanonicalWeekAndRecordsCorrectedWeek(t *testing.T) {
+	st := New(t.TempDir())
+	entry := parse.Entry{
+		EntryKey: "stable-key", FeedID: "test", IdentityBasis: "id",
+		Identity: "stable-id", SourceID: "stable-id", Title: "Dated entry",
+		PublishedAt: "2026-11-12T16:00:02Z", Summary: "Original.",
+	}
+	entry.ContentHash = entry.Record().Hash()
+	observed := time.Date(2026, 11, 13, 10, 0, 0, 0, time.UTC)
+	if _, _, err := st.SaveEntry(entry, observed); err != nil {
+		t.Fatal(err)
+	}
+	original := entryDirectory(t, st, "test", entry.EntryKey)
+	if !strings.HasSuffix(filepath.ToSlash(original), "/weeks/2026-W46/"+entry.EntryKey) {
+		t.Fatalf("entry directory = %s", original)
+	}
+
+	entry.PublishedAt = "2026-11-23T16:00:02Z"
+	entry.Summary = "Corrected."
+	entry.ContentHash = entry.Record().Hash()
+	if newEntry, changed, err := st.SaveEntry(entry, observed.Add(24*time.Hour)); err != nil {
+		t.Fatal(err)
+	} else if newEntry || !changed {
+		t.Fatalf("corrected save: new=%t changed=%t", newEntry, changed)
+	}
+	if current := entryDirectory(t, st, "test", entry.EntryKey); current != original {
+		t.Fatalf("entry moved from %s to %s", original, current)
+	}
+	var index EntryIndex
+	if err := readJSON(filepath.Join(original, "index.json"), &index); err != nil {
+		t.Fatal(err)
+	}
+	if index.CanonicalWeek != "2026-W46" ||
+		len(index.WeekAliases) != 1 || index.WeekAliases[0] != "2026-W48" {
+		t.Fatalf("week index = %+v", index)
+	}
+}
+
+func TestSaveEntryRejectsIdentityCollision(t *testing.T) {
+	st := New(t.TempDir())
+	entry := parse.Entry{
+		EntryKey: "collision-key", FeedID: "test", IdentityBasis: "id",
+		Identity: "first-id", SourceID: "first-id", Summary: "First.",
+		PublishedAt: "2026-11-12T16:00:02Z",
+	}
+	entry.ContentHash = entry.Record().Hash()
+	if _, _, err := st.SaveEntry(entry, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+
+	collision := entry
+	collision.Identity = "second-id"
+	collision.SourceID = "second-id"
+	if _, _, err := st.SaveEntry(collision, time.Now()); err == nil {
+		t.Fatal("different identity reused an existing entry key")
+	}
+}
+
+func entryDirectory(t *testing.T, st *Store, feedID, entryKey string) string {
+	t.Helper()
+	location, found, err := st.entryLocation(feedID, entryKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !found {
+		t.Fatalf("entry location %s is missing", entryKey)
+	}
+	return filepath.Join(
+		st.Root(), "feeds", feedID, "weeks", location.CanonicalWeek, entryKey,
+	)
 }
 
 func hashOf(body []byte) string {
