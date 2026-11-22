@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "8bb488bedf8ff13e5a507e0ed0498d7acd5cdfc35f7c81bbcace49b1a684831e",
+  "entry_revision": "d6c18fda1661c7d48b306fae1da6687d8141c88080dc68b6333446ba4f36ebdc",
+  "provider": "odata",
+  "source_id": "579680",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579680",
+  "content_type": "text/plain",
+  "content": "Business Applications in Work IQ helps developers build business-connected agents faster in Microsoft Foundry, reducing custom integration work and turning enterprise data into actionable workflows. Organizations gain more value from their existing business applications while maintaining customer permissions and environment controls.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "c47b1875a15457f2b217bbb68214044e68872f5b65bdd71039ead851d3549cfb",
+  "entry_revision": "850b4b49369d705bef2fe5f53ce07a51b1d57ba4c481ba7699f9bba586c357df",
+  "provider": "odata",
+  "source_id": "578802",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578802",
+  "content_type": "text/plain",
+  "content": "Azure Functions support for Python 3.15 is now in public preview. Developers can evaluate Python applications, dependencies, native extensions and deployment workflows using the existing v1 and v2 programming models. Dependency overlap between the Python worker’s gRPC messaging packages and application dependencies can create compatibility conflicts. A new Rust-based transport addresses this by handling host messaging and embedding CPython without depending on the Python grpcio and protobuf packages, reducing dependency overlap and introducing performance benefits. Applications can still use these packages, and existing Python execution libraries continue to run functions. Developers continue writing Python, not Rust. Planned scope: Linux x64 on Flex Consumption, Elastic Premium and Dedicated (App Service), where each plan is offered. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

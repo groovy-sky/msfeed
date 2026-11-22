@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "40caa5093fd54cfec73b4fcd5f46245e63d101453b626ba549f3b0e81b65c52c",
+  "entry_revision": "7d319f87f4a0ff79029014f043e30ebb130cf7104c7d4182e4bf84d7ab75fb25",
+  "provider": "odata",
+  "source_id": "579665",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579665",
+  "content_type": "text/plain",
+  "content": "Now in public preview, you can provision an Azure SQL Database development environment in seconds directly from SQL Server Management Studio (SSMS), with no Azure subscription, credit card, or existing database required. Azure SQL Database container brings the Azure SQL Database engine to your local machine in a container. You can build and test applications locally and in CI against the same Azure SQL Database engine you use in the cloud, with a free local development experience available within SSMS. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

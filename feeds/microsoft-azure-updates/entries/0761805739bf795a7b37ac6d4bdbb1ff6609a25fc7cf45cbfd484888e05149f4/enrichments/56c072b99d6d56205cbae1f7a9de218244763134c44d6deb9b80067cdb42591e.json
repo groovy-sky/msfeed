@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "0761805739bf795a7b37ac6d4bdbb1ff6609a25fc7cf45cbfd484888e05149f4",
+  "entry_revision": "ed70a1a91f4aa1533ecb0ee447000dc7dd81c0bf75ed9121c14a00fc83140f36",
+  "provider": "odata",
+  "source_id": "571488",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=571488",
+  "content_type": "text/plain",
+  "content": "We're excited to announce the general availability of throughput buckets in Azure Cosmos DB. You can manage the resource consumption of multiple workloads using the same container by limiting the maximum throughput a workload can consume. You may need to manage workload throughput consumption in scenarios like: Multitenant workloads managed by Independent Software Vendors (ISVs). Bulk execution in ETL jobs. Data ingestion and migration processes. Change feed processing. You can create throughput buckets in a Cosmos DB container using Data Explorer in the Azure portal. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

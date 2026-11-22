@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "1571e82b7bb881fcccace2b3a2af580805ef8fb9a0e6c7094ef8f58790cf5e7a",
+  "entry_revision": "ff2c91862b34a398b891ee7f1bd5931325f696c68562a668eb004d2b4a8f870f",
+  "provider": "odata",
+  "source_id": "577673",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=577673",
+  "content_type": "text/plain",
+  "content": "JSON Web Token (JWT) validation through Azure Front Door Auth Policy is now in public preview on Azure Front Door Premium. Validate bearer tokens issued by Microsoft Entra ID at the edge before requests reach your APIs or web applications, helping you centralize authentication checks and reduce unnecessary traffic to your origins. Associate an Auth Policy with a profile, domain, or route, and configure the expected issuer and audience for token validation. Use Block mode to reject requests with missing or invalid tokens with an HTTP 401 Unauthorized response or evaluate requests without blocking them in Log mode. This preview focuses on validating existing bearer tokens; your application remains responsible for application-specific authorization, and origin access should be restricted to prevent clients from bypassing Azure Front Door. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "970d64a190ce0efcf8d5aeb33f48fb8c2ac813aa8aadd9cd359a5ade04727c08",
+  "entry_revision": "60e645e9987da66a6423026d2686b3442d2ac27efa197e65d907082dd45259fb",
+  "provider": "odata",
+  "source_id": "581226",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581226",
+  "content_type": "text/plain",
+  "content": "Customers can now discover Data Guardian directly from the Sovereign Control Panel, now in Public Preview. Data Guardian provides enhanced operational oversight of qualifying remote access by Microsoft engineers to in-scope production systems in the EU data boundary. Access is subject to monitoring by authorized EU-resident personnel from a trusted partner. With this update, customers reviewing their sovereignty posture in Sovereign Control Panel can learn about Data Guardian, understand how it supports their access oversight requirements, all from the same centralized experience. This makes it easier to move from assessing posture to exploring relevant controls, without searching across separate tools and documentation. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

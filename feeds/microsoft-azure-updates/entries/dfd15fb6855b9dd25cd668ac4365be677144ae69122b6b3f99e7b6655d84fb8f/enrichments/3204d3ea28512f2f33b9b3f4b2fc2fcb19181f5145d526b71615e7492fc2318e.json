@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "dfd15fb6855b9dd25cd668ac4365be677144ae69122b6b3f99e7b6655d84fb8f",
+  "entry_revision": "7cf206d3ce6461f0f04c2f2a5f2bcb70c3f66e87aaec81c1e0f494672f1b6352",
+  "provider": "odata",
+  "source_id": "580046",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580046",
+  "content_type": "text/plain",
+  "content": "Azure API Management Premium v2 is now available in 35 Azure regions, giving organizations greater flexibility to deploy and scale enterprise API workloads across more geographic locations. With this expanded regional availability, customers have more options to deploy API Management closer to their applications and users while meeting regional deployment and infrastructure requirements. Customers can create Premium v2 instances using the Azure portal, REST API, Bicep, or Azure Resource Manager (ARM) templates. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "085ad81d39251cc0127638ee349466f8d2f045dfb1e94a4519a9dc90144995e2",
+  "entry_revision": "36f912a1d3455b771e01d0ad118072486e81287c4e2f8f192550ae83c3b1aa9f",
+  "provider": "odata",
+  "source_id": "574587",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=574587",
+  "content_type": "text/plain",
+  "content": "You can now try PostgreSQL 19 in public preview on Azure Database for PostgreSQL – Flexible Server in the East Asia region. With this preview, you can provision new PostgreSQL 19 servers through the Azure portal and Azure CLI, enabling you to test major version upgrades from supported earlier PostgreSQL versions to PostgreSQL 19. This release gives you early access to PostgreSQL 19 in a fully managed Azure environment and additional time to validate new deployments and upgrade scenarios before general availability. You can test application compatibility, evaluate workloads, and prepare your PostgreSQL estate for broader adoption of PostgreSQL 19. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "25dbd5bcaa165c6cd680ebc28a8fdc5f53ca04890a785f9cde00df78c8f6f4f3",
+  "entry_revision": "6e457d3d1ded9d317821559b8cc87dadeaa27785b0757738112b34bbf4dfd5e3",
+  "provider": "odata",
+  "source_id": "578989",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578989",
+  "content_type": "text/plain",
+  "content": "Task Queues for Azure Functions durable task scheduler are now available in public preview. Workloads sharing a task hub can have different throughput requirements and downstream service limits. Create named queues within a task hub and configure a shared actions-per-second dispatch rate for orchestration and activity work. Select a queue by setting the DTS_TaskQueue tag to the queue’s name when starting a workflow. Teams can pace workloads and assign separate throughput budgets without changing function names. The rate controls work-item dispatch, not execution concurrency. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

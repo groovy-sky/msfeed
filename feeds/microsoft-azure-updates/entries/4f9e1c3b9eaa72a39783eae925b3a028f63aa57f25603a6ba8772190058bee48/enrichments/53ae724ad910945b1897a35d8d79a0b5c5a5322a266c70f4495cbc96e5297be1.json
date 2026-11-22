@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "4f9e1c3b9eaa72a39783eae925b3a028f63aa57f25603a6ba8772190058bee48",
+  "entry_revision": "7bfbb6ad65411ed06c84382f3019fea1ac9a0b133501a3e01c975f5c3bc45e67",
+  "provider": "odata",
+  "source_id": "578054",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578054",
+  "content_type": "text/plain",
+  "content": "The Azure Cosmos DB SDK for Rust gives you a native Rust client for building applications on Azure Cosmos DB for NoSQL. You get access to database operations directly from Rust, with built-in performance optimizations and failure handling. Efficient binary encoding, automatic retries, and partition-level failover and circuit breaking are enabled by default. These capabilities help you build reliable, high-performance applications with less client configuration and custom recovery logic. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

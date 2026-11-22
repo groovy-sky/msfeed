@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "ef614faa20e36e22b0c9978eafda6bf028147f3fff82aa4faaf12be2a74ace45",
+  "entry_revision": "2f7f0a965b552be23e7a4f1941c3bf75147bd6459e3787d0e104c08423ea1e63",
+  "provider": "odata",
+  "source_id": "579354",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579354",
+  "content_type": "text/plain",
+  "content": "You can now send a query to any node in a multi-shard Azure DocumentDB cluster. The node can handle the query locally or route it to the shard or shards that contain the data. In effect, the nodes in a multi-shard cluster function as a router, being fully shard aware, with the ability to either serve the requests locally, route the request to the appropriate shard containing the data, or route a query across multiple shards, gather the results, and present them as one. This optimization guarantees performance regardless of the number of shards in a cluster and the size of the shards. For both 1x and 100x of steady state request volume, querying from any node ensures consistent performance at any scale. Previously, request routing relied on a single coordinator. Now, every node can route requests to the appropriate shards. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

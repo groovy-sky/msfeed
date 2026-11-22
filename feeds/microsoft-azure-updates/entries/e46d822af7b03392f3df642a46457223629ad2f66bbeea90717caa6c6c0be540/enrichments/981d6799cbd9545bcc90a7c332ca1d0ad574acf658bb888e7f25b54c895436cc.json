@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "e46d822af7b03392f3df642a46457223629ad2f66bbeea90717caa6c6c0be540",
+  "entry_revision": "e86d3252f7e6f1c13a0d5ebb2f509ef5cafc3ef9631e2df60d926cafac5c359b",
+  "provider": "odata",
+  "source_id": "578817",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578817",
+  "content_type": "text/plain",
+  "content": "Turning application code into a running cloud app often requires developers to configure build pipelines, deployment workflows, and hosting infrastructure. Azure App Service Builder simplifies that journey with a source-connected platform for building, deploying, and running web applications on Azure. Developers and AI coding agents can connect a GitHub repository and deploy a static site, backend web app, or frontend-plus-API application while the service manages the underlying build and hosting infrastructure. Portal, CLI, and guided GitHub Copilot app experience bring deployment into the workflows developers already use. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

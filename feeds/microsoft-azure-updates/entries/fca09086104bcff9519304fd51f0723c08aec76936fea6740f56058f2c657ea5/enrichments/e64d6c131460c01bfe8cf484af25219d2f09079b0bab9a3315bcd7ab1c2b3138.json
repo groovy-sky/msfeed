@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "fca09086104bcff9519304fd51f0723c08aec76936fea6740f56058f2c657ea5",
+  "entry_revision": "08e6e6e2a2ab4053b0078d9a2f1faa9e8b6362aa6aa4e9e1665bb625b6f4cc32",
+  "provider": "odata",
+  "source_id": "580544",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580544",
+  "content_type": "text/plain",
+  "content": "New built-in connectors for Azure automation are now available in public preview in Azure Logic Apps Automation, enabling developers to automate workflows across GitHub, Azure DevOps, and Azure management services. Automating development and cloud operations often requires connecting multiple systems to manage code, track work, monitor resources, and respond to events. These connectors simplify the process by bringing these capabilities together in a single workflow, reducing the need for custom integrations. With the new built-in connectors, customers can: Automate development workflows: Connect to GitHub, Azure DevOps Pipelines, Repos, and Boards to automate issue triage, pull request reviews, work item management, and CI/CD processes. Streamline Azure operations: Use Azure Monitor Logs, Azure Resource Graph, and Azure Advisor to query operational data, discover resources, and act on recommendations. Build event-driven automation: Trigger workflows from events such as new issues, pull requests, or work item updates, and combine these actions with AI agents for intelligent automation. These connectors help organizations streamline development and operational processes while reducing manual effort and integration complexity. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

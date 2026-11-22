@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "9e7f806520580d4016a12be544b5376b37a644f0cdc0b06cfc2c833ce8ef0f38",
+  "entry_revision": "c9f3e1342f3a1b13afec63d0802ff6a1b9842b43315b61fdaa6be3f24f057172",
+  "provider": "odata",
+  "source_id": "578975",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578975",
+  "content_type": "text/plain",
+  "content": "OS-level dependency support via containers for Azure Functions Flex Consumption is now in preview. Previously, Flex Consumption apps ran in a Microsoft-managed worker environment that customers couldn’t extend with native executables, system libraries, or other OS-level components. Workloads with these requirements often had to be redesigned, move the dependency to a separate service, or use another hosting option. You can now build a Linux worker image that packages your function code, a supported Azure Functions language worker, language dependencies, and required OS-level software. This enables scenarios such as browser automation with Puppeteer and Chromium, PDF generation with Puppeteer Sharp, data encryption with GnuPG, and workloads that require system packages, executables, custom fonts, certificates, native libraries, drivers, or command-line tools. The worker-image model lets you version and promote a tested application environment by image digest and update its runtime and dependencies on your own release cycle. Azure manages and services the Functions host separately while continuing to provide trigger integration, request routing, and event-driven scaling. The preview currently supports .NET isolated, Python, Go, and Node.js, with additional language support planned in the following weeks. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

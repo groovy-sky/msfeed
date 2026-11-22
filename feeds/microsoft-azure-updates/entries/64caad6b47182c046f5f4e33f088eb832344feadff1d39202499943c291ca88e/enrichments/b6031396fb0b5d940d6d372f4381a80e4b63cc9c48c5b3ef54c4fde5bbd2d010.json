@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "64caad6b47182c046f5f4e33f088eb832344feadff1d39202499943c291ca88e",
+  "entry_revision": "fcfd00df09ad33350dd791afa51bd1352213dc749ab3578479a0310fef5d1ac1",
+  "provider": "odata",
+  "source_id": "579612",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579612",
+  "content_type": "text/plain",
+  "content": "Now you can migrate existing Azure Database for PostgreSQL workloads to Azure HorizonDB through a seamless, managed experience powered by Azure Database Migration Service (DMS). With this update, you can extend the DMS V2 architecture with HorizonDB as a supported PostgreSQL target, allowing you to modernize onto a high-performance, scalable PostgreSQL platform without building or operating custom migration infrastructure. You can initiate and manage a migration through the Azure portal or command-line interfaces. DMS validates source and target connectivity, discovers database objects, provisions isolated migration compute on demand, and orchestrates the end-to-end workflow, including initial data copy, continuous synchronization for online migrations, progress monitoring, error handling, cancellation, and planned cutover. Migration state and operation history are persisted centrally, so you and your support teams have consistent visibility throughout the lifecycle. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

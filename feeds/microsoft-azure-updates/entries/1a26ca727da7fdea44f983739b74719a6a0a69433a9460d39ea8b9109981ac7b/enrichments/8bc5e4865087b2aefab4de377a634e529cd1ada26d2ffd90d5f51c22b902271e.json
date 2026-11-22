@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "1a26ca727da7fdea44f983739b74719a6a0a69433a9460d39ea8b9109981ac7b",
+  "entry_revision": "5f08bbdfbb62714104932c8852343534fd8c21baf055cbc128e0afc24265a931",
+  "provider": "odata",
+  "source_id": "578439",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578439",
+  "content_type": "text/plain",
+  "content": "We’re excited to announce the general availability of Azure Cosmos DB Shell, a command-line experience that makes it easier for you and for AI agents to work with Azure Cosmos DB. Azure Cosmos DB Shell provides a consistent, scriptable workflow for navigating resources, querying and managing data, importing and exporting datasets, and inspecting settings, such as indexing and throughput. You can use the shell from your terminal, in Visual Studio Code, or through the Azure portal. Its MCP integration also enables AI agents to securely interact with Azure Cosmos DB using familiar shell commands. Whether you’re exploring data, automating repeatable operations, loading large datasets, or managing application data, Azure Cosmos DB Shell helps you work faster without building custom tooling. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

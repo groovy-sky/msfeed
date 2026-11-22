@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "42951f121d9f4aa6f05cfcc5f831642fc616ad51eca4007c1572acf2f2768b23",
+  "entry_revision": "67b15292b8ff475ad6deecd1dee134871210f26477334b26709f50efcbf09797",
+  "provider": "odata",
+  "source_id": "579162",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579162",
+  "content_type": "text/plain",
+  "content": "Multi-disk crash-consistent restore points for Azure virtual machines with Premium SSD v2 and Ultra data disks are now available in public preview on VMs with SCSI disk controllers. You can use this to capture the agent-less crash consistent restore point of a VM. This preview extends existing multi-disk crash-consistent restore point support to Premium SSD v2 and Ultra data disks. Existing support for Standard HDD, Standard SSD, and Premium SSD disks is unchanged. Instant Access is also supported for multi-disk crash-consistent restore points in this preview. This applies only to VMs with Premium SSD v2 and Ultra data disks. With Instant Access, you can begin restoring a disk as soon as the restore point is created instead of waiting for the background data copy to complete, helping reduce your recovery time objective. How to use it Set consistencyMode to CrashConsistent when creating a restore point in a restore point collection. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

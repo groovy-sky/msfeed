@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "67f4214195b38456fac35990a3420ace5c8b55e7cc653aa391948f823cd259b2",
+  "entry_revision": "c96304e79ccf3632b2a7aabb2f2c566e6e36c575a266f37a2a185f0134c8ff37",
+  "provider": "odata",
+  "source_id": "580748",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580748",
+  "content_type": "text/plain",
+  "content": "Azure Infrastructure Resiliency Manager is now generally available, offering a unified, goal-driven experience to strengthen application resiliency across Azure. You can start resilient with zonally resilient deployment templates, assess applications at scale using Service Groups and resiliency goals, and prioritize recommendations with visibility into cost impact. Resiliency drift detection, resource and application monitoring, and built-in drills help you proactively maintain their resiliency posture, validate recoverability, and support compliance reporting. You can additionally leverage the Resiliency Agent (preview) to automatically discover application boundaries and access ready-to-run remediation scripts.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

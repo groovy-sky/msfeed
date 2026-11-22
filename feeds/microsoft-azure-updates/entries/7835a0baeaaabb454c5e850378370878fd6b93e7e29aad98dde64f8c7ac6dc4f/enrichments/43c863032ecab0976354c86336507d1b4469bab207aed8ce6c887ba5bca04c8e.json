@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "7835a0baeaaabb454c5e850378370878fd6b93e7e29aad98dde64f8c7ac6dc4f",
+  "entry_revision": "cf773c26366b1150afb565c2cfe3afc920422de7ed376d106968e0114b170975",
+  "provider": "odata",
+  "source_id": "579564",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579564",
+  "content_type": "text/plain",
+  "content": "Azure Database Migration Service support for migrations to Azure HorizonDB is now available in public preview. You can use a guided, Azure portal–based experience to migrate supported PostgreSQL workloads to Azure HorizonDB, including Azure Database for PostgreSQL Flexible Server, self-managed PostgreSQL on Azure Virtual Machines or on-premises, Amazon RDS for PostgreSQL, Amazon Aurora for PostgreSQL, Google Cloud SQL for PostgreSQL, and other compatible environments. The new experience helps simplify source and target connectivity, database selection, and migration monitoring, enabling your organization to modernize mission-critical and AI-ready PostgreSQL applications with a more consistent migration workflow. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

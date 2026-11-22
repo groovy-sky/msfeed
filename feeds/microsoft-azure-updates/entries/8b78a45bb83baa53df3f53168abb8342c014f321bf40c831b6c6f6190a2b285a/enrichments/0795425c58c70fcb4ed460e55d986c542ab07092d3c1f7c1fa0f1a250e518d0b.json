@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "8b78a45bb83baa53df3f53168abb8342c014f321bf40c831b6c6f6190a2b285a",
+  "entry_revision": "2090e336313b14d0d951bc319ddb4bb9ed56b87b284d9faa851062aef43c06cc",
+  "provider": "odata",
+  "source_id": "574163",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=574163",
+  "content_type": "text/plain",
+  "content": "You can now configure backup retention for your Azure HorizonDB deployments from 1 to 35 days, giving you greater flexibility to align backup retention with your application and data protection requirements. Choose the retention period that best fits your workload and recovery needs while Azure HorizonDB manages backups for you. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

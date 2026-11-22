@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "14f16c82ed4725932e7a33541958e942fb9e980d8cf1e4b7b5daf6f01c6f656d",
+  "entry_revision": "429feacbf4b223eb81b5ef663b5bb531486c22dd250b91ff7e8df0994350a110",
+  "provider": "odata",
+  "source_id": "578602",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578602",
+  "content_type": "text/plain",
+  "content": "AI-summarized connection troubleshoot results introduces a faster, clearer way to understand connectivity test results in Azure. Connection troubleshoot runs four diagnostic tests, each giving a different view of the network path. Making sense of these results together has required strong networking expertise and manual correlation across tests. With this release, AI does that correlation for customers. AI reviews the results of all four tests together and returns a single, easy-to-read summary. The summary states what is happening, the probable cause and how confident the AI is in that cause. It then recommends next steps to resolve the issue. For example, if all probes to a destination fail and the diagnostics show no service listening on the tested port, the summary points to the destination VM as the likely cause. It rates that finding with high confidence and suggests checking the service status and port configuration. This enhancement removes the need to interpret and correlate each test's results by hand. Customers get a clear explanation of what went wrong and why, along with practical guidance on what to fix. Teams without deep networking expertise can act on the results themselves, and experienced engineers can confirm the root cause faster. By adding AI-powered summaries to connection troubleshoot, Azure helps customers move from raw diagnostic data to a confident, actionable answer in minutes. That makes troubleshooting faster, simpler and more accessible across their Azure workloads. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

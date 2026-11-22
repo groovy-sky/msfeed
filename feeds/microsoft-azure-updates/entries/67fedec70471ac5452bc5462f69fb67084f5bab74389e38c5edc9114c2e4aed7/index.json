@@ -2,7 +2,9 @@
   "schema_version": 1,
   "entry_key": "67fedec70471ac5452bc5462f69fb67084f5bab74389e38c5edc9114c2e4aed7",
   "identity_basis": "id",
+  "source_id": "579585",
+  "url": "https://azure.microsoft.com/updates?id=579585",
   "current_revision": "2741e566f936974d64addc7f2e0186d581e0ed2bf4f8df00f85877c5a5429e73",
   "first_seen": "2026-11-22T06:51:25Z",
-  "last_seen": "2026-11-22T10:17:49Z"
+  "last_seen": "2026-11-22T14:10:21Z"
 }

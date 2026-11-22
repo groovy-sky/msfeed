@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "3bd35f157c7253962364bda4b5ac72726ed8927805ea5daad78f4e969824978f",
+  "entry_revision": "148059cc1aab5ed271e5c30bce9f2de9f2390740a311d2ff5af7865f897af61e",
+  "provider": "odata",
+  "source_id": "578255",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578255",
+  "content_type": "text/plain",
+  "content": "With the public preview of DocumentDB on Azure Local, you can run MongoDB-compatible document workloads on your own infrastructure. Deploy applications and their data close together to address latency and data-location requirements in datacenters, retail locations, and industrial environments. Built on PostgreSQL, DocumentDB supports familiar MongoDB-compatible APIs and tools, while Azure Local provides the infrastructure platform. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

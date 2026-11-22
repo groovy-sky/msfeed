@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "c912c5561eb38336ff232a219ee5b0dd61ef79aae58ea968d3c697a1c346dc32",
+  "entry_revision": "9b38bc2a864fac57fe1bc9166baf41078b4ba5687b04f4e85e7b9240767f2900",
+  "provider": "odata",
+  "source_id": "579031",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579031",
+  "content_type": "text/plain",
+  "content": "Azure Blob Storage turbo tier is now in Public Preview, bringing SSD-backed performance to performance-sensitive data in eligible Azure Blob Storage accounts. Designed for AI training, inference, analytics, and other demanding data workloads, turbo tier delivers high throughput and low latency for active data while allowing less-active data to remain on cost-efficient HDD-backed access tiers. Smart placement helps manage the active working set as access patterns change, while customers retain a single storage account with their data, namespace, and Blob API surface. Turbo tier public preview is available for eligible Azure Blob Storage LRS accounts in selected regions. Preview access is subject to regional capacity and eligibility. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

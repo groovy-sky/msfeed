@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "28f878cf32e41447e57c6f580a3c7ea8d79b047d726b08dabd09621813cd5978",
+  "entry_revision": "a9eeb83e6bc4c6dcc75303f3f453e524a45006f8a38012c21013a1641238c442",
+  "provider": "odata",
+  "source_id": "579206",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579206",
+  "content_type": "text/plain",
+  "content": "This capability enables secure connectivity between resources protected by different network security perimeters, while maintaining strong perimeter-based access controls. With this release, customers can confidently adopt network security perimeter across complex, distributed application architectures that require controlled communication across security perimeters. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

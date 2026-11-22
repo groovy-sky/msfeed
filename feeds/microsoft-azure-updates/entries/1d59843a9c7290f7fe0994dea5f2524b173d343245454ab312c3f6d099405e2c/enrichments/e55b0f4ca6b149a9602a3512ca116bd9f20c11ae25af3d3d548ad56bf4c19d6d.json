@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "1d59843a9c7290f7fe0994dea5f2524b173d343245454ab312c3f6d099405e2c",
+  "entry_revision": "4dbba49f92686c050a87ea0ddc74cd354179e1b3d62b2e30cf227de7c36653af",
+  "provider": "odata",
+  "source_id": "578237",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578237",
+  "content_type": "text/plain",
+  "content": "DocumentDB for VS Code is now generally available. This free, open-source extension brings Azure DocumentDB and the open-source DocumentDB project into Visual Studio Code, supporting any MongoDB API-compatible workload. You can connect to Azure DocumentDB clusters, Azure Cosmos DB for MongoDB accounts, Kubernetes-hosted databases, MongoDB Atlas, or self-hosted servers. Authentication supports Microsoft Entra ID and managed identity. The extension includes a built-in Interactive shell that reuses existing connections, so there is no separate shell to install or configure. You can browse collections; query data in table, tree, or JSON views; use schema-aware autocompletion; and save repeatable scripts in a Query Playground. It also supports DocumentDB Local with Docker and sample data, Query Insights for execution plans and statistics, optional GitHub Copilot recommendations, index management, cluster dashboards, and copy-paste migration of collections and indexes between databases or clusters. Install it from the Visual Studio Marketplace. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "4d50f74fcd11c84c5bb48ea7320ba5f6bdad051b06fa92acfb14c7f319d2ed15",
+  "entry_revision": "ea646fd5c66a67c5ae84fc3691e5c172b5ab341bd73c7bf70128f5aa0bd376ca",
+  "provider": "odata",
+  "source_id": "581130",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581130",
+  "content_type": "text/plain",
+  "content": "Customers standardized on Intel Trust Domain Extensions (TDX) for attestation and hardware confidentiality can't run those workloads on AKS Confidential VM node pools today, because CVM node images only support AMD SEV-SNP. AKS Confidential VM node pools add Intel TDX support alongside AMD SEV-SNP, and the correct CVM image is selected automatically from the VM SKU. Intel-first customers can now bring their confidential workloads to AKS without changing their attestation model, and without any new AKS configuration or API surface. Generally available with Azure Container Linux. Supported with Ubuntu 26.04 preview. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

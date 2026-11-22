@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "26bc112abe4876dbb9c1e60a34bdcc28b28b6a1af7bcc72eede01484784fc52b",
+  "entry_revision": "e95c4db9785f8a2b9d898f42b728d0486e5929b1dcd5190b330ce0decdffcd60",
+  "provider": "odata",
+  "source_id": "579644",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579644",
+  "content_type": "text/plain",
+  "content": "Database Hub in Microsoft Fabric gives you built-in, real-time performance dashboards for Microsoft SQL, Azure Database for PostgreSQL flexible server, and Azure Cosmos DB in one place. From the Performance page, you can track CPU, memory, storage, IO, connections, and other key signals across your database estate, then drill into the servers and accounts that need attention. Your databases stay where they are, in Azure or on-premises, with no data movement, mirroring, or monitoring infrastructure to set up. This helps you spot and investigate performance issues across database engines without switching between portals and tools. For Microsoft SQL, you can also create custom monitors from templates as Fabric Real-Time Dashboards and share them with your team. Database Hub uses your existing Microsoft Entra ID and Azure RBAC permissions, and it doesn't require Fabric capacity to access. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

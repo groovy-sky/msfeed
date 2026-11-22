@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "9867d34b2591873b7bd07e0cb54a2a5f0e6fde84c2ac4f9311fa12c5663ab23b",
+  "entry_revision": "2782850c6c94650a592e6bac8d64e17bbd6a51a071ac480fabd19c9f543ba4b1",
+  "provider": "odata",
+  "source_id": "578998",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578998",
+  "content_type": "text/plain",
+  "content": "Fuzzy string match is now generally available across Microsoft SQL offerings, including Azure SQL Database, Azure SQL Managed Instanced, SQL database in Microsoft Fabric, and SQL Server 2025. You can compare strings based on how similar or different they are, rather than relying only on exact matches. It can measure the distance between two strings, including how many changes are required to make them identical, or evaluate their similarity using different fuzzy matching algorithms. This feature makes it easier to work with imperfect or inconsistent real-world data. You can use fuzzy string match to help simplify data matching, cleansing, deduplication, fuzzy search, and other scenarios where traditional exact string comparisons may not be sufficient. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

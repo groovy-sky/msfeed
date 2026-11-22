@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "d1d443ebf9658a1017a84a0cbe58a7b51258cb9f0c14aa3719d3d4ff5055105e",
+  "entry_revision": "eeb79dccc2275f903f8710c581d2552d1f94c2f1f1e84bd86e762dbdeb8bb18d",
+  "provider": "odata",
+  "source_id": "581604",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581604",
+  "content_type": "text/plain",
+  "content": "Announcing the public preview of the AI bot ruleset for Azure Web Application Firewall (WAF) on Azure Front Door Premium. AI crawlers and agents visit your site for different reasons, and you may want to allow some but not others. Robots.txt only works when a bot chooses to follow it, and some bots pretend to be a well-known AI crawler. The AI bot ruleset identifies AI bots, groups them by purpose, and enforces your choice for each group at the edge. With this preview, you can choose an action for each of four categories: AI training, for verified crawlers that collect public content to train or fine-tune AI models. AI search, for verified crawlers that index content to power AI search, answers, and summaries. AI interactive agents, for verified agents that fetch pages in real time when a person asks an AI assistant. Miscellaneous AI agents, for AI bots that can't be verified, including bots that falsely claim to be a well-known AI crawler. Microsoft keeps the AI bot signatures up to date, with no ruleset version change needed. Every rule starts with the Log action, so you can review your AI bot traffic in WAF logs and WAF insights before anything is blocked. You can set each category to Allow, Block, Log, JS challenge, or CAPTCHA, and configure the ruleset in the Azure portal, Azure PowerShell, Azure CLI, or Bicep. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

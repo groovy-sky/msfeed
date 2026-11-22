@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "05d9331ab5830e3dec3e818921867773b9a4de23123eb930c9da02c5133f150b",
+  "entry_revision": "6e6ccc4d30a6e4e59704643f418a76d7321adf4a666a37c8824b256309b27de6",
+  "provider": "odata",
+  "source_id": "564451",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=564451",
+  "content_type": "text/plain",
+  "content": "The general purpose Dpsv7 and Dplsv7, memory-optimized Epsv7, high-memory Mpsv4, and dense storage Lpsv5 VMs are now generally available. These virtual machines deliver significant enhancements over the previous generation Cobalt 100 VMs, offering improved CPU performance, greater scalability, and expanded configuration options to meet the demands of a wide range of workloads. Key improvements include: Up to 50% improvement in CPU performance (workload dependent) 20% improvement in remote storage IOPS with NVMe 10% better remote storage throughput with NVMe 15% improvement in network bandwidth Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

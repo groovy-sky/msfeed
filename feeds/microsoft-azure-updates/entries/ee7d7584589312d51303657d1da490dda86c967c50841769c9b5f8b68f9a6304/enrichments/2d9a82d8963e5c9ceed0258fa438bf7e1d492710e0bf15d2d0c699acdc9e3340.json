@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "ee7d7584589312d51303657d1da490dda86c967c50841769c9b5f8b68f9a6304",
+  "entry_revision": "7e0806c26c8ac5e653822bf7ab5f924a2abb3c0e60b235b9e54c41590529cc7b",
+  "provider": "odata",
+  "source_id": "580589",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580589",
+  "content_type": "text/plain",
+  "content": "Azure Logic Apps introduces new and enhanced capabilities to help organizations connect enterprise systems, modernize legacy integrations, and run business-critical workflows across cloud, on-premises, and hybrid environments. These updates include expanded connector support, data mapping enhancements, centralized monitoring, and greater flexibility for deploying and managing Hybrid Logic Apps. As organizations modernize enterprise integration, they need to connect existing systems, simplify data transformation, and maintain reliable operations across diverse environments. These enhancements help reduce integration complexity while enabling organizations to build on their existing infrastructure investments. With these updates, customers can: Connect more enterprise systems: Use the HL7 connector, now generally available, to process healthcare messages. New MLLP and MSMQ connectors, available in public preview, extend connectivity for healthcare messaging and legacy enterprise systems. Simplify data transformation: Use Data Mapper enhancements to streamline mapping and transformation across enterprise applications and message formats. Gain centralized visibility: Monitor workflow execution and troubleshoot integrations through the new unified dashboard, available in public preview for individual Logic Apps. Extend integration to hybrid environments: Use Integration Account capabilities in semi-connected environments and expand deployment flexibility with support for RKE2 and Red Hat OpenShift Kubernetes clusters. Simplify hybrid operations: Automate Hybrid Logic Apps deployments through DevOps pipelines and use supported SQL Server storage options for workflow state and runtime data. Together, these capabilities help organizations modernize enterprise integrations while maintaining flexibility, operational visibility, and control across their environments. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

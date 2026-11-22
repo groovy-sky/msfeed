@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "37d82f73d5b0bb8ea47b00bf0c6cadc588ceea5b7c60169f9ac8dd7dbb764d15",
+  "entry_revision": "1d8ffe9f4175c0e6e962cee15df7ec7ba11d13a7a543d9b9bdde7c237ee37c55",
+  "provider": "odata",
+  "source_id": "580539",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580539",
+  "content_type": "text/plain",
+  "content": "Decision actions are now available in public preview in Azure Logic Apps Automation, enabling developers to automate business decisions using AI without deploying or managing models. Many business processes require judgment calls, such as classifying customer requests, routing support tickets, or assessing issue severity. Traditionally, developers rely on rigid rules or general-purpose AI models that require additional prompting and response parsing. Powered by Microsoft-Decision-1, Decision actions provide a simpler way to incorporate AI-powered decisions directly into workflows. Three new built-in actions enable developers to: Yes/No: Evaluate whether a condition is true, such as identifying refund requests. Choice: Classify information into predefined categories, such as routing tickets to the appropriate team. Score: Assess content against an ordered scale, such as determining issue severity. Decision actions return structured results with probabilities and confidence information that workflows can use directly for routing, conditional execution, or human review. With fully managed AI capabilities and built-in run history, developers can build intelligent business process automation faster while maintaining visibility and control. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

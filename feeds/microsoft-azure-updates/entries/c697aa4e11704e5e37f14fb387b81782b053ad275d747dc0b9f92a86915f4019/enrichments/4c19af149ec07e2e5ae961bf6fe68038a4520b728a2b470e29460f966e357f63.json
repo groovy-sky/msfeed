@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "c697aa4e11704e5e37f14fb387b81782b053ad275d747dc0b9f92a86915f4019",
+  "entry_revision": "cec4ddceb53d8a9e34c92345adb2ec09caccf41381594e314c4b88158bdb84f1",
+  "provider": "odata",
+  "source_id": "577553",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=577553",
+  "content_type": "text/plain",
+  "content": "Improved database integration guidance for Azure Managed Redis helps you add caching to applications built with Azure Database for PostgreSQL flexible server, Azure Cosmos DB, and Azure SQL. You can use practical guidance, reference architectures, and step-by-step tutorials to implement caching best practices and common patterns. These resources help you reduce database load, improve application responsiveness, and choose the right caching approach for your workload. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

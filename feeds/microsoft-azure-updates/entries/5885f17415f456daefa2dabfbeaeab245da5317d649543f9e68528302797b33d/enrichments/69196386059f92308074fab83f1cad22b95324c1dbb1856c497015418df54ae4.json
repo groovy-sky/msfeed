@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "5885f17415f456daefa2dabfbeaeab245da5317d649543f9e68528302797b33d",
+  "entry_revision": "97f605203e906e2b08d28222e2bf7007eaff0b29347b8f67edf306df51415743",
+  "provider": "odata",
+  "source_id": "579388",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579388",
+  "content_type": "text/plain",
+  "content": "Azure HorizonDB is Microsoft’s next-generation, fully-managed, cloud-native PostgreSQL service designed for high-performance, AI-driven, and large-scale workloads. Currently generally available, it targets scenarios that require ultra-low latency, high scalability, and built-in AI capabilities for demanding workloads. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

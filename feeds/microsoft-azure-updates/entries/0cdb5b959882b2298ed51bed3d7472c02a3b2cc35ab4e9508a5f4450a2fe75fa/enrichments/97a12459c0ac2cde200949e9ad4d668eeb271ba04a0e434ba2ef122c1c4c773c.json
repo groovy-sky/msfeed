@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "0cdb5b959882b2298ed51bed3d7472c02a3b2cc35ab4e9508a5f4450a2fe75fa",
+  "entry_revision": "16e4b69b5d5c0f0182de1411bced1f9ba52dd17be4d4a5909a4dce95763b6b53",
+  "provider": "odata",
+  "source_id": "581048",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581048",
+  "content_type": "text/plain",
+  "content": "Azure Backup now supports cross-subscription backup for Azure Virtual Machines, enabling customers to protect VMs using a Recovery Services vault located in a different Azure subscription within the same tenant. This capability allows organizations to centralize backup management across multiple subscriptions, simplifying backup administration, improving governance, and reducing the need to maintain separate backup vaults in each subscription. It is particularly valuable for enterprises managing large Azure environments with dedicated subscriptions for backup and security operations. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "7140aa953ecdff7368ddd4020df6ebf653ea05bb236b9e019eb7a0effcfcd228",
+  "entry_revision": "f994330c0fd2867f8b7dceaf2f500bdd21c560955cbf5832c11a69d290a24966",
+  "provider": "odata",
+  "source_id": "579231",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579231",
+  "content_type": "text/plain",
+  "content": "We provide a plugin with AI-assisted skills to help you convert application code from Oracle to PostgreSQL, enabling applications to work with Azure Database for PostgreSQL. The plugin can be consumed through GitHub Copilot CLI or Visual Studio Code. Customers using tools such as Modernize CLI can also leverage these skills directly within their existing modernization workflows. The skills help you identify Oracle-specific dependencies and generate proposed code changes to support PostgreSQL compatibility. Developers can review and validate the changes before accepting them. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

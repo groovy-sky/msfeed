@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "751c5451bdd48afe027586486bf9efe8979ef83cd82429f404fa7465fede81ac",
+  "entry_revision": "4421ed483d762ab1eb296190eb8177e68c674ebe767b7ce0a32faafe292a3608",
+  "provider": "odata",
+  "source_id": "581277",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581277",
+  "content_type": "text/plain",
+  "content": "The Applications feature in Azure API Management is now available in public preview to all customers, with no sign-up or registration required. Applications provide a streamlined way to organize APIs around consuming applications and manage application-level access. API providers can register applications, associate them with API products, and use Microsoft Entra ID to enable secure, identity-based API consumption. With Applications, organizations can: Simplify application onboarding: Register and manage API-consuming applications directly in Azure API Management. Enable identity-based access: Use Microsoft Entra ID and OAuth 2.0 client credentials to authenticate applications accessing APIs. Streamline API authorization: Associate applications with products to control access to APIs. Improve developer experience: Provide a centralized experience for managing applications and API access.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

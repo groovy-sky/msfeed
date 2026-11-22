@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "9eb30dd84468395404b5a108c74a811cf044fbf0eb7bed0c1f112286d815dbc1",
+  "entry_revision": "c27d3701c86ee0064852949ce3eaf938b074dc738b675c2e016151cd9cd87e36",
+  "provider": "odata",
+  "source_id": "579766",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579766",
+  "content_type": "text/plain",
+  "content": "Announcing the general availability of Azure Multicloud Interconnect, a managed service that provides private connectivity between Azure and supported cloud providers, with Google Cloud Platform now available in public preview and Amazon Web Services in general availability. As organizations increasingly distribute applications, data, AI services, and business-critical workloads across multiple clouds, establishing and operating cloud-to-cloud connectivity can become complex and operationally intensive. Azure Multicloud Interconnect helps simplify this experience by providing a managed connectivity solution that reduces deployment complexity while delivering resilient private, high-performance connectivity between Azure and supported cloud environments. With Azure Multicloud Interconnect, you can deploy a multicloud connection directly from the Azure portal, select your cloud provider, region, and bandwidth, and onboard your environment through a guided experience. Once provisioned, you can connect Azure virtual networks and supported cloud-provider virtual networks through a private cloud-to-cloud connection, helping streamline operations and accelerate multicloud deployments. Key highlights: Managed private connectivity between Azure and supported cloud providers Simplified deployment and onboarding Built-in resiliency designed for mission-critical workloads Learn more: Read the documentation Read the announcement blog",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

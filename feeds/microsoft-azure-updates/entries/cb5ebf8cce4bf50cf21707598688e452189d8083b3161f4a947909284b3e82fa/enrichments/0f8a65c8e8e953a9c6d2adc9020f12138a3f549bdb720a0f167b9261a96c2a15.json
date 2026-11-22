@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "cb5ebf8cce4bf50cf21707598688e452189d8083b3161f4a947909284b3e82fa",
+  "entry_revision": "e7f63c7cb143b54af84c06bb0dcfa76b588252863976af2a3a3974ce5329d605",
+  "provider": "odata",
+  "source_id": "563411",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=563411",
+  "content_type": "text/plain",
+  "content": "Foundry IQ supported Model Context Protocol (MCP) servers as federated knowledge sources, is generally available. Customers register an MCP server as a read-only knowledge source in Foundry IQ. MCP knowledge sources participate in Foundry IQ cross-source selection alongside other knowledge sources, such as web search and unstructured data in blob storage synced into Azure AI Search vector indexes. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

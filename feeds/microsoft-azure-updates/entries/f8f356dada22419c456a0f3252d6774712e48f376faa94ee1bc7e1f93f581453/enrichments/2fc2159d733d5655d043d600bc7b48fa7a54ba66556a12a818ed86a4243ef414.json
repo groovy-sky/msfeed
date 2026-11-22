@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "f8f356dada22419c456a0f3252d6774712e48f376faa94ee1bc7e1f93f581453",
+  "entry_revision": "d5ccbb41a39208185e37f87db26e168263476e867881a76a510e7000b9a0d2d3",
+  "provider": "odata",
+  "source_id": "579607",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579607",
+  "content_type": "text/plain",
+  "content": "Azure Database Migration Service now supports offline data migrations from Oracle to Azure Database for PostgreSQL servers. You can configure source and target connections, select the schemas to migrate, start the data transfer, and track migration status through a single experience instead of building and managing custom data-movement processes. After converting your Oracle schema with your preferred schema-conversion tools, you can use Azure Database Migration Service to transfer your data to Azure Database for PostgreSQL Flexible Server. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

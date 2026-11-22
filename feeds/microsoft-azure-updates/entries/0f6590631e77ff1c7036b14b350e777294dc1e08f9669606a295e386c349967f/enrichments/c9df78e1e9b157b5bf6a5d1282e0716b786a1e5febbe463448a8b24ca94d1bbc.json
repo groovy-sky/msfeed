@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "0f6590631e77ff1c7036b14b350e777294dc1e08f9669606a295e386c349967f",
+  "entry_revision": "5d275df1d75d6ac9ee9f1f3a6774d3665233f147f6350d51160cacbdeb0b2a81",
+  "provider": "odata",
+  "source_id": "581140",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581140",
+  "content_type": "text/plain",
+  "content": "We’re excited to announce the general availability of server renaming for Azure Database for MySQL. Now you can update the name of an existing server instance without needing to recreate the server, migrate data, or disrupt applications. You can adopt clear, consistent naming without interrupting applications. Server renaming provides a near zero-downtime path to a new hostname of the server. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

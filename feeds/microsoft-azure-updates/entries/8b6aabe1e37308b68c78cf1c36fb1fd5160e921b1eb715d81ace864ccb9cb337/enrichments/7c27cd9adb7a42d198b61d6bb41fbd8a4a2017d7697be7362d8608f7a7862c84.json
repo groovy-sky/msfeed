@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "8b6aabe1e37308b68c78cf1c36fb1fd5160e921b1eb715d81ace864ccb9cb337",
+  "entry_revision": "eb1f4b01c35ea59b21852c15689f37c0a739c50d788210eda54822a7e8bece57",
+  "provider": "odata",
+  "source_id": "580753",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580753",
+  "content_type": "text/plain",
+  "content": "Azure SRE Agent can now take part in Microsoft Teams conversations in public preview. Engineers can start an investigation, follow up on findings, and work with the agent in one-on-one chats, group chats, channels, and meeting chats without leaving Teams. When an action requires authorization, the agent posts an approval card in the conversation. Administrators decide which shared conversations the agent can take part in, while existing tool policies determine whether actions are allowed, require approval, or are denied. Microsoft Entra Agent ID enables the agent’s Teams presence; managed identity and Azure role-based access control continue to govern access to Azure resources. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

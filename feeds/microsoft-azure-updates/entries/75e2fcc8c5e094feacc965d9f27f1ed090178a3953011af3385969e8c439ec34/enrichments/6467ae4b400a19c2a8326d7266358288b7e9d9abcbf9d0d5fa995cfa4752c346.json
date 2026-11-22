@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "75e2fcc8c5e094feacc965d9f27f1ed090178a3953011af3385969e8c439ec34",
+  "entry_revision": "2b62dc959095efddce851c6b0b3677b20a315cb223089483478a43028ac83209",
+  "provider": "odata",
+  "source_id": "579590",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579590",
+  "content_type": "text/plain",
+  "content": "Azure Database for PostgreSQL Flexible Server is announcing the general availability of Intel and AMD v6 compute tiers with local temporary disk. The new v6 generation expands the Flexible Server compute portfolio with higher performance, larger scale, and improved price/performance while retaining local temporary disk for workloads that benefit from it. You can select the latest v6 Intel and AMD compute options based on your workload requirements while continuing to use the familiar PostgreSQL Flexible Server experience. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

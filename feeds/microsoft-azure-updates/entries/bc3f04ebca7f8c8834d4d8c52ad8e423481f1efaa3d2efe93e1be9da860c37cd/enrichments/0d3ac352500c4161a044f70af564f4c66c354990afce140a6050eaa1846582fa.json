@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "bc3f04ebca7f8c8834d4d8c52ad8e423481f1efaa3d2efe93e1be9da860c37cd",
+  "entry_revision": "74e9bd8711961523c89087c6fa97c3146ccae6620463237d8febc40f44e762a4",
+  "provider": "odata",
+  "source_id": "578611",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578611",
+  "content_type": "text/plain",
+  "content": "Auto-create connection monitor introduces a new, faster way to set up network monitoring across an entire Azure subscription. Until now, connection monitor tests were created one connection at a time, with each region, source, destination, test configuration and alert set up by hand. That approach gives precise control, but setting up broad coverage takes significant effort. With this release, customers can choose auto-create next to the existing manual option: select a subscription as the scope, and Connection Monitor recommends what to monitor. With auto-create connection monitor, the service scans the subscription's resource topology. It discovers Application Gateways, Load Balancers, VPN and ExpressRoute gateways, virtual network and local network gateways, private endpoints and SQL servers. It then recommends the connections most worth monitoring, skips tests that already exist, and explains the reasoning behind each recommendation. Customers can review, filter and edit the recommended tests and see the estimated monthly cost before creating them all in a single step. Auto-create complements manual setup instead of replacing it. Customers can use Auto-Create to quickly establish subscription-wide coverage, and keep creating individual tests manually when they need fine-grained control over specific connections. This helps teams reduce blind spots while keeping full transparency and control over every test. By adding auto-create to connection monitor, Azure gives customers a choice in how they set up monitoring. They can get broad, reliable coverage in minutes or tailor each test by hand, so connectivity issues are detected earlier and resolved faster across their Azure workloads. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

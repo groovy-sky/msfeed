@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "91b564320c7bb8b24cb6249399f33e1a4a1155f57bb12fb57e949a4698929dc4",
+  "entry_revision": "db7447f58c60e4248c9e55055bd453ad2afdcd8024109012078a1a99b88e09b5",
+  "provider": "odata",
+  "source_id": "578044",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578044",
+  "content_type": "text/plain",
+  "content": "Vaulted backups add an independent protection layer by storing immutable backup copies in an Azure Backup vault, isolated from the source Azure Cosmos DB account, and managed through Azure Backup. This update helps you meet a key requirement of many regulated industries. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

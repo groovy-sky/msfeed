@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "85bdaf3c46e03d25d00d5fdb6fda4a1d0ad5e6b96991a1393af6bf2d2a070cc9",
+  "entry_revision": "a6ee38e1dc2e832d30c382e47545e1b8fba6bd935329d7173c1159c10a7c4976",
+  "provider": "odata",
+  "source_id": "580306",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580306",
+  "content_type": "text/plain",
+  "content": "Session-based authentication is now in public preview for Azure Blob and Data Lake Storage. Session-based authentication reduces the per-request authentication and authorization time for AI agents and applications while preserving the security controls organizations already rely on. With session-based authentication, an agent or application authenticates once with Microsoft Entra ID, establishes a short-lived session for a container, and uses that session for subsequent reads. Session-based authentication provides three benefits: Improved performance. Identity and permissions are verified once when the session is created. Subsequent read requests to the container use that session which reduces per-request authentication and authorization latency. The same least privileged access, now short-lived. Sessions use your organization’s existing permission model for least privileged access, Azure RBAC and Azure ABAC. Each session is also scoped to one container, expires after five minutes, is bound to the client that created it, and requires every request to be signed. Full traceability. Azure Storage diagnostic logs currently record the Microsoft Entra ID identity behind each request, and the same is true with sessions. With sessions, every request remains tied to the Microsoft Entra ID identity that created the session, so security teams keep visibility into which identity, human or agent, accessed what data, and when. This preview is available in all public regions, supports the Get Blob operation, and is available through the REST API and Azure Storage SDKs. With the SDK, enabling session-based authentication is a single client configuration option, with no changes to your application logic. Creating a session is billed as a write transaction. Read requests made with a session are billed at the standard transaction rates for your storage account type. Learn more: Blog Documentation",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

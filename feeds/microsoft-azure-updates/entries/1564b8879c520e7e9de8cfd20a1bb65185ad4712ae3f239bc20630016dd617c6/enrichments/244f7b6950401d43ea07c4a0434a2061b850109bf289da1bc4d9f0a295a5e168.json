@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "1564b8879c520e7e9de8cfd20a1bb65185ad4712ae3f239bc20630016dd617c6",
+  "entry_revision": "c20e8538c6db5fde998c0f8577d349241fab73ef18f409e06f0193d152d459a8",
+  "provider": "odata",
+  "source_id": "581193",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581193",
+  "content_type": "text/plain",
+  "content": "Project NOVA enables independent verification of specific claims without revealing the underlying data. Across regulated industries, organizations need to establish trust while protecting confidential information. Project Nova explores how zero-knowledge proofs can enable privacy-preserving transactions, interoperability, and regulatory assurance across organizational boundaries. In financial services, zero-knowledge proofs could enable cross-chain settlement by verifying transaction conditions across networks, support selective disclosure of sensitive information, and provide regulators with independent assurance of compliance without exposing underlying records. Beyond financial services, healthcare organizations could verify patient eligibility without sharing medical histories; AI systems could prove defined computations without exposing sensitive inputs; and supply chains could demonstrate compliance or product provenance without revealing confidential supplier relationships.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

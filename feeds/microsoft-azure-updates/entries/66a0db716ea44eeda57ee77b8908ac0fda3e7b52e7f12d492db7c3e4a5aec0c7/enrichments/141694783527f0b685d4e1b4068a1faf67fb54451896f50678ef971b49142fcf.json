@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "66a0db716ea44eeda57ee77b8908ac0fda3e7b52e7f12d492db7c3e4a5aec0c7",
+  "entry_revision": "7ad52c33da10a4c06a8c88a2aa06d52e5764e370cb799d939f31d3c467513b73",
+  "provider": "odata",
+  "source_id": "580975",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580975",
+  "content_type": "text/plain",
+  "content": "Azure SRE Agent now natively supports AWS and Google Cloud through built-in connectors, available in public preview. Bring operational evidence together to investigate applications and dependencies across Azure and your connected AWS or Google Cloud environments. The connectors use an Azure managed identity and identity federation with AWS IAM roles and Google Cloud Workload Identity Federation. There's no need to manage AWS access keys or Google Cloud service account keys, build custom connectors, or host MCP servers. Use separate connections for multiple AWS accounts, or one Google Cloud connection across projects where the federated identity has permissions. Ask in natural language, or automate investigations with incident response plans, scheduled tasks, and workflows. Cloud IAM, SRE Agent run modes, and tool approvals govern access and operations. Supported activity can be audited in AWS CloudTrail and Google Cloud Audit Logs when logging is configured. Learn more: AWS connector guide Google Cloud connector guide",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

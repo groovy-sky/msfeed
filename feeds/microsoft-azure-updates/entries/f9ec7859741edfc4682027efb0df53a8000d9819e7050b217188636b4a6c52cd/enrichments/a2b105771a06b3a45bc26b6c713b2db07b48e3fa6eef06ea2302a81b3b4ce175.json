@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "f9ec7859741edfc4682027efb0df53a8000d9819e7050b217188636b4a6c52cd",
+  "entry_revision": "739d841438cbcf945f10a4c3368351b434d715ff2e6ff3b8c61f315ad0277be6",
+  "provider": "odata",
+  "source_id": "578980",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578980",
+  "content_type": "text/plain",
+  "content": "Azure Functions Network Troubleshooter v2 is now in Public Preview. Network Troubleshooter v2 gives customers a top-down view of Function App dependencies across Storage, Service Bus, and Azure Files. For each supported dependency, customers can inspect connectivity status and verify whether Managed Identity is configured correctly. By bringing dependency discovery and these checks into one experience, it reduces the need to diagnose connectivity and configuration issues separately. There are no plan, region, or Managed Identity prerequisites or limitations. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

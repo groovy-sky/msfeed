@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "e0c676ddcc1991212c754def808bf17e900adbf805ac96f2a8e91a1390b9f875",
+  "entry_revision": "7451754d573f88a6257993e7a1193433678c0a0f40259f89555a98f77d098ab0",
+  "provider": "odata",
+  "source_id": "580428",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580428",
+  "content_type": "text/plain",
+  "content": "A next-generation elastic architecture for Azure Application Gateway v2 is now available in public preview. Built for demanding workloads and dynamic traffic patterns, it reduces provisioning time by up to 50% and autoscaling time by up to 70% compared to the current deployment tier. It also lays the foundation for higher configuration and data-plane scale limits while maintaining seamless application connectivity as gateways scale out and scale in. This platform upgrade is available at no additional cost. To opt in, select \"Accelerated (Preview)\" under Deployment tier when creating a new Application Gateway. During the preview period, the tier is available in select regions, with additional regions being added over time. Existing gateways are unaffected and will continue to operate as-is. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "bcbba2164259b2fc3c590d1be94fd0ba4eec48034cc020bc96579932649d11b7",
+  "entry_revision": "8d594bcbb2aa7534bb9fd4b246a888de1d0cfbc420e1f7a1737212b3542724e2",
+  "provider": "odata",
+  "source_id": "581120",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581120",
+  "content_type": "text/plain",
+  "content": "Isolated pods should not force a tradeoff between security and startup performance. With classic sandboxed pod flows, every pod boots a new Kata VM, which adds cold-start latency and extra memory overhead before your app begins work. The new kata-vm-isolation-v2 runtime class changes that default. It creates pods from a pre-initialized sandbox VM template instead of booting each sandbox from scratch, reduces per-pod memory overhead, and uses Kata’s Rust runtime for better efficiency. You keep strong pod-level VM isolation while getting faster starts and lower runtime cost for sandboxed workloads. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

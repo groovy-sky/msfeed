@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "ef2ce4e542fd185468787ceca36087c998bb8cee22d6ba42594993f30ce87c9a",
+  "entry_revision": "6ead2f9301dcc457f65b0b3909fde07dd06fbee52f6a07f6cf9dc8a2b5ceaa34",
+  "provider": "odata",
+  "source_id": "578839",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578839",
+  "content_type": "text/plain",
+  "content": "Geo-redundancy in Azure App Service, now in public preview, helps customers build more resilient web applications across Azure regions without independently creating and managing an App Service deployment in each region. App Service creates and manages regional application replicas, synchronizes supported application content and configuration, and provides a global endpoint for traffic across regions. Customers can choose Passive mode for regional failover or Active mode to distribute traffic across healthy regions. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

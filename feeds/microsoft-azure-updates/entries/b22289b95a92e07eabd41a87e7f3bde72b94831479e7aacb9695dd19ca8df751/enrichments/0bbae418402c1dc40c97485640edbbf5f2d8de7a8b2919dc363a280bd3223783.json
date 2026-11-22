@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "b22289b95a92e07eabd41a87e7f3bde72b94831479e7aacb9695dd19ca8df751",
+  "entry_revision": "174445437700cb98105d5381a4352ea288241084b003628773269cdba1ff7bb0",
+  "provider": "odata",
+  "source_id": "580689",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580689",
+  "content_type": "text/plain",
+  "content": "Azure Adaptive Virtual Patching introduces an AI-orchestrated Adaptive Shield designed to reduce exposure to new, emerging, and newly disclosed zero-day vulnerabilities while customers test and deploy software patches. The initial workload focus is Linux Virtual Machines (VM) and Virtual Machine Scale Sets (VMSS) on Azure. The service connects three semantic layers: a knowledge graph of vulnerabilities and exploit conditions, a map of the customer’s actual workloads and runtime context, and an orchestration layer that identifies relevant exposure and generates workload-specific mitigations. AI-synthesized policies use explicit matching conditions and enforcement actions, combining adaptive reasoning with deterministic runtime enforcement. The Adaptive Shield architecture coordinates eBPF-based workload protection and network-based compensating controls to address relevant attack paths. Customers onboard workloads as Protected Resources. A workload extension collects telemetry and deploys mitigations directed by the service’s AI core, helping protection adapt as threats and workload conditions change. Azure Adaptive Virtual Patching complements existing security investments and gives customers time to patch safely. It applies temporary mitigations rather than installing software fixes; the corresponding mitigations can be rolled back after patching and confirmed remediation. Learn more: Documentation Announcement blog",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

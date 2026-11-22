@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "e92caa6e4099127f1e2e397aa684d817114cd6661b73386a1839f24886364d6b",
+  "entry_revision": "9f7b73647142e32a21b70df01bb2c921731f2888a5e22eea8ea2641fd2c857a9",
+  "provider": "odata",
+  "source_id": "580261",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580261",
+  "content_type": "text/plain",
+  "content": "Azure Monitor Health Models is now Generally Available. You can now build a Azure Monitor Health Model that defines and operationalizes workload health as a first-class construct by aggregating signals across metrics, logs, and dependencies into a single, unified health state. It reduces alert noise, accelerating incident response, and improving reliability for your services. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

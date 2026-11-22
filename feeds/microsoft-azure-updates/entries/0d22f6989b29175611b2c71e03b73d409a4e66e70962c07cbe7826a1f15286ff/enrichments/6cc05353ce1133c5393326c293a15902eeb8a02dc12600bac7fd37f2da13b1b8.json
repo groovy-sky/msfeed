@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "0d22f6989b29175611b2c71e03b73d409a4e66e70962c07cbe7826a1f15286ff",
+  "entry_revision": "245ee77016daa24184cd026b92a21819ba568ebb16e3fa84bd6f37ada4fe7548",
+  "provider": "odata",
+  "source_id": "580184",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580184",
+  "content_type": "text/plain",
+  "content": "You can now analyze and compare thousands of traces, isolate the transactions that matter, and move from trends to root cause with advanced distributed tracing within Azure Monitor Application Insights. Azure Monitor traces (preview) provides a dedicated trace store for distributed traces. It assembles related spans into complete traces at ingestion time, so you can analyze end-to-end transactions across your services and dependencies. Use Trace Analytics to search and analyze groups of traces. You can identify patterns in performance and failures, compare groups of transactions, and open individual traces for detailed investigation. Use trace-based metrics to power service-level indicators, dashboards, alerts and long-term trend analysis. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "7c1faedd7568d9096feb696153658348b3e28b0ebc6753fa078575520b0cb534",
+  "entry_revision": "389733dc08275c9d686f95d1a4fa61845207b29a006b3cc9104bff06efee9e14",
+  "provider": "odata",
+  "source_id": "576382",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=576382",
+  "content_type": "text/plain",
+  "content": "Application Gateway for Containers now supports centralized JSON Web Token validation through the AuthPolicy custom resource. Teams can validate a token signature, issuer, lifetime, and configured audience by using signing keys retrieved from a trusted HTTPS JSON Web Key Set endpoint. Requests with missing or invalid credentials are rejected at the gateway instead of being forwarded to the backend. AuthPolicy can protect an ApplicationLoadBalancer, Gateway, HTTPRoute, GRPCRoute, or MCPRoute. Policies inherit through the resource hierarchy, while a more specific route-level policy can replace an inherited policy or explicitly opt a route out. Optional OAuth Protected Resource Metadata helps OAuth-aware clients discover authorization servers and supported scopes. Apply consistent JWT validation to HTTP, gRPC, and MCP routes Use Microsoft Entra ID or third-party identity providers that publish trusted JWKS signing keys Combine JWT validation with WAF so malicious traffic is inspected before authentication Publish OAuth resource metadata to enable authorization server discovery Learn more: JWT validation for Application Gateway for Containers Configure JWT validation for Application Gateway for Containers - Gateway API",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

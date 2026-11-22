@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "536ac98e481d83f6a031a11fd8b152fde6258bd5447165f876d0ce1a1d3a7310",
+  "entry_revision": "01c93ac42190819f61e6b5bbb1dbdc2054b362d8472812a92fd0033455414683",
+  "provider": "odata",
+  "source_id": "580694",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580694",
+  "content_type": "text/plain",
+  "content": "AI Security, a new add-on for Azure Firewall Premium, is now in public preview. Announced at Microsoft Ignite, it introduces five capabilities to help you protect AI applications, safeguard sensitive data, strengthen malware and application defenses, and simplify firewall policy management. Prompt injection protection uses Azure AI Content Safety Prompt Shields to detect and block prompt-injection attempts in selected traffic, without per-application SDK integration. Network DLP integrates with Microsoft Purview to help prevent sensitive corporate data from being uploaded to destinations your organization does not sanction, including AI applications and models. Malware detection and application vulnerability protection bring purpose-built small language models (SLMs), fine-tuned for network security and optimized to run on CPUs, into inline inspection. These models analyze binary files and application requests in transit to detect malware and exploit attempts, enabling policy enforcement before identified threats reach their destinations. AI policy combines firewall configuration with observed network traffic to provide contextual insights and recommendations. Use these insights to review unused rules, identify opportunities to improve rule order, and investigate traffic anomalies. Review recommendations and validate changes with a dry-run before applying them. Together, these capabilities bring AI-powered intelligence to network protection and policy management. Learn more: Documentation Announcement blog",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

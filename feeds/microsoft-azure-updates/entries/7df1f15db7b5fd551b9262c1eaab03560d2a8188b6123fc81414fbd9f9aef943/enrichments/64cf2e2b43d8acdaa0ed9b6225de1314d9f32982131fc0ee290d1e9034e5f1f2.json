@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "7df1f15db7b5fd551b9262c1eaab03560d2a8188b6123fc81414fbd9f9aef943",
+  "entry_revision": "7141eabc5aa7fa464dc6985f22905ec89e3d5d336841b4a99775ba4041a9a747",
+  "provider": "odata",
+  "source_id": "577579",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=577579",
+  "content_type": "text/plain",
+  "content": "The general availability of built-in DNS migration tooling simplifies endpoint migration from Azure Cache for Redis Basic, Standard, and Premium tiers to Azure Managed Redis. The tooling lets you redirect the existing cache hostname to an existing Azure Managed Redis instance, allowing applications to reconnect using the same hostname and access key. The tool also supports data retention across migration. This built-in tooling reduces immediate application configuration changes and simplifies traffic cutover while you validate the new cache. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

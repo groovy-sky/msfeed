@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "23b5554ae730649ff1f3d1bf7e203546f3cc5aa98f48d657bd55eb20001921b5",
+  "entry_revision": "49884570fb001d51ad485d85b3f3a6fd72222b4c395ab1764e17cf6b92ab95f4",
+  "provider": "odata",
+  "source_id": "581244",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581244",
+  "content_type": "text/plain",
+  "content": "VM adaptive placement, now in public preview, helps increase Azure VM deployment success when capacity is constrained. With a standard VM create, you specify one exact size, and the deployment fails if that size isn't available. With adaptive placement, you specify a preferred size instead. Azure deploys your preferred size when it can. If it isn't available, Azure deploys a compatible alternative with the same vCPU count, the same or newer generation, and equivalent performance. Adaptive placement isn't a new VM type or pricing offer. You get a regular Azure VM, billed at standard rates for the deployed size, with no additional charge. Key capabilities: Replace custom retry loops and fallback lists with a placement decision Azure makes at request time See both your preferred size and the deployed size on the VM Use it for new VMs or update existing VMs During preview, preferred sizes can come from the D-, E- and F-series families. Adaptive placement is for single VMs and isn't supported with Capacity Reservations, Dedicated Hosts, Availability Sets or Proximity Placement Groups. It works within your quota and isn't a capacity guarantee. Use the REST API, Azure PowerShell or the .NET and Python SDKs; the Azure portal isn't supported in preview. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

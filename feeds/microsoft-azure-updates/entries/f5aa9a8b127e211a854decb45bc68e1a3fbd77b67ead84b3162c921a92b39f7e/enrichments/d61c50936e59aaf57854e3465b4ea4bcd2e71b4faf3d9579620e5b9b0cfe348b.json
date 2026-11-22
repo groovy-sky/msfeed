@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "f5aa9a8b127e211a854decb45bc68e1a3fbd77b67ead84b3162c921a92b39f7e",
+  "entry_revision": "24e12ac4174d2410a7025727fa7191379b16687fac7df25abc87f65858af3f55",
+  "provider": "odata",
+  "source_id": "578465",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578465",
+  "content_type": "text/plain",
+  "content": "In mid-November 2026, the following updates and enhancements were made to Azure SQL Managed Instance: Boost transaction throughput in Next-gen General Purpose Azure SQL Managed Instance with increased log rates of up to 220 MiB/s and higher per vCore throughput, improving performance for transaction-intensive workloads. Right-size storage and compute more efficiently in Next-gen General Purpose Azure SQL Managed Instance with improved storage-to-vCore ratios and finer-grained storage scaling, reducing the need to overprovision vCores for storage-intensive workloads. Right-size memory independently of vCores for zone-redundant Next-gen General Purpose Azure SQL Managed Instances, helping optimize performance and resource utilization without overprovisioning compute. Learn more: New capabilities in Next-gen General Purpose Flexible Memory in Azure SQL Managed Instance",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

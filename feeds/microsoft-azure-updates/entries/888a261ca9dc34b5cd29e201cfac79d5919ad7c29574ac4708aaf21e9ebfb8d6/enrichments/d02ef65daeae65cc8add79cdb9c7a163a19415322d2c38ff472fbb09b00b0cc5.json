@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "888a261ca9dc34b5cd29e201cfac79d5919ad7c29574ac4708aaf21e9ebfb8d6",
+  "entry_revision": "a7301d46634bf2b476484548ca17a7218721494a5eb39205c0c084ff0b4c2ffa",
+  "provider": "odata",
+  "source_id": "579579",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579579",
+  "content_type": "text/plain",
+  "content": "Database Agent helps you detect, understand, and respond to database health and performance issues more quickly in Azure Database for PostgreSQL. It proactively monitors database health to identify issues, brings together database metrics, configuration, workload signals, query plans, and logs to determine the likely root cause, and explains the supporting evidence in clear language. Database Agent also provides actionable remediation guidance so you can review the evidence and decide what to do next. Instead of manually correlating telemetry and diagnostic data for each issue, you can spend less time investigating database problems and more time resolving them. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "59d6dbd24044e76a09a31380891de69e3ea8aea4f5885ddb27db9733cf6199a3",
+  "entry_revision": "fcb98cd8b4f46b819292f8d620626fef28d5b6bb8d6941e54cf05e36b9ae1409",
+  "provider": "odata",
+  "source_id": "581308",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581308",
+  "content_type": "text/plain",
+  "content": "We are announcing the preview of the new Azure DHasv8, DHalsv8 and EHasv8-series virtual machines (VMs), powered by 6th Generation AMD EPYC™ (“Venice”) processors. Designed for the next generation of cloud applications, these VMs deliver expanded compute and memory scalability, enhanced storage and networking performance, and flexible configurations to support demanding enterprise, database, and abroader range of AI workloads. The preview includes general purpose (DHasv8-series \u0026 DHalsv8-series) and memory-optimized (EHasv8-series) VMs, available with and without local disks. Key enhancements include expanded VM sizes up to 480 cores to support diverse workload requirements; increased memory capacity of up to 3.8 TiB on the EHasv8-series for memory-intensive workloads; and up to 2x higher remote storage IOPS and networking bandwidth on the largest VM sizes compared to the previous generation. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

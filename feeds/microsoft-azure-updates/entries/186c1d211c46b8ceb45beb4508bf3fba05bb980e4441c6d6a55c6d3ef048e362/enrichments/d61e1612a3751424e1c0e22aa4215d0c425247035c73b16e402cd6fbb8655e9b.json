@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "186c1d211c46b8ceb45beb4508bf3fba05bb980e4441c6d6a55c6d3ef048e362",
+  "entry_revision": "2418fc5dd85d5b351ae528863f2cd38fe18f0f41b176577b7cadbd9e4f2ee64f",
+  "provider": "odata",
+  "source_id": "578242",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578242",
+  "content_type": "text/plain",
+  "content": "With the public preview of DocumentDB enabled by Azure Arc, you can deploy DocumentDB on supported Azure Arc-enabled Kubernetes clusters across on-premises, edge, and multicloud environments. Run MongoDB-compatible document workloads where applications and data need to reside, while using Azure Arc for inventory, configuration, and governance of the underlying Kubernetes infrastructure. Built on PostgreSQL, DocumentDB supports familiar MongoDB-compatible APIs and tools. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

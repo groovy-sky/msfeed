@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "7e482cd278d1ceb3e12f6ed78d6b670701229f319d5f328ce39453dce59b2bc7",
+  "entry_revision": "58c2339d4cb9fd7c69cf2583cfbf0047d1e966cf94a6496e3d712b12bdfbc276",
+  "provider": "odata",
+  "source_id": "581907",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581907",
+  "content_type": "text/plain",
+  "content": "Soft delete in Azure Compute Gallery is now generally available, so you can recover image versions that were deleted by accident. You can set a retention period of 7 to 365 days. During retention, you can still deploy from soft-deleted images (API version 2026-03-03). When the retention period ends, a configurable grace period of 7 to 90 days begins. During the grace period, images can no longer be used for deployments but can still be recovered. Soft Delete works with Private, Direct Shared and Community galleries. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

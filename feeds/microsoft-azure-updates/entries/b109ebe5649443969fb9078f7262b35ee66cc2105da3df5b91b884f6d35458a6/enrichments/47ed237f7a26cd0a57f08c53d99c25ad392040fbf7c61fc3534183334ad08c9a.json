@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "b109ebe5649443969fb9078f7262b35ee66cc2105da3df5b91b884f6d35458a6",
+  "entry_revision": "e302c0f1f0de1a318c6a5cfbe77997ba348487d948181c9b84c4095b7d88d7e1",
+  "provider": "odata",
+  "source_id": "577531",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=577531",
+  "content_type": "text/plain",
+  "content": "Azure Cosmos DB full-text search now includes BM25 score projection, giving you clear visibility into why results appear in the order they do. Your app can now access the relevance score for each result directly, making search ranking more transparent. This new capability helps you display relevance, troubleshoot unexpected ordering, and tune ranking with confidence. You can also compare how different ranking signals contribute to final relevance, helping you build better search experiences on top of your Azure Cosmos DB data. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

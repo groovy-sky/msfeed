@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "68eea0177017918475b64812ea1cd72040a69cb9aad7e6d42ed00b24ca98a83f",
+  "entry_revision": "d58bd51bd1febdb536c46484fdc627e7f74ebc429d1269a6201dfce73c54a80e",
+  "provider": "odata",
+  "source_id": "580862",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580862",
+  "content_type": "text/plain",
+  "content": "Azure DDoS Protection now covers the public IPs behind Azure NAT Gateway StandardV2, in public preview. You can protect the IPv4 and IPv6 addresses that carry your outbound internet traffic from network-layer DDoS attacks, using the same DDoS Network Protection or IP Protection you already have. There’s no new API, feature registration or appliance to manage, and no unsolicited inbound connections are opened to your gateway. Why it matters: NAT Gateway doesn’t accept inbound connections, but its public IPs are still reachable from the internet, and they’re the identity of everything behind them. Partners, SaaS providers and banks often allow-list these IPs, so anyone who learns them can aim traffic at them. Every VM in the associated subnets shares the same IPs, so a single flood can cut off API calls, partner integrations, updates and telemetry all at once. An attacker doesn’t need to reach your workloads to cause an outage, only to break their path to the internet. Now your outbound IPs get automatic network-layer mitigation, plus the DDoS metrics, diagnostics and alerts you already rely on. It also simplifies compliance, because policies requiring DDoS protection on all public IPs no longer need an exception for NAT Gateway. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

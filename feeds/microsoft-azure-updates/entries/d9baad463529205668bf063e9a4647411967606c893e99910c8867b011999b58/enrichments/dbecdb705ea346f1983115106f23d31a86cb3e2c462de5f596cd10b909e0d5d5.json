@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "d9baad463529205668bf063e9a4647411967606c893e99910c8867b011999b58",
+  "entry_revision": "4439b3a89ef0eb233b807eb6d99074823a6b693ea810c1d5210639124cc6970c",
+  "provider": "odata",
+  "source_id": "581249",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581249",
+  "content_type": "text/plain",
+  "content": "Azure Artifact Validation, in public preview, lets VM image publishers and enterprise platform teams run Azure's certification-grade quality and security checks on their images in their own Azure subscriptions, at any point in the build process. Previously, these checks ran only when you submitted an Azure Marketplace offer in Partner Center. Now you can validate Windows and Linux images bound for Azure Marketplace, galleries or other distribution platforms, and find issues while they're still inexpensive to fix. Key capabilities: Self-service validation runs in your own subscription, with your choice of tests and timing Checks for bootability, OS configuration and platform compatibility, plus malware and vulnerability scanning powered by Microsoft Defender A native Azure resource with an API, so you can add validation to CI/CD pipelines as a release gate Per-test results with stable error codes and clear reasons Artifact Validation complements Azure Marketplace certification and doesn't replace it; final certification still runs through Partner Center. Available in Central US, North Central US, South Central US, Sweden Central, Japan East and Australia East through the REST API, ARM templates and Azure SDKs. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

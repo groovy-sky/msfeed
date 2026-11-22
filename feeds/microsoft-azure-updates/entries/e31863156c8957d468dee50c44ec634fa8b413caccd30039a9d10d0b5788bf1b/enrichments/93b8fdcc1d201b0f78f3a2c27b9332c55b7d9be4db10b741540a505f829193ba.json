@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "e31863156c8957d468dee50c44ec634fa8b413caccd30039a9d10d0b5788bf1b",
+  "entry_revision": "4850d21a4282b2b4884ceacdfc803a37a362b4d6ee423f92e7f10002ead451e6",
+  "provider": "odata",
+  "source_id": "578792",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578792",
+  "content_type": "text/plain",
+  "content": "Azure Network Watcher VNet Flow Logs now supports flow log enrichment for Azure Private Link Service, providing greater visibility into network traffic flowing through Private Link Service. With this capability, Virtual Network Flow Logs retain backend flow details while adding context about the original source, translated Private Link Service address information, and the Private Link connection identifier. This helps service providers trace connections from the original client, through the Private Endpoint and Private Link Service translation layer, to the backend workload. Traffic Analytics also supports this enriched Private Link Service traffic, extending its monitoring and analytics capabilities to Private Link Service scenarios. You can now use Traffic Analytics to visualize traffic patterns, monitor network communication, investigate connectivity and security issues, and gain actionable insights into workloads exposed through Private Link Service. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

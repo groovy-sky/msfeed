@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "1b4d6afd5084946a0d52415e944d3609efd21e44cd48754328a006aed61ae80b",
+  "entry_revision": "e4ea47b8e4f46a78be503c6ad483b82a60e0daea1c137aa0246b7808599531cb",
+  "provider": "odata",
+  "source_id": "578773",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578773",
+  "content_type": "text/plain",
+  "content": "Azure Functions support for .NET 11 is now generally available. You can now build Azure Functions apps targeting .NET 11 using the isolated worker model, while continuing to use the Azure Functions programming model and host integration. Your serverless applications can now take advantage of the new runtime performance optimizations, richer APIs, and enhanced developer tooling through the latest .NET runtime, C#, library, and SDK improvements in this release. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

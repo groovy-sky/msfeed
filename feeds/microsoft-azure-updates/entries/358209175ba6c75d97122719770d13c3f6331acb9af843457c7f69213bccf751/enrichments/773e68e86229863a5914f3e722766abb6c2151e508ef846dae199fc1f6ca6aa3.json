@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "358209175ba6c75d97122719770d13c3f6331acb9af843457c7f69213bccf751",
+  "entry_revision": "dbc00712bb16c58d8d3dc171b5c89d76d467eb79716f209750ead44467eb3fe4",
+  "provider": "odata",
+  "source_id": "578262",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=578262",
+  "content_type": "text/plain",
+  "content": "Azure DocumentDB now offers granular role-based access control (RBAC) , well beyond the cluster-level permissions that have been offered in the service. You can now use database-level and collection-level RBAC to manage data access. Instead of relying only on cluster-scoped roles, you can create custom roles for a specific database or individual collection and assign the supported data privileges your users and applications require. This update gives you greater control over who can access and modify your data, helping you apply least-privilege access across databases, applications, and workloads while keeping permissions scoped to where they are needed. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

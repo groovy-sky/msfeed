@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "a6021b15cbf11d1e32ec9f098c19298ec819ca57254bd650cc34d6492648ba2d",
+  "entry_revision": "6b223ebec62855d5d4377f3b9ac1e1f57d993d5fc1f44a1812cd72f42abebd85",
+  "provider": "odata",
+  "source_id": "580768",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580768",
+  "content_type": "text/plain",
+  "content": "Azure SRE Agent is coming to Slack in private preview. Organizations that coordinate incident response in Slack can work with the agent in the channels where responders already work, mentioning it to start or follow up on an investigation and receiving findings in the same conversation, so the wider response team can follow along without switching tools. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

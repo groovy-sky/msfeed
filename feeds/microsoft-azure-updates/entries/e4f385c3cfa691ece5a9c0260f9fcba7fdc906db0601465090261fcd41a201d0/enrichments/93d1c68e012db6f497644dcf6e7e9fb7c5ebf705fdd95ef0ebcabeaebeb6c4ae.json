@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "e4f385c3cfa691ece5a9c0260f9fcba7fdc906db0601465090261fcd41a201d0",
+  "entry_revision": "e5e6bd04ee81fbcde10f8fe11e83b027bec3208b2e49fb8474bd3cd8d3b5cc42",
+  "provider": "odata",
+  "source_id": "563661",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=563661",
+  "content_type": "text/plain",
+  "content": "Foundry IQ—formerly Azure AI Search—now offers generally available semantic chunking and optional AI-generated image descriptions through the Azure Content Understanding skill. The skill uses document structure to create chunks with Markdown and location metadata. Configure a supported chat-model deployment to generate descriptions of supported images, charts, and diagrams. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

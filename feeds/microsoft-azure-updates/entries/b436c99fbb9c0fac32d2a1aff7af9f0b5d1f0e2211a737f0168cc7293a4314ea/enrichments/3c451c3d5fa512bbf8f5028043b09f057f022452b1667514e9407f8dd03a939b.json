@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "b436c99fbb9c0fac32d2a1aff7af9f0b5d1f0e2211a737f0168cc7293a4314ea",
+  "entry_revision": "2158b489475ec232abfcde2131b444e81cdd6549133a6dbf74d4985876ef39ff",
+  "provider": "odata",
+  "source_id": "579435",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579435",
+  "content_type": "text/plain",
+  "content": "Azure Connector Namespace’s hosted MCP server capability gives AI agents access to tools without requiring developers to build and operate a separate hosting stack. The platform provisions and manages the hosting infrastructure and provides Microsoft Entra ID authentication, access controls, monitoring integration, and more. This helps teams focus on the tools and data their agents need rather than the operational work of hosting remote MCP servers. Connector Namespace brings two new features to hosted MCP: Bring-your-own container image and a ready-to-deploy Azure Cosmos DB MCP server: Bring your own image: Host a custom MCP server. Reuse existing tools or expose business-specific capabilities to AI agents. Cosmos DB MCP server: Deploy a prebuilt MCP server that lets agents discover databases and containers and query Azure Cosmos DB for NoSQL. These new capabilities give developers more choice in how they bring MCP servers to Azure: bring your own server when you need flexibility, or start from a catalog server when you want a ready-to-use integration. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

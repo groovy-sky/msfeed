@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "d68e4985b2978326944744f975ce502323e97fe4c01a9f8d8321558bab9eda47",
+  "entry_revision": "688f09c749bba33ea2c3a6ee8f66e4c85f0370223eb8904be3f826d40614a953",
+  "provider": "odata",
+  "source_id": "564668",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=564668",
+  "content_type": "text/plain",
+  "content": "Azure Backup now supports snapshot-based backup for SQL Server running on Azure Virtual Machines. This new capability uses Azure disk snapshots combined with native SQL transaction log backups to deliver near-instant, low-impact full backups for large SQL databases, significantly improving backup performance and reducing the load on production workloads compared to streaming backups. You can protect multiple databases under a SQL instance with a single policy and restore using different mechanisms with point-in-time recovery enabled by log chaining on top of snapshot recovery points. All restore points get stored in Azure Recovery Services Vault which provides long term retention and added security for your data in case of Ransomware attacks and any other disasters. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

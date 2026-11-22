@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "cd917dc591632b95bb1b3f952472d4ccaa37dea8b83f3fb9b95fc1a236bfeb45",
+  "entry_revision": "5f564004ec0f71e62fb6757644df2da4787c98f211ab4b59b3b79e2b24b16e4d",
+  "provider": "odata",
+  "source_id": "580700",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580700",
+  "content_type": "text/plain",
+  "content": "Multiparty private offers give Microsoft partners a way to procure third-party cloud and AI solutions for customers through Marketplace. Software companies can expand into new markets by working with partners that bring established customer relationships, while customers rely on their trusted partners to manage their cloud and AI initiatives.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

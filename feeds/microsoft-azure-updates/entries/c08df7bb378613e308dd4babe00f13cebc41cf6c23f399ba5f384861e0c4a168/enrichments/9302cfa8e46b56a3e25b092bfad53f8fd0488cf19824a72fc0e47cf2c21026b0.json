@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "c08df7bb378613e308dd4babe00f13cebc41cf6c23f399ba5f384861e0c4a168",
+  "entry_revision": "5d87550f72e3f075354465d96275ca33b3e17bfa1671df96d57504d2662d1599",
+  "provider": "odata",
+  "source_id": "580916",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580916",
+  "content_type": "text/plain",
+  "content": "Running AI agents that execute untrusted, model-generated code requires isolated environments for each session. Today, teams building on Kubernetes assemble their own sandbox lifecycle, storage, and warm-up logic, adding operational overhead and making users wait while fresh environments initialize. We’re introducing the Agent Sandbox cluster extension. Built on the open-source Kubernetes Agent Sandbox project, the managed extension provides declarative sandbox creation, lifecycle management, and pre-warmed pools. Together, Agent Sandbox cluster extension and Pod Snapshot cluster extension enable isolated agent environments to be snapshotted and restored while preserving runtime state across the sandbox lifecycle. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

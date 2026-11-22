@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "ab58df9b60a5d07bfe83c2a91ecc47133a019704cd4af54f767428ea5ec9bb57",
+  "entry_revision": "13dca3c8d877edb21c352d1b50f0b6a3c7fa5dc8a2744efe1e30e2a4f7f532a3",
+  "provider": "odata",
+  "source_id": "577678",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=577678",
+  "content_type": "text/plain",
+  "content": "Mutual TLS (mTLS), also known as client certificate authentication, is now generally available on Azure Front Door Premium. Use X.509 client certificates to help protect sensitive applications and APIs in business-to-business, Internet of Things, financial services, and enterprise scenarios. Choose from four modes: require and validate, require without validation, validate when presented, or pass through to the origin. These modes let you control whether client certificates are mandatory and whether Azure Front Door or your origin performs certificate validation. When forwarded to the origin, the client certificate is provided in the X-Azure-ClientCertificate request header. General availability also simplifies trusted CA configuration. You can upload only the trusted root CA certificate to Azure Key Vault and associate it with your Front Door custom domain, without uploading intermediate CA certificates. With this configuration, clients must present their client certificate and all required intermediate certificates during the TLS handshake. When edge validation is enabled, Azure Front Door builds and validates the certificate chain at request time against the configured trusted root CA. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

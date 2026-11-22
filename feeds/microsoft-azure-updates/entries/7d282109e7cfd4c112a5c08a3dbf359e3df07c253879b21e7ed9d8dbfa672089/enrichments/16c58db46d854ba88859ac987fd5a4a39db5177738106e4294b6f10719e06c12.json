@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "7d282109e7cfd4c112a5c08a3dbf359e3df07c253879b21e7ed9d8dbfa672089",
+  "entry_revision": "701d79345191e01cc4336297ebad2440a3580ba1a5f625253e697039a824ed58",
+  "provider": "odata",
+  "source_id": "579746",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579746",
+  "content_type": "text/plain",
+  "content": "Azure Route Server now supports IPv4/IPv6 dual-stack mode in public preview, enabling route exchange for both address families across supported hybrid networking connections. Existing IPv4 connections remain unchanged, so organizations can adopt IPv6 routing in their Azure architectures while keeping their current IPv4 connectivity. In dual-stack mode, you can apply Azure Route Server route maps to ExpressRoute and VPN Gateway connections, and to network virtual appliance connections in hub or spoke virtual networks. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

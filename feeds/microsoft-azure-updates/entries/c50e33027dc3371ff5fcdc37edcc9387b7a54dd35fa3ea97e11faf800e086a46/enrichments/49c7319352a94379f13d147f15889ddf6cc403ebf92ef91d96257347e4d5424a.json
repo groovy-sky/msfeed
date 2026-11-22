@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "c50e33027dc3371ff5fcdc37edcc9387b7a54dd35fa3ea97e11faf800e086a46",
+  "entry_revision": "2c51859fa4792bba4afb114018703cd930d3e16fe50888b13192fc393c4512a1",
+  "provider": "odata",
+  "source_id": "579952",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579952",
+  "content_type": "text/plain",
+  "content": "Support for Azure Functions OpenAI extension will end on April 20, 2027. Please migrate to OpenAI, Microsoft Foundry, or Azure AI Search SDKs directly, depending on your scenario, by that date. Until you migrate to the appropriate scenario SDK, .NET apps will continue to run, and non-.NET apps can continue to run if configured to use a preview extension bundle version earlier than 4.60.0. However, after April 20, 2027, these apps will be unsupported, and Microsoft will no longer provide security updates, patches, or technical support for the Azure Functions OpenAI extension. Running function apps on unsupported extension, runtime or language version, may lead to issues and degraded performance. Recommended action To avoid potential security vulnerabilities, minimize risk for your Azure Functions apps, and take advantage of latest features, migrate to the OpenAI, Microsoft Foundry, or Azure AI Search SDKs directly before April 20, 2027. Learn more: Azure Functions OpenAI Extension documentation Bundle for Azure Functions OpenAI Extension",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

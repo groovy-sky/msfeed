@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "e3afbd22de096e496bc4fb7e1ecd359c850b1a242c372bfcab004b2ced5720ca",
+  "entry_revision": "48dd0263fd644bb5cf0fe1363899306c921c3c88bf3ccf29f79ed700f5a64571",
+  "provider": "odata",
+  "source_id": "579933",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=579933",
+  "content_type": "text/plain",
+  "content": "Azure HorizonDB now supports Azure Monitor alerts, enabling you to proactively monitor your database environment and receive notifications when specified conditions are met. You can create alert rules based on HorizonDB metrics, configure thresholds, and take action when potential performance, availability, or resource utilization issues are detected. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

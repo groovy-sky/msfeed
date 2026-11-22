@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "5ded44be7198fdaae94982ec8fd88a44190edf17ea9a6c8274a0bcc3f1def784",
+  "entry_revision": "8904f13cdc0b0a483dbab0d7ecb1bf08e90c8b3140b8b4e820a8c980f23016cd",
+  "provider": "odata",
+  "source_id": "580091",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580091",
+  "content_type": "text/plain",
+  "content": "Database Agent now gives you AI-generated, evidence-grounded recommendations for detected database issues, including why the issue matters, the likely cause, and the recommended next step. Recommendations draw on available issue evidence and Microsoft-authored scenario knowledge. They distinguish observed evidence from AI-generated conclusions and communicate uncertainty when evidence is incomplete, stale, or conflicting. Recommendations are presented for your review before any state-changing action. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}

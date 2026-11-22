@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "08c1deb15b75fe59315e80abfdae895166da7fea909d9e43019be355eebbf61f",
+  "entry_revision": "e91f521cbb8ab081d23022aefbf2d14903949fbbdbeca6093ffa4f087811b87e",
+  "provider": "odata",
+  "source_id": "580549",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=580549",
+  "content_type": "text/plain",
+  "content": "Virtual network (VNet) integration is now available in public preview in Azure Logic Apps Automation, enabling organizations to securely connect workflows and agents to resources within their Azure virtual networks. As organizations automate business processes and cloud operations, workflows often need to access private databases, internal APIs, and other resources that aren't publicly accessible. VNet integration enables Logic Apps Automation environments to route outbound traffic through a customer-managed virtual network, supporting secure connectivity to private resources. With VNet integration, customers can: Connect to private resources: Enable workflows, built-in connectors, and agents to access internal APIs, databases, and Azure services through a virtual network. Strengthen network security: Route outbound automation traffic through an organization's virtual network to apply existing network controls and policies. Simplify configuration: Enable VNet integration when creating a Logic Apps Automation environment by selecting a virtual network and subnet. VNet integration helps organizations extend automation to private enterprise systems while maintaining control over network connectivity and security. Learn more.",
+  "retrieved_at": "2026-11-22T14:10:21Z"
+}
