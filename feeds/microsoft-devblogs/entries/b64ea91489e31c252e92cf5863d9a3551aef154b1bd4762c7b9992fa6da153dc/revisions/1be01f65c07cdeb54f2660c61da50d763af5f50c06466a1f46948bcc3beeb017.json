@@ -1,0 +1,6 @@
+{
+  "url": "https://devblogs.microsoft.com/blog/does-eval-in-the-workspace-path-change-what-your-agent-does/",
+  "title": "Does ‘eval’ in the workspace path change what your agent does?",
+  "published_at": 1793364554,
+  "summary": "Your eval might be telling the agent it’s a test before the agent reads a single instruction. Eval tools need a fresh folder for every run, and the easiest way to get one is a temp directory with a random name like /tmp/eval-7f3a2c..."
+}

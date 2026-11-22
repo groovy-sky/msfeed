@@ -1,0 +1,6 @@
+{
+  "url": "https://devblogs.microsoft.com/blog/your-best-ax-fixes-are-hiding-in-agent-trajectories/",
+  "title": "Your best AX fixes are hiding in agent trajectories",
+  "published_at": 1793893249,
+  "summary": "All five agent runs produced a working script, and nothing in the eval score looked wrong. The trajectories told a different story. Every run read a DLL as raw bytes to find plugin names, and three scripts would quietly reroute a CI runner's network traffic..."
+}

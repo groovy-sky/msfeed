@@ -1,0 +1,6 @@
+{
+  "url": "https://devblogs.microsoft.com/blog/can-a-local-git-remote-replace-github-in-your-agent-eval/",
+  "title": "Can a local git remote replace GitHub in your agent eval?",
+  "published_at": 1792508007,
+  "summary": "We swapped GitHub for a local git remote in our agent evals. Rebasing and pushing on request were unaffected, but the agent pushed on its own 11 points less often. Here's when a local remote is a safe shortcut, and when it isn't."
+}
