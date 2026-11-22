@@ -1,0 +1,62 @@
+name: Archive RSS feeds
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+    inputs:
+      feed:
+        description: Archive only this feed ID
+        required: false
+        type: string
+      force:
+        description: Ignore poll and retry schedules
+        required: false
+        default: false
+        type: boolean
+      dry_run:
+        description: Collect without pushing branches
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rss-branch-archive-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out collector
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Build collector
+        run: go build -o rsscollector ./cmd/rsscollector
+      - name: Collect and publish feed branches
+        env:
+          ARCHIVE_FEED: ${{ inputs.feed }}
+          ARCHIVE_FORCE: ${{ inputs.force }}
+          ARCHIVE_DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          args=(archive --config configs/microsoft-feeds.json --repository "$GITHUB_WORKSPACE")
+          if [[ -n "$ARCHIVE_FEED" ]]; then
+            args+=(--feed "$ARCHIVE_FEED")
+          fi
+          if [[ "$ARCHIVE_FORCE" == "true" ]]; then
+            args+=(--force)
+          fi
+          if [[ "$ARCHIVE_DRY_RUN" == "true" ]]; then
+            args+=(--dry-run)
+          fi
+          ./rsscollector "${args[@]}"
