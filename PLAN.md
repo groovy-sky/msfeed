@@ -163,7 +163,7 @@ data/
 - Snapshot metadata: retrieval time, effective URL, status, content type, hash.
 - `index.json`: identity basis, first/last seen, current revision.
 - Revisions: immutable compact records containing URL, title, Unix publication
-  timestamp, and bounded plain-text summary.
+  timestamp, uncropped plain-text summary, and optional article text.
 - Run reports: counts, timings, failures, and budget exhaustion.
 
 Reuse identical snapshot and revision hashes rather than rewriting them.
@@ -176,7 +176,8 @@ Observation timestamps belong in indexes/state, not in content hashes.
   "url": "https://example.com/original-update",
   "title": "Original update title",
   "published_at": 1794499202,
-  "summary": "A concise plain-text summary."
+  "summary": "The description supplied by the feed.",
+  "content": "The full article text supplied by the feed, when different from the summary."
 }
 ```
 
@@ -186,13 +187,15 @@ Rules:
   update timestamp.
 - Store missing or invalid publication dates as `0`.
 - Resolve relative links against the relevant document/base URL.
-- Strip HTML from summaries and bound them to 320 Unicode characters.
-- Keep source URL, HTTP validators, retrieval time, extensions, and full content
-  in the snapshot and its metadata rather than duplicating them per entry.
+- Convert summaries and article bodies to plain text without truncation. Use
+  the article text as `summary` when the feed does not supply a description;
+  include `content` only when the article text differs from the summary.
+- Keep source URL, HTTP validators, retrieval time, extensions, and original
+  markup in the snapshot and its metadata rather than duplicating them per entry.
 - Do not invent source fields or silently discard parsing warnings.
 
 The snapshot is the exact source artifact. A stored entry is a compact derived
-representation; its content hash is calculated from these four fields.
+representation; its content hash includes all stored fields.
 
 ## 8. Identity and Revisions
 
@@ -213,7 +216,7 @@ Record the identity basis so fallback decisions are auditable.
 Fallback fingerprints cannot guarantee stable identity: edits may appear as
 new entries. Report that limitation rather than attempting unsafe merges.
 
-Compute revision hashes from the canonical serialization of the four stored
+Compute revision hashes from the canonical serialization of the stored
 record fields, excluding retrieval timestamps and fields not retained in the
 compact record.
 

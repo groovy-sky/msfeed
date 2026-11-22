@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -22,7 +23,8 @@ import (
 func TestRunIsIdempotentAndPreservesChangedRevision(t *testing.T) {
 	var mu sync.Mutex
 	etag := `"v1"`
-	description := "Original"
+	prefix := strings.Repeat("The first paragraph stays the same. ", 20)
+	ending := "Original ending."
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		mu.Lock()
 		defer mu.Unlock()
@@ -32,9 +34,11 @@ func TestRunIsIdempotentAndPreservesChangedRevision(t *testing.T) {
 			w.WriteHeader(http.StatusNotModified)
 			return
 		}
-		_, _ = fmt.Fprintf(w, `<?xml version="1.0"?><rss version="2.0"><channel><title>Test</title>`+
-			`<item><guid>stable-id</guid><title>Hello</title><description>%s</description>`+
-			`<link>/post/1</link></item></channel></rss>`, description)
+		_, _ = fmt.Fprintf(w, `<?xml version="1.0"?><rss version="2.0"`+
+			` xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Test</title>`+
+			`<item><guid>stable-id</guid><title>Hello</title><description>Short summary.</description>`+
+			`<content:encoded><![CDATA[<p>%s%s</p>]]></content:encoded>`+
+			`<link>/post/1</link></item></channel></rss>`, prefix, ending)
 	}))
 	defer server.Close()
 
@@ -76,7 +80,7 @@ func TestRunIsIdempotentAndPreservesChangedRevision(t *testing.T) {
 
 	mu.Lock()
 	etag = `"v2"`
-	description = "Updated"
+	ending = "Updated ending."
 	mu.Unlock()
 	third, err := collector.Run(context.Background(), "", true)
 	if err != nil {

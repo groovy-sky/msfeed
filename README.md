@@ -29,29 +29,33 @@ Private or local feed destinations are rejected unless
 `http.allow_private_networks` is intentionally enabled.
 
 Fetched bodies are retained in `data/feeds/<id>/snapshots/`; compact entry
-revisions and indexes are stored under `entries/`. Each revision contains
-exactly:
+revisions and indexes are stored under `entries/`. A revision can contain:
 
 ```json
 {
   "url": "https://example.com/original-update",
   "title": "Original update title",
   "published_at": 1794499202,
-  "summary": "A concise plain-text summary."
+  "summary": "The description supplied by the feed.",
+  "content": "The full article text supplied by the feed, when different from the summary."
 }
 ```
 
 `published_at` is a Unix timestamp in seconds, using the updated date when no
-valid published date exists, or `0` when the feed has neither. HTML is removed
-from the summary and summaries are bounded to 320 Unicode characters. The raw
-RSS bytes, full HTML, provider extensions, and provenance metadata remain in the
-snapshot and snapshot-metadata directories.
+valid published date exists, or `0` when the feed has neither. Text in `summary`
+and `content` is converted to plain text without truncation. If the feed only
+provides article text, it goes in `summary`; `content` is only written when it
+adds distinct text. The collector does not fetch linked articles when a feed
+only supplies an excerpt. Original HTML, provider extensions, and provenance
+remain in the snapshot and snapshot-metadata directories.
 
 State validators are committed only after the snapshot has been parsed and
 persisted, allowing a pending snapshot to be replayed safely. Pending snapshots
 larger than the configured entry budget are processed in deterministic batches
 across runs without refetching. Existing full entry revisions are compacted
-automatically on the next run.
+automatically on the next run without cropping their text. Previously cropped
+compact revisions are not rewritten; entries can receive an uncropped revision
+when collected again, and their original text remains in the raw snapshots.
 
 If a response cannot be decoded or parsed before any entry batch commits, the
 collector keeps the original bytes and records the snapshot hash in the run

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -35,6 +36,7 @@ func TestSaveSnapshotRejectsCorruptExistingArtifact(t *testing.T) {
 
 func TestSaveEntryStoresOnlyCompactRecord(t *testing.T) {
 	st := New(t.TempDir())
+	body := strings.Repeat("Article text. ", 30) + "Final sentence."
 	entry := parse.Entry{
 		SchemaVersion: 1,
 		EntryKey:      "entry-key",
@@ -44,7 +46,7 @@ func TestSaveEntryStoresOnlyCompactRecord(t *testing.T) {
 		URL:           "https://example.com/update",
 		PublishedAt:   "2026-11-12T16:00:02Z",
 		Summary:       "<p>Important <strong>summary</strong>.</p>",
-		Content:       "<p>Long body that is already retained in the raw snapshot.</p>",
+		Content:       "<p>" + body + "</p>",
 		Provenance: parse.Provenance{
 			SourceURL: "https://example.com/feed",
 		},
@@ -65,16 +67,17 @@ func TestSaveEntryStoresOnlyCompactRecord(t *testing.T) {
 	if err := json.Unmarshal(data, &decoded); err != nil {
 		t.Fatal(err)
 	}
-	if len(decoded) != 4 {
+	if len(decoded) != 5 {
 		t.Fatalf("compact revision has %d fields: %s", len(decoded), data)
 	}
-	for _, field := range []string{"url", "title", "published_at", "summary"} {
+	for _, field := range []string{"url", "title", "published_at", "summary", "content"} {
 		if _, ok := decoded[field]; !ok {
 			t.Fatalf("compact revision is missing %q: %s", field, data)
 		}
 	}
 	if decoded["published_at"] != float64(1794499202) ||
-		decoded["summary"] != "Important summary." {
+		decoded["summary"] != "Important summary." ||
+		decoded["content"] != body {
 		t.Fatalf("compact revision = %s", data)
 	}
 }
@@ -91,7 +94,7 @@ func TestUpgradeEntryStorageCompactsLegacyRevisions(t *testing.T) {
 		URL:           "https://example.com/legacy",
 		PublishedAt:   "2026-11-12T16:00:02Z",
 		Summary:       "<p>Legacy <em>summary</em>.</p>",
-		Content:       "<p>Bulky legacy body.</p>",
+		Content:       "<p>Complete legacy body.</p>",
 	}
 	legacyHash := "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 	legacy.ContentHash = legacyHash
@@ -140,6 +143,9 @@ func TestUpgradeEntryStorageCompactsLegacyRevisions(t *testing.T) {
 	}
 	if stored != record {
 		t.Fatalf("stored record = %#v, want %#v", stored, record)
+	}
+	if stored.Summary != "Legacy summary." || stored.Content != "Complete legacy body." {
+		t.Fatalf("legacy summary or article text was lost: %#v", stored)
 	}
 }
 

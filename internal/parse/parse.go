@@ -20,7 +20,6 @@ import (
 )
 
 const SchemaVersion = 1
-const MaxStoredSummaryRunes = 320
 
 type Attachment struct {
 	URL    string `json:"url"`
@@ -72,6 +71,7 @@ type Record struct {
 	Title       string `json:"title"`
 	PublishedAt int64  `json:"published_at"`
 	Summary     string `json:"summary"`
+	Content     string `json:"content,omitempty"`
 }
 
 type Feed struct {
@@ -201,17 +201,21 @@ func normalize(item *gofeed.Item, feedID, sourceURL string, meta entryMetadata, 
 }
 
 func (entry Entry) Record() Record {
-	summary := entry.Summary
-	contentType := entry.SummaryType
-	if strings.TrimSpace(summary) == "" {
-		summary = entry.Content
-		contentType = entry.ContentType
+	summary := plainText(entry.Summary, entry.SummaryType)
+	content := plainText(entry.Content, entry.ContentType)
+	// Keep the summary fallback without storing the same text twice.
+	if summary == "" {
+		summary = content
+	}
+	if content == summary {
+		content = ""
 	}
 	return Record{
 		URL:         entry.URL,
 		Title:       entry.Title,
 		PublishedAt: entry.recordPublishedAt(),
-		Summary:     compactSummary(summary, contentType),
+		Summary:     summary,
+		Content:     content,
 	}
 }
 
@@ -243,24 +247,6 @@ func unixTimestamp(value string) (int64, bool) {
 		return 0, false
 	}
 	return parsed.Unix(), true
-}
-
-func compactSummary(value, contentType string) string {
-	text := plainText(value, contentType)
-	text = removeTrailingBoilerplate(text)
-	runes := []rune(text)
-	if len(runes) <= MaxStoredSummaryRunes {
-		return text
-	}
-	limit := MaxStoredSummaryRunes - 3
-	truncated := string(runes[:limit])
-	if boundary := strings.LastIndexAny(truncated, ".!?"); boundary >= len(truncated)/2 {
-		truncated = truncated[:boundary+1]
-	} else if boundary := strings.LastIndexByte(truncated, ' '); boundary >= len(truncated)/2 {
-		truncated = truncated[:boundary]
-	}
-	truncated = strings.TrimRight(strings.TrimSpace(truncated), ".!?")
-	return truncated + "..."
 }
 
 func plainText(value, contentType string) string {
@@ -339,58 +325,6 @@ func htmlText(value string) string {
 	}
 	visit(document)
 	return strings.Join(strings.Fields(text.String()), " ")
-}
-
-func removeTrailingBoilerplate(value string) string {
-	const (
-		prefix = "the post "
-		footer = " appeared first on "
-	)
-	folded := asciiFold(value)
-	searchEnd := len(folded)
-	for {
-		footerAt := strings.LastIndex(folded[:searchEnd], footer)
-		if footerAt < 0 {
-			return value
-		}
-		startAt := strings.LastIndex(folded[:footerAt], prefix)
-		if startAt < 0 {
-			searchEnd = footerAt
-			continue
-		}
-		remainder := strings.TrimSpace(value[footerAt+len(footer):])
-		if !isTrailingFooterRemainder(remainder) || !isFooterBoundary(value[:startAt]) {
-			searchEnd = startAt
-			continue
-		}
-		return strings.TrimSpace(value[:startAt])
-	}
-}
-
-func asciiFold(value string) string {
-	folded := []byte(value)
-	for index, char := range folded {
-		if char >= 'A' && char <= 'Z' {
-			folded[index] = char + ('a' - 'A')
-		}
-	}
-	return string(folded)
-}
-
-func isTrailingFooterRemainder(value string) bool {
-	trimmed := strings.TrimRight(value, " \t\r\n")
-	return !strings.Contains(trimmed, ". ") &&
-		!strings.Contains(trimmed, "! ") &&
-		!strings.Contains(trimmed, "? ")
-}
-
-func isFooterBoundary(prefix string) bool {
-	trimmed := strings.TrimSpace(prefix)
-	return trimmed == "" ||
-		strings.HasSuffix(trimmed, ".") ||
-		strings.HasSuffix(trimmed, "!") ||
-		strings.HasSuffix(trimmed, "?") ||
-		strings.HasSuffix(trimmed, "\u2026")
 }
 
 func isTextBoundary(element string) bool {
