@@ -162,48 +162,37 @@ data/
 - Snapshots: immutable downloaded bodies; extension does not determine format.
 - Snapshot metadata: retrieval time, effective URL, status, content type, hash.
 - `index.json`: identity basis, first/last seen, current revision.
-- Revisions: immutable normalized content and provenance.
+- Revisions: immutable compact records containing URL, title, Unix publication
+  timestamp, and bounded plain-text summary.
 - Run reports: counts, timings, failures, and budget exhaustion.
 
 Reuse identical snapshot and revision hashes rather than rewriting them.
 Observation timestamps belong in indexes/state, not in content hashes.
 
-## 7. Normalized Entry Schema
+## 7. Stored Entry Schema
 
-```text
-schema_version
-entry_key
-feed_id
-identity_basis
-source_id
-title
-url
-authors[]
-published_at
-updated_at
-raw_published_date
-raw_updated_date
-summary
-content
-content_type
-categories[]
-attachments[]
-extensions
-content_hash
-provenance
+```json
+{
+  "url": "https://example.com/original-update",
+  "title": "Original update title",
+  "published_at": 1794499202,
+  "summary": "A concise plain-text summary."
+}
 ```
 
 Rules:
-- Preserve original text and HTML; do not render HTML during collection.
-- Normalize valid timestamps to UTC; retain original date strings.
-- Missing or invalid dates remain unknown, not replaced with fetch time.
+- Preserve original text and HTML in the immutable source snapshot.
+- Store valid publication timestamps as Unix seconds, falling back to the
+  update timestamp.
+- Store missing or invalid publication dates as `0`.
 - Resolve relative links against the relevant document/base URL.
-- Preserve useful namespaced extension fields without assuming a provider.
-- Provenance records snapshot hash, retrieval time, and source URL.
+- Strip HTML from summaries and bound them to 320 Unicode characters.
+- Keep source URL, HTTP validators, retrieval time, extensions, and full content
+  in the snapshot and its metadata rather than duplicating them per entry.
 - Do not invent source fields or silently discard parsing warnings.
 
-The snapshot is the exact source artifact. A normalized entry is a derived
-representation, not an exact reproduction of the original XML item.
+The snapshot is the exact source artifact. A stored entry is a compact derived
+representation; its content hash is calculated from these four fields.
 
 ## 8. Identity and Revisions
 
@@ -224,9 +213,9 @@ Record the identity basis so fallback decisions are auditable.
 Fallback fingerprints cannot guarantee stable identity: edits may appear as
 new entries. Report that limitation rather than attempting unsafe merges.
 
-Compute revision hashes from a canonical serialization of normalized source
-fields, excluding retrieval timestamps and incidental ordering where order
-has no meaning.
+Compute revision hashes from the canonical serialization of the four stored
+record fields, excluding retrieval timestamps and fields not retained in the
+compact record.
 
 Behavior:
 - Same identity and content hash: update last-seen observation only.

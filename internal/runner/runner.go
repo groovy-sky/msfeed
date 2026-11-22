@@ -156,6 +156,32 @@ func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool, 
 	}
 	now := r.Now()
 	state.SchemaVersion = 1
+	if state.EntryStorageVersion > store.CompactEntryVersion {
+		report.Status = "failed"
+		report.FailureClass = "storage"
+		report.Error = fmt.Sprintf(
+			"entry storage version %d is newer than supported version %d",
+			state.EntryStorageVersion, store.CompactEntryVersion,
+		)
+		return report, 0, false
+	}
+	if state.EntryStorageVersion < store.CompactEntryVersion {
+		if err := r.Store.UpgradeEntryStorage(feed.ID); err != nil {
+			report.Status = "failed"
+			report.FailureClass = "storage"
+			report.Error = fmt.Sprintf("upgrade entry storage: %v", err)
+			r.recordFailure(&report, feed, &state, now, err)
+			return report, 0, false
+		}
+		state.EntryStorageVersion = store.CompactEntryVersion
+		if err := r.Store.SaveState(feed.ID, state); err != nil {
+			report.Status = "failed"
+			report.FailureClass = "storage"
+			report.Error = fmt.Sprintf("save entry storage version: %v", err)
+			r.recordFailure(&report, feed, &state, now, err)
+			return report, 0, false
+		}
+	}
 	state.LastAttempt = now.UTC().Format(time.RFC3339)
 	if state.PendingSnapshot != "" {
 		if !force && retryNotDue(state, now) {

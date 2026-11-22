@@ -47,6 +47,13 @@ func TestRunIsIdempotentAndPreservesChangedRevision(t *testing.T) {
 	if first.Failed != 0 || first.Feeds[0].Counts.NewEntries != 1 {
 		t.Fatalf("first report = %+v", first)
 	}
+	state, err := collector.Store.LoadState("test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if state.EntryStorageVersion != store.CompactEntryVersion {
+		t.Fatalf("entry storage version = %d, want %d", state.EntryStorageVersion, store.CompactEntryVersion)
+	}
 	entryDirs, err := os.ReadDir(filepath.Join(dataDir, "feeds", "test", "entries"))
 	if err != nil {
 		t.Fatal(err)

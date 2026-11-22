@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 )
 
 const dirMode = 0o700
+const CompactEntryVersion = 2
 
 type Store struct {
 	root string
@@ -22,6 +24,7 @@ type Store struct {
 
 type State struct {
 	SchemaVersion       int    `json:"schema_version,omitempty"`
+	EntryStorageVersion int    `json:"entry_storage_version,omitempty"`
 	ETag                string `json:"etag,omitempty"`
 	LastModified        string `json:"last_modified,omitempty"`
 	EffectiveURL        string `json:"effective_url,omitempty"`
@@ -196,25 +199,184 @@ func (s *Store) SaveEntry(entry parse.Entry, observedAt time.Time) (newEntry, ch
 	}
 	index.LastSeen = now
 	revisionPath := filepath.Join(revisions, entry.ContentHash+".json")
+	record := entry.Record()
+	if record.Hash() != entry.ContentHash {
+		return false, false, errors.New("entry content hash does not match its compact record")
+	}
 	if _, statErr := os.Stat(revisionPath); errors.Is(statErr, os.ErrNotExist) {
-		if err := writeJSON(revisionPath, entry); err != nil {
+		if err := writeJSON(revisionPath, record); err != nil {
 			return false, false, err
 		}
 	} else if statErr != nil {
 		return false, false, statErr
 	} else {
-		var existing parse.Entry
-		if err := readJSON(revisionPath, &existing); err != nil {
+		existing, err := s.readRevision(revisionPath)
+		if err != nil {
 			return false, false, fmt.Errorf("read existing revision: %w", err)
 		}
-		if existing.ContentHash != entry.ContentHash || existing.EntryKey != entry.EntryKey {
-			return false, false, errors.New("revision file does not match its immutable path")
+		if existing != record {
+			return false, false, errors.New("revision file does not match its compact record")
 		}
 	}
 	if err := writeJSON(indexPath, index); err != nil {
 		return false, false, err
 	}
 	return newEntry, changed, nil
+}
+
+func (s *Store) UpgradeEntryStorage(feedID string) error {
+	entriesRoot := filepath.Join(s.feedDir(feedID), "entries")
+	entries, err := os.ReadDir(entriesRoot)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	for _, directory := range entries {
+		if !directory.IsDir() {
+			return fmt.Errorf("entry path %q is not a directory", directory.Name())
+		}
+		if err := s.upgradeEntryDirectory(filepath.Join(entriesRoot, directory.Name()), directory.Name()); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *Store) upgradeEntryDirectory(directory, entryKey string) error {
+	indexPath := filepath.Join(directory, "index.json")
+	var index EntryIndex
+	if err := readJSON(indexPath, &index); err != nil {
+		return fmt.Errorf("read entry index %s: %w", entryKey, err)
+	}
+	if index.EntryKey != entryKey {
+		return fmt.Errorf("entry index %s does not match its directory", entryKey)
+	}
+
+	revisions := filepath.Join(directory, "revisions")
+	files, err := os.ReadDir(revisions)
+	if err != nil {
+		return fmt.Errorf("read revisions for %s: %w", entryKey, err)
+	}
+	hashes := make(map[string]string, len(files))
+	remove := make([]string, 0)
+	for _, file := range files {
+		if !file.Type().IsRegular() || filepath.Ext(file.Name()) != ".json" {
+			return fmt.Errorf("revision path %q is not a regular JSON file", filepath.Join(revisions, file.Name()))
+		}
+		oldHash := strings.TrimSuffix(file.Name(), ".json")
+		path := filepath.Join(revisions, file.Name())
+		legacy, err := isLegacyRevision(path)
+		if err != nil {
+			return err
+		}
+		if !legacy {
+			record, err := readCompactRevision(path)
+			if err != nil {
+				return err
+			}
+			if record.Hash() != oldHash {
+				return fmt.Errorf("compact revision %s does not match its immutable path", path)
+			}
+			hashes[oldHash] = oldHash
+			continue
+		}
+
+		var entry parse.Entry
+		if err := readJSON(path, &entry); err != nil {
+			return fmt.Errorf("read legacy revision %s: %w", path, err)
+		}
+		if entry.EntryKey != entryKey || entry.ContentHash != oldHash {
+			return fmt.Errorf("legacy revision %s does not match its immutable path", path)
+		}
+		record := entry.Record()
+		newHash := record.Hash()
+		hashes[oldHash] = newHash
+		newPath := filepath.Join(revisions, newHash+".json")
+		if err := writeCompactRevisionIfMissing(newPath, record); err != nil {
+			return err
+		}
+		remove = append(remove, path)
+	}
+
+	current := hashes[index.CurrentRevision]
+	if current == "" {
+		return fmt.Errorf("entry index %s references a missing revision %s", entryKey, index.CurrentRevision)
+	}
+	if current != index.CurrentRevision {
+		index.CurrentRevision = current
+		if err := writeJSON(indexPath, index); err != nil {
+			return fmt.Errorf("update entry index %s: %w", entryKey, err)
+		}
+	}
+	for _, path := range remove {
+		if err := os.Remove(path); err != nil {
+			return fmt.Errorf("remove legacy revision %s: %w", path, err)
+		}
+	}
+	return nil
+}
+
+func (s *Store) readRevision(path string) (parse.Record, error) {
+	legacy, err := isLegacyRevision(path)
+	if err != nil {
+		return parse.Record{}, err
+	}
+	if legacy {
+		var entry parse.Entry
+		if err := readJSON(path, &entry); err != nil {
+			return parse.Record{}, err
+		}
+		return entry.Record(), nil
+	}
+	return readCompactRevision(path)
+}
+
+func isLegacyRevision(path string) (bool, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return false, err
+	}
+	var header struct {
+		SchemaVersion int    `json:"schema_version"`
+		ContentHash   string `json:"content_hash"`
+		EntryKey      string `json:"entry_key"`
+	}
+	if err := json.Unmarshal(data, &header); err != nil {
+		return false, fmt.Errorf("decode revision format %s: %w", path, err)
+	}
+	return header.SchemaVersion != 0 || header.ContentHash != "" || header.EntryKey != "", nil
+}
+
+func readCompactRevision(path string) (parse.Record, error) {
+	var record parse.Record
+	if err := readJSON(path, &record); err != nil {
+		return parse.Record{}, fmt.Errorf("read compact revision %s: %w", path, err)
+	}
+	return record, nil
+}
+
+func writeCompactRevisionIfMissing(path string, record parse.Record) error {
+	existing, err := os.Stat(path)
+	switch {
+	case err == nil:
+		if !existing.Mode().IsRegular() {
+			return fmt.Errorf("compact revision %s is not a regular file", path)
+		}
+		stored, err := readCompactRevision(path)
+		if err != nil {
+			return err
+		}
+		if stored != record {
+			return fmt.Errorf("compact revision %s already contains different content", path)
+		}
+		return nil
+	case errors.Is(err, os.ErrNotExist):
+		return writeJSON(path, record)
+	default:
+		return err
+	}
 }
 
 func (s *Store) feedDir(feedID string) string {

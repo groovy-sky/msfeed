@@ -15,10 +15,12 @@ import (
 
 	"github.com/mmcdole/gofeed"
 	ext "github.com/mmcdole/gofeed/extensions"
+	"golang.org/x/net/html"
 	"golang.org/x/net/html/charset"
 )
 
 const SchemaVersion = 1
+const MaxStoredSummaryRunes = 320
 
 type Attachment struct {
 	URL    string `json:"url"`
@@ -64,6 +66,13 @@ type Entry struct {
 	Provenance       Provenance   `json:"provenance"`
 }
 
+type Record struct {
+	URL         string `json:"url"`
+	Title       string `json:"title"`
+	PublishedAt int64  `json:"published_at"`
+	Summary     string `json:"summary"`
+}
+
 type Feed struct {
 	Format           string
 	Title            string
@@ -74,24 +83,6 @@ type Feed struct {
 	Offset           int
 	RemainingEntries int
 	Warnings         []string
-}
-
-type revisionContent struct {
-	IdentityBasis    string       `json:"identity_basis"`
-	SourceID         string       `json:"source_id,omitempty"`
-	Title            string       `json:"title,omitempty"`
-	URL              string       `json:"url,omitempty"`
-	Authors          []string     `json:"authors"`
-	PublishedAt      string       `json:"published_at,omitempty"`
-	UpdatedAt        string       `json:"updated_at,omitempty"`
-	RawPublishedDate string       `json:"raw_published_date,omitempty"`
-	RawUpdatedDate   string       `json:"raw_updated_date,omitempty"`
-	Summary          string       `json:"summary,omitempty"`
-	Content          string       `json:"content,omitempty"`
-	ContentType      string       `json:"content_type,omitempty"`
-	Categories       []string     `json:"categories"`
-	Attachments      []Attachment `json:"attachments"`
-	Extensions       Extensions   `json:"extensions"`
 }
 
 func Parse(body []byte, baseURL, feedID, snapshotHash string, retrievedAt time.Time, maxEntries int) (*Feed, error) {
@@ -203,21 +194,115 @@ func normalize(item *gofeed.Item, feedID, sourceURL string, meta entryMetadata, 
 		},
 	}
 
-	contentBytes, err := json.Marshal(revisionContent{
-		IdentityBasis: entry.IdentityBasis, SourceID: entry.SourceID,
-		Title: entry.Title, URL: entry.URL, Authors: sortedStrings(entry.Authors),
-		PublishedAt: entry.PublishedAt, UpdatedAt: entry.UpdatedAt,
-		RawPublishedDate: entry.RawPublishedDate, RawUpdatedDate: entry.RawUpdatedDate,
-		Summary: entry.Summary, Content: entry.Content, ContentType: entry.ContentType,
-		Categories: sortedStrings(entry.Categories), Attachments: sortedAttachments(entry.Attachments),
-		Extensions: entry.Extensions,
-	})
-	if err != nil {
-		panic("JSON revision content must always marshal: " + err.Error())
-	}
-	sum := sha256.Sum256(contentBytes)
-	entry.ContentHash = hex.EncodeToString(sum[:])
+	entry.ContentHash = entry.Record().Hash()
 	return entry
+}
+
+func (entry Entry) Record() Record {
+	summary := entry.Summary
+	if strings.TrimSpace(summary) == "" {
+		summary = entry.Content
+	}
+	return Record{
+		URL:         entry.URL,
+		Title:       entry.Title,
+		PublishedAt: entry.recordPublishedAt(),
+		Summary:     compactSummary(summary),
+	}
+}
+
+func (record Record) Hash() string {
+	content, err := json.Marshal(record)
+	if err != nil {
+		panic("JSON record content must always marshal: " + err.Error())
+	}
+	sum := sha256.Sum256(content)
+	return hex.EncodeToString(sum[:])
+}
+
+func (entry Entry) recordPublishedAt() int64 {
+	if timestamp, ok := unixTimestamp(entry.PublishedAt); ok {
+		return timestamp
+	}
+	if timestamp, ok := unixTimestamp(entry.UpdatedAt); ok {
+		return timestamp
+	}
+	return 0
+}
+
+func unixTimestamp(value string) (int64, bool) {
+	if value == "" {
+		return 0, false
+	}
+	parsed, err := time.Parse(time.RFC3339Nano, value)
+	if err != nil {
+		return 0, false
+	}
+	return parsed.Unix(), true
+}
+
+func compactSummary(value string) string {
+	text := htmlText(value)
+	lower := strings.ToLower(text)
+	if index := strings.Index(lower, "the post "); index >= 0 {
+		tail := lower[index:]
+		if strings.Contains(tail, " appeared first on ") {
+			text = strings.TrimSpace(text[:index])
+		}
+	}
+	runes := []rune(text)
+	if len(runes) <= MaxStoredSummaryRunes {
+		return text
+	}
+	limit := MaxStoredSummaryRunes - 3
+	truncated := string(runes[:limit])
+	if boundary := strings.LastIndexAny(truncated, ".!?"); boundary >= len(truncated)/2 {
+		truncated = truncated[:boundary+1]
+	} else if boundary := strings.LastIndexByte(truncated, ' '); boundary >= len(truncated)/2 {
+		truncated = truncated[:boundary]
+	}
+	truncated = strings.TrimRight(strings.TrimSpace(truncated), ".!?")
+	return truncated + "..."
+}
+
+func htmlText(value string) string {
+	document, err := html.Parse(strings.NewReader(value))
+	if err != nil {
+		return strings.Join(strings.Fields(value), " ")
+	}
+	var text strings.Builder
+	var visit func(*html.Node)
+	visit = func(node *html.Node) {
+		if node.Type == html.ElementNode && (node.Data == "script" || node.Data == "style") {
+			return
+		}
+		if node.Type == html.TextNode {
+			text.WriteString(node.Data)
+		}
+		if node.Type == html.ElementNode && isTextBoundary(node.Data) {
+			text.WriteByte(' ')
+		}
+		for child := node.FirstChild; child != nil; child = child.NextSibling {
+			visit(child)
+		}
+		if node.Type == html.ElementNode && isTextBoundary(node.Data) {
+			text.WriteByte(' ')
+		}
+	}
+	visit(document)
+	return strings.Join(strings.Fields(text.String()), " ")
+}
+
+func isTextBoundary(element string) bool {
+	switch element {
+	case "address", "article", "blockquote", "br", "dd", "div", "dl", "dt",
+		"figcaption", "footer", "h1", "h2", "h3", "h4", "h5", "h6",
+		"header", "hr", "li", "main", "nav", "ol", "p", "pre", "section",
+		"table", "tbody", "td", "th", "thead", "tr", "ul":
+		return true
+	default:
+		return false
+	}
 }
 
 func normalizeExtensions(source ext.Extensions, custom map[string]string) Extensions {
@@ -325,21 +410,6 @@ func hashStrings(parts ...string) string {
 func sortedStrings(values []string) []string {
 	result := append([]string{}, values...)
 	sort.Strings(result)
-	return result
-}
-
-func sortedAttachments(values []Attachment) []Attachment {
-	result := append([]Attachment{}, values...)
-	sort.Slice(result, func(left, right int) bool {
-		a, b := result[left], result[right]
-		if a.URL != b.URL {
-			return a.URL < b.URL
-		}
-		if a.Type != b.Type {
-			return a.Type < b.Type
-		}
-		return a.Length < b.Length
-	})
 	return result
 }
 

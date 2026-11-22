@@ -1,8 +1,8 @@
 # rsscollector
 
 `rsscollector` is a small file-backed Go collector for RSS 2.0, RSS 1.0/RDF,
-and Atom feeds. It preserves fetched feed bodies, normalizes entries, and keeps
-immutable content revisions without requiring a database.
+and Atom feeds. It preserves fetched feed bodies and keeps compact, immutable
+entry records without requiring a database.
 
 Identity is scoped to a feed: RSS GUID/Atom ID is preferred, then a
 conservatively resolved entry link, then a documented fingerprint of available
@@ -28,12 +28,30 @@ lock, and network requests have bounded time, redirects, and response size.
 Private or local feed destinations are rejected unless
 `http.allow_private_networks` is intentionally enabled.
 
-Fetched bodies are retained in `data/feeds/<id>/snapshots/`; normalized entry
-revisions and indexes are stored under `entries/`. State validators are committed
-only after the snapshot has been parsed and persisted, allowing a pending
-snapshot to be replayed safely. Pending snapshots larger than the configured
-entry budget are processed in deterministic batches across runs without
-refetching.
+Fetched bodies are retained in `data/feeds/<id>/snapshots/`; compact entry
+revisions and indexes are stored under `entries/`. Each revision contains
+exactly:
+
+```json
+{
+  "url": "https://example.com/original-update",
+  "title": "Original update title",
+  "published_at": 1794499202,
+  "summary": "A concise plain-text summary."
+}
+```
+
+`published_at` is a Unix timestamp in seconds, using the updated date when no
+valid published date exists, or `0` when the feed has neither. HTML is removed
+from the summary and summaries are bounded to 320 Unicode characters. The raw
+RSS bytes, full HTML, provider extensions, and provenance metadata remain in the
+snapshot and snapshot-metadata directories.
+
+State validators are committed only after the snapshot has been parsed and
+persisted, allowing a pending snapshot to be replayed safely. Pending snapshots
+larger than the configured entry budget are processed in deterministic batches
+across runs without refetching. Existing full entry revisions are compacted
+automatically on the next run.
 
 If a response cannot be decoded or parsed before any entry batch commits, the
 collector keeps the original bytes and records the snapshot hash in the run

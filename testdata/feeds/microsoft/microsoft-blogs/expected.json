@@ -9,14 +9,14 @@
       "title": "Representative blog item one",
       "url": "https://example.test/blogs/one",
       "entry_key": "f938345446c0de22f08036a8e8014bb6e3a3b35cbfb8a759940b3e05cff10eac",
-      "content_hash": "97f712131d904a2ae7ece4d49b40484a860a18c39795f4d5ecaa80249ed5c464"
+      "content_hash": "7c52fe427396a9e7446b143eb3ce03f4fff736d5e072e440ad6df222c11e109b"
     },
     {
       "identity_basis": "link",
       "title": "Representative blog item two",
       "url": "https://example.test/blogs/two",
       "entry_key": "0a4d400135070d6adca622d2d868e2bd0653fd4ec3ff15f6eccf4cbf7e47f99c",
-      "content_hash": "caeb3f349ff823be6affa4b2d80f3778e4aee3327c6603d92ee99b9b1919d253"
+      "content_hash": "868d0d3113c818117dee54323c0ada5a52799408d79dd4554428ad8f139af8bf"
     }
   ]
 }
