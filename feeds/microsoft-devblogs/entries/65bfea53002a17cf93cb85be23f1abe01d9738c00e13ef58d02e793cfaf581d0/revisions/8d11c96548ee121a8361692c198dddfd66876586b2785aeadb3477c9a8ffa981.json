@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "entry_key": "65bfea53002a17cf93cb85be23f1abe01d9738c00e13ef58d02e793cfaf581d0",
+  "feed_id": "microsoft-devblogs",
+  "identity_basis": "id",
+  "source_id": "https://devblogs.microsoft.com/?p=22513",
+  "title": "Introducing the Agent Experience (AX) Practitioner Playbook",
+  "url": "https://devblogs.microsoft.com/blog/introducing-the-agent-experience-ax-practitioner-playbook/",
+  "authors": [
+    "Waldek Mastykarz"
+  ],
+  "published_at": "2026-10-09T09:44:25Z",
+  "raw_published_date": "Fri, 09 Oct 2026 09:44:25 +0000",
+  "summary": "\u003cp\u003eAI coding agents now pick the SDK, the version, and the pattern for your developers. The AX Practitioner Playbook is our method for finding out whether they get your technology right, and for fixing the sources they rely on when they don't.\u003c/p\u003e\n\u003cp\u003eThe post \u003ca href=\"https://devblogs.microsoft.com/blog/introducing-the-agent-experience-ax-practitioner-playbook/\"\u003eIntroducing the Agent Experience (AX) Practitioner Playbook\u003c/a\u003e appeared first on \u003ca href=\"https://devblogs.microsoft.com\"\u003eMicrosoft for Developers\u003c/a\u003e.\u003c/p\u003e\n",
+  "content": "\u003cp\u003e\u003cstrong\u003eThe AX Practitioner Playbook is our method for evaluating what AI coding agents do with your technology, diagnosing why they get it wrong, and fixing it at the source. It puts everything we\u0026#8217;ve learned from hundreds of agent sessions in one place. Download it at \u003ca href=\"https://aka.ms/ax-playbook\"\u003eaka.ms/ax-playbook\u003c/a\u003e.\u003c/strong\u003e\u003c/p\u003e\n\u003cp\u003eAsk a coding agent to build something with the technology you work on, and watch what happens. It generates code that looks reasonable and might even compile. Look closer and you\u0026#8217;ll find the wrong SDK version, a deprecated authentication pattern, or a setup nobody on the product team would recommend. The agent didn\u0026#8217;t make a random mistake. It did exactly what its training data told it to do.\u003c/p\u003e\n\u003cp\u003eDevelopers increasingly let agents pick the SDK, the version, and the pattern, and then judge your technology by the result. Waiting for models to get better isn\u0026#8217;t a strategy: \u003ca href=\"https://developer.microsoft.com/blog/knowledge-cutoff-is-a-poor-proxy-for-model-capability/\"\u003ea knowledge cutoff tells you little about what a model knows about your product\u003c/a\u003e. What you can change are the sources agents rely on: docs, MCP tools, skills, plugins, instructions, CLIs, and APIs. The hard part is knowing which change actually helps.\u003c/p\u003e\n\u003ch2\u003eFrom a series of articles to one method\u003c/h2\u003e\n\u003cp\u003eSince fall 2025, we in DevRel at Microsoft have measured how agents perform with Azure, Cosmos DB, SharePoint Framework (SPFx), and Microsoft 365 Copilot extensions, using the same kinds of prompts real developers use. We\u0026#8217;ve shared what we learned piece by piece in the \u003ca href=\"https://aka.ms/agent-experience\"\u003eAgent Experience series\u003c/a\u003e. Each article covers one part of the method. The playbook puts the parts together, end to end, so you can run it on your own technology.\u003c/p\u003e\n\u003ch2\u003eWhat you get from it\u003c/h2\u003e\n\u003cp\u003eThe playbook follows an evaluation from setup to shipped fix.\u003c/p\u003e\n\u003ch3\u003eResults you can defend\u003c/h3\u003e\n\u003cp\u003eAn evaluation can lie to you convincingly. We\u0026#8217;ve seen perfect scores for code that never compiled, and a \u0026#8220;used Platform X\u0026#8221; check that passed whether or not the agent used Platform X. The playbook\u0026#8217;s evaluation model sets out what a result needs before you can trust it, from criteria that judge meaning to gates that prove the code runs.\u003c/p\u003e\n\u003ch3\u003eCriteria that measure what matters\u003c/h3\u003e\n\u003cp\u003eWriting criteria is where your domain expertise becomes measurable, and it\u0026#8217;s the hardest step. The playbook shows how to write criteria a judge rules on the same way every time, calibrate them before you trust them, and version them when your product changes. It also covers the traps, like letting a model write your criteria for you.\u003c/p\u003e\n\u003ch3\u003eA shorter path from symptom to cause\u003c/h3\u003e\n\u003cp\u003eA readout tells you what failed while the trajectory tells you why. You\u0026#8217;ll learn to tell apart an extension that never loaded, one that loaded but was never called, and one that was called but applied wrong, because each needs a different fix. Nine failure patterns that repeat across every technology we\u0026#8217;ve evaluated each point to the surface to inspect first.\u003c/p\u003e\n\u003ch3\u003eFixes that ship\u003c/h3\u003e\n\u003cp\u003eAn evaluation has no impact until someone changes the source of the behavior. The playbook covers how to test each proposed change as a hypothesis before you ship it, and how to bring evidence to the owning team, whether that\u0026#8217;s your own team, a team you work with directly, or an open source project you contribute to.\u003c/p\u003e\n\u003ch3\u003eExamples from real evaluations\u003c/h3\u003e\n\u003cp\u003eEvery step in the playbook is grounded in scenarios we ran on Cosmos DB, SPFx, and other technologies. Those evaluations led to dozens of shipped fixes to docs and agent extensions, including \u003ca href=\"https://github.com/AzureCosmosDB/cosmosdb-agent-kit/issues?q=is%3Aissue%20state%3Aclosed%20label%3ASCOPE\"\u003e46 improvements to the Azure Cosmos DB Agent Kit\u003c/a\u003e. The SPFx project upgrade runs end to end in the playbook, from the scenario through the fixes that shipped. When you\u0026#8217;re ready to run your own evaluation, a quality checklist helps you review it first.\u003c/p\u003e\n\u003ch2\u003eWho it\u0026#8217;s for\u003c/h2\u003e\n\u003cp\u003eThe playbook is for anyone who builds technology or extensions that AI coding agents use. If you build an SDK, API, service, CLI, MCP server, skill, plugin, or instruction set, or write the docs behind them, you control what agents discover and apply. If you advocate for a technology rather than own it, you bring the scenario knowledge to evaluate it and the evidence to help the owning team decide what to change.\u003c/p\u003e\n\u003cp\u003eThe method doesn\u0026#8217;t depend on a specific evaluation system. You can use one your team built or an existing one, and the playbook lists the capabilities to check for.\u003c/p\u003e\n\u003ch2\u003eLearn it interactively with the AX Practitioner skill\u003c/h2\u003e\n\u003cp\u003eAlong with the PDF, we\u0026#8217;re releasing the AX Practitioner skill, so you can learn the method while you apply it. Install it in your coding agent and ask it questions as you work on your own evaluation, like how to word a criterion or why the agent ignored your extension. It can also review your scenarios and criteria against the playbook\u0026#8217;s standards.\u003c/p\u003e\n\u003cp\u003eThe skill answers only from the playbook. When a question goes beyond it, the skill says so and asks before it uses any other source. Across 330 questions, its answers scored 95% on average against what the playbook says.\u003c/p\u003e\n\u003ch2\u003eStart evaluating\u003c/h2\u003e\n\u003cp\u003e\u003ca href=\"https://aka.ms/ax-playbook\"\u003eDownload the AX Practitioner Playbook\u003c/a\u003e and run your first evaluation. To learn as you go, \u003ca href=\"https://aka.ms/ax-playbook/skill\"\u003einstall the AX Practitioner skill\u003c/a\u003e and keep it at hand while you work.\u003c/p\u003e\n\u003cp\u003e\u003cstrong\u003eYou already know what correct looks like for your technology. The playbook shows you how to find out whether agents know it too.\u003c/strong\u003e\u003c/p\u003e\n\u003cp\u003eThe post \u003ca href=\"https://devblogs.microsoft.com/blog/introducing-the-agent-experience-ax-practitioner-playbook/\"\u003eIntroducing the Agent Experience (AX) Practitioner Playbook\u003c/a\u003e appeared first on \u003ca href=\"https://devblogs.microsoft.com\"\u003eMicrosoft for Developers\u003c/a\u003e.\u003c/p\u003e\n",
+  "content_type": "text/html",
+  "categories": [
+    "AI",
+    "Agent Experience",
+    "AX"
+  ],
+  "attachments": [],
+  "extensions": {
+    "custom": {
+      "image": [
+        {
+          "name": "image"
+        }
+      ]
+    },
+    "dc": {
+      "creator": [
+        {
+          "name": "creator",
+          "value": "Waldek Mastykarz"
+        }
+      ]
+    },
+    "slash": {
+      "comments": [
+        {
+          "name": "comments",
+          "value": "2"
+        }
+      ]
+    },
+    "wfw": {
+      "commentRss": [
+        {
+          "name": "commentRss",
+          "value": "https://devblogs.microsoft.com/blog/introducing-the-agent-experience-ax-practitioner-playbook/feed/"
+        }
+      ]
+    }
+  },
+  "content_hash": "8d11c96548ee121a8361692c198dddfd66876586b2785aeadb3477c9a8ffa981",
+  "provenance": {
+    "snapshot_hash": "2f3438245cb935d9bcb5398326d1aca8cde1151c8c1c825e6f2a6789d694afe6",
+    "retrieved_at": "2026-11-22T06:51:26Z",
+    "source_url": "https://devblogs.microsoft.com/feed/"
+  }
+}
