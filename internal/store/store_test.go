@@ -1,12 +1,16 @@
 package store
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/groovy-sky/msfeed/internal/parse"
 )
 
 func TestSaveSnapshotRejectsCorruptExistingArtifact(t *testing.T) {
@@ -26,6 +30,206 @@ func TestSaveSnapshotRejectsCorruptExistingArtifact(t *testing.T) {
 	}
 	if err := st.SaveSnapshot("test", body, metadata); err == nil {
 		t.Fatal("corrupt immutable snapshot was accepted")
+	}
+}
+
+func TestSaveEntryStoresOnlyCompactRecord(t *testing.T) {
+	st := New(t.TempDir())
+	entry := parse.Entry{
+		SchemaVersion: 1,
+		EntryKey:      "entry-key",
+		FeedID:        "test",
+		IdentityBasis: "id",
+		Title:         "A compact entry",
+		URL:           "https://example.com/update",
+		PublishedAt:   "2026-11-12T16:00:02Z",
+		Summary:       "<p>Important <strong>summary</strong>.</p>",
+		Content:       "<p>Long body that is already retained in the raw snapshot.</p>",
+		Provenance: parse.Provenance{
+			SourceURL: "https://example.com/feed",
+		},
+	}
+	entry.ContentHash = entry.Record().Hash()
+	if _, _, err := st.SaveEntry(entry, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(
+		st.Root(), "feeds", "test", "entries", entry.EntryKey, "revisions",
+		entry.ContentHash+".json",
+	)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var decoded map[string]any
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		t.Fatal(err)
+	}
+	if len(decoded) != 4 {
+		t.Fatalf("compact revision has %d fields: %s", len(decoded), data)
+	}
+	for _, field := range []string{"url", "title", "published_at", "summary"} {
+		if _, ok := decoded[field]; !ok {
+			t.Fatalf("compact revision is missing %q: %s", field, data)
+		}
+	}
+	if decoded["published_at"] != float64(1794499202) ||
+		decoded["summary"] != "Important summary." {
+		t.Fatalf("compact revision = %s", data)
+	}
+}
+
+func TestUpgradeEntryStorageCompactsLegacyRevisions(t *testing.T) {
+	st := New(t.TempDir())
+	legacy := parse.Entry{
+		SchemaVersion: 1,
+		EntryKey:      "legacy-key",
+		FeedID:        "test",
+		IdentityBasis: "id",
+		SourceID:      "legacy-id",
+		Title:         "Legacy entry",
+		URL:           "https://example.com/legacy",
+		PublishedAt:   "2026-11-12T16:00:02Z",
+		Summary:       "<p>Legacy <em>summary</em>.</p>",
+		Content:       "<p>Bulky legacy body.</p>",
+	}
+	legacyHash := "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+	legacy.ContentHash = legacyHash
+	directory := filepath.Join(st.Root(), "feeds", "test", "entries", legacy.EntryKey)
+	if err := os.MkdirAll(filepath.Join(directory, "revisions"), dirMode); err != nil {
+		t.Fatal(err)
+	}
+	if err := writeJSON(filepath.Join(directory, "index.json"), EntryIndex{
+		SchemaVersion:   1,
+		EntryKey:        legacy.EntryKey,
+		IdentityBasis:   legacy.IdentityBasis,
+		CurrentRevision: legacyHash,
+	}); err != nil {
+		t.Fatal(err)
+	}
+	legacyPath := filepath.Join(directory, "revisions", legacyHash+".json")
+	if err := writeJSON(legacyPath, legacy); err != nil {
+		t.Fatal(err)
+	}
+
+	complete, err := st.UpgradeEntryStorage(context.Background(), "test", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !complete {
+		t.Fatal("entry storage upgrade is incomplete")
+	}
+	record := legacy.Record()
+	compactPath := filepath.Join(directory, "revisions", record.Hash()+".json")
+	if _, err := os.Stat(legacyPath); !os.IsNotExist(err) {
+		t.Fatalf("legacy revision still exists: %v", err)
+	}
+	if _, err := os.Stat(compactPath); err != nil {
+		t.Fatalf("compact revision missing: %v", err)
+	}
+	var index EntryIndex
+	if err := readJSON(filepath.Join(directory, "index.json"), &index); err != nil {
+		t.Fatal(err)
+	}
+	if index.CurrentRevision != record.Hash() {
+		t.Fatalf("current revision = %s, want %s", index.CurrentRevision, record.Hash())
+	}
+	stored, err := readCompactRevision(compactPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if stored != record {
+		t.Fatalf("stored record = %#v, want %#v", stored, record)
+	}
+}
+
+func TestUpgradeEntryStorageDefersIncompleteEntries(t *testing.T) {
+	st := New(t.TempDir())
+	entry := parse.Entry{
+		SchemaVersion: 1,
+		EntryKey:      "interrupted-key",
+		FeedID:        "test",
+		IdentityBasis: "id",
+		Title:         "Interrupted entry",
+		URL:           "https://example.com/interrupted",
+		PublishedAt:   "2026-11-12T16:00:02Z",
+		Summary:       "Interrupted summary",
+	}
+	entry.ContentHash = entry.Record().Hash()
+	directory := filepath.Join(st.Root(), "feeds", "test", "entries", entry.EntryKey)
+	revisions := filepath.Join(directory, "revisions")
+	if err := os.MkdirAll(revisions, dirMode); err != nil {
+		t.Fatal(err)
+	}
+	legacyPath := filepath.Join(revisions, entry.ContentHash+".json")
+	if err := writeJSON(legacyPath, entry.Record()); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(directory, ".tmp-abandoned"), []byte("partial"), dirMode); err != nil {
+		t.Fatal(err)
+	}
+	complete, err := st.UpgradeEntryStorage(context.Background(), "test", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if complete {
+		t.Fatal("entry storage upgrade completed without an index")
+	}
+	if _, err := os.Stat(filepath.Join(directory, ".tmp-abandoned")); !os.IsNotExist(err) {
+		t.Fatalf("abandoned index temp remains: %v", err)
+	}
+
+	if _, _, err := st.SaveEntry(entry, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	complete, err = st.UpgradeEntryStorage(context.Background(), "test", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !complete {
+		t.Fatal("entry storage upgrade did not recover")
+	}
+}
+
+func TestUpgradeEntryStorageIgnoresTemporaryRevisions(t *testing.T) {
+	st := New(t.TempDir())
+	entry := parse.Entry{
+		EntryKey: "temp-key", FeedID: "test", IdentityBasis: "id",
+		Title: "Temporary cleanup", URL: "https://example.com/temp", Summary: "Summary",
+	}
+	entry.ContentHash = entry.Record().Hash()
+	if _, _, err := st.SaveEntry(entry, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	revisions := filepath.Join(
+		st.Root(), "feeds", "test", "entries", entry.EntryKey, "revisions",
+	)
+	tempPath := filepath.Join(revisions, ".tmp-abandoned")
+	if err := os.WriteFile(tempPath, []byte("partial"), dirMode); err != nil {
+		t.Fatal(err)
+	}
+	complete, err := st.UpgradeEntryStorage(context.Background(), "test", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !complete {
+		t.Fatal("entry storage upgrade is incomplete")
+	}
+	if _, err := os.Stat(tempPath); !os.IsNotExist(err) {
+		t.Fatalf("abandoned revision temp remains: %v", err)
+	}
+}
+
+func TestUpgradeEntryStorageHonorsCancellation(t *testing.T) {
+	st := New(t.TempDir())
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	complete, err := st.UpgradeEntryStorage(ctx, "test", false)
+	if complete {
+		t.Fatal("canceled upgrade reported complete")
+	}
+	if err != context.Canceled {
+		t.Fatalf("error = %v, want context.Canceled", err)
 	}
 }
 

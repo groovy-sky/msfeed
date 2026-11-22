@@ -76,6 +76,87 @@ func TestParseHonorsDeclaredEncoding(t *testing.T) {
 	}
 }
 
+func TestRecordUsesCompactUnixTimestampAndPlainSummary(t *testing.T) {
+	body := `<?xml version="1.0"?><rss version="2.0"><channel><title>News</title>` +
+		`<item><guid>compact</guid><title>Compact item</title>` +
+		`<link>/compact</link><pubDate>Thu, 12 Nov 2026 16:00:02 +0000</pubDate>` +
+		`<description><![CDATA[<p>First <strong>important</strong> update.</p>` +
+		`<p>The post Compact item appeared first on Microsoft.</p>]]></description></item>` +
+		`</channel></rss>`
+	parsed, err := Parse([]byte(body), "https://example.com/feed", "compact", "snapshot", time.Unix(0, 0), 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	record := parsed.Entries[0].Record()
+	if record.URL != "https://example.com/compact" ||
+		record.Title != "Compact item" ||
+		record.PublishedAt != 1794499202 ||
+		record.Summary != "First important update." {
+		t.Fatalf("record = %#v", record)
+	}
+	if record.Hash() != parsed.Entries[0].ContentHash {
+		t.Fatalf("record hash = %s, content hash = %s", record.Hash(), parsed.Entries[0].ContentHash)
+	}
+}
+
+func TestRecordUsesUpdatedDateWhenPublishedDateIsMissing(t *testing.T) {
+	record := (Entry{UpdatedAt: "2025-01-02T03:04:05Z"}).Record()
+	if record.PublishedAt != 1735787045 {
+		t.Fatalf("published_at = %d, want updated timestamp", record.PublishedAt)
+	}
+}
+
+func TestRecordHonorsAtomPlainTextTypes(t *testing.T) {
+	body := `<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"><title>News</title>
+		<entry><id>text</id><title>Generics</title>
+		<summary type="text">Use &lt;T&gt; in the summary.</summary>
+		<content type="text">Use &lt;T&gt; in the content.</content>
+		<updated>2025-01-02T03:04:05Z</updated></entry>
+		<entry><id>content</id><title>Generics</title>
+		<content type="text">Use &lt;T&gt; in the content.</content>
+		<updated>2025-01-02T03:04:05Z</updated></entry></feed>`
+	parsed, err := Parse([]byte(body), "https://example.com/feed", "atom-text", "snapshot", time.Unix(0, 0), 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	first := parsed.Entries[0].Record()
+	second := parsed.Entries[1].Record()
+	if first.Summary != "Use <T> in the summary." {
+		t.Fatalf("summary = %q", first.Summary)
+	}
+	if second.Summary != "Use <T> in the content." {
+		t.Fatalf("content fallback = %q", second.Summary)
+	}
+}
+
+func TestRecordRemovesOnlyTrailingFeedBoilerplate(t *testing.T) {
+	record := (Entry{
+		Summary: "The post explains the update. The post Update appeared first on Microsoft.",
+	}).Record()
+	if record.Summary != "The post explains the update." {
+		t.Fatalf("summary = %q", record.Summary)
+	}
+
+	prefix := strings.Repeat("\u022a", 100)
+	record = (Entry{
+		Summary: prefix + " update. The post Update appeared first on Microsoft.",
+	}).Record()
+	if record.Summary != prefix+" update." {
+		t.Fatalf("Unicode footer handling = %q", record.Summary)
+	}
+}
+
+func TestCompactSummaryDoesNotRepeatEllipsis(t *testing.T) {
+	value := strings.Repeat("word ", MaxStoredSummaryRunes/5) + "ending..."
+	record := (Entry{Summary: value}).Record()
+	if strings.HasSuffix(record.Summary, "....") {
+		t.Fatalf("summary repeats ellipsis: %q", record.Summary)
+	}
+	if len([]rune(record.Summary)) > MaxStoredSummaryRunes {
+		t.Fatalf("summary length = %d, want <= %d", len([]rune(record.Summary)), MaxStoredSummaryRunes)
+	}
+}
+
 func TestParseIsDeterministicAcrossReordering(t *testing.T) {
 	a := `<?xml version="1.0"?><rss version="2.0"><channel><title>x</title><item><guid>1</guid><title>A</title></item><item><guid>2</guid><title>B</title></item></channel></rss>`
 	b := `<?xml version="1.0"?><rss version="2.0"><channel><title>x</title><item><guid>2</guid><title>B</title></item><item><guid>1</guid><title>A</title></item></channel></rss>`

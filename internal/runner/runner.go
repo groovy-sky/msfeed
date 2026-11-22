@@ -156,6 +156,23 @@ func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool, 
 	}
 	now := r.Now()
 	state.SchemaVersion = 1
+	if state.EntryStorageVersion > store.CompactEntryVersion {
+		report.Status = "failed"
+		report.FailureClass = "storage"
+		report.Error = fmt.Sprintf(
+			"entry storage version %d is newer than supported version %d",
+			state.EntryStorageVersion, store.CompactEntryVersion,
+		)
+		return report, 0, false
+	}
+	storageReady := state.EntryStorageVersion == store.CompactEntryVersion
+	if state.EntryStorageVersion < store.CompactEntryVersion {
+		ready, budgetReached := r.upgradeEntryStorage(ctx, feed, &state, now, &report)
+		if report.Status == "failed" {
+			return report, 0, budgetReached
+		}
+		storageReady = ready
+	}
 	state.LastAttempt = now.UTC().Format(time.RFC3339)
 	if state.PendingSnapshot != "" {
 		if !force && retryNotDue(state, now) {
@@ -163,6 +180,11 @@ func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool, 
 			return report, 0, false
 		}
 		pending, budgetReached := r.processPending(ctx, feed, state, report, now)
+		if !storageReady && (pending.Status == "completed" || pending.Status == "partial") {
+			upgradeState, budgetUsed := r.finishEntryStorageUpgrade(ctx, feed, now, &pending)
+			pending = upgradeState
+			budgetReached = budgetReached || budgetUsed
+		}
 		return pending, 0, budgetReached
 	}
 	if !force && !due(state, now, feed.PollIntervalSeconds) {
@@ -243,6 +265,68 @@ func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool, 
 	}
 	pending, budgetReached := r.processPending(ctx, feed, state, report, now)
 	return pending, requests, budgetReached
+}
+
+func (r *Runner) upgradeEntryStorage(
+	ctx context.Context,
+	feed config.Feed,
+	state *store.State,
+	now time.Time,
+	report *FeedReport,
+) (bool, bool) {
+	complete, err := r.Store.UpgradeEntryStorage(
+		ctx, feed.ID, state.PendingSnapshot != "",
+	)
+	if err != nil {
+		return false, r.failEntryStorageUpgrade(ctx, feed, state, now, report, err)
+	}
+	if !complete {
+		return false, false
+	}
+	state.EntryStorageVersion = store.CompactEntryVersion
+	if err := r.Store.SaveState(feed.ID, *state); err != nil {
+		return false, r.failEntryStorageUpgrade(ctx, feed, state, now, report, err)
+	}
+	return true, false
+}
+
+func (r *Runner) finishEntryStorageUpgrade(
+	ctx context.Context,
+	feed config.Feed,
+	now time.Time,
+	report *FeedReport,
+) (FeedReport, bool) {
+	state, err := r.Store.LoadState(feed.ID)
+	if err != nil {
+		report.Status = "failed"
+		report.FailureClass = "storage"
+		report.Error = fmt.Sprintf("load state after pending replay: %v", err)
+		return *report, false
+	}
+	_, budgetReached := r.upgradeEntryStorage(ctx, feed, &state, now, report)
+	return *report, budgetReached
+}
+
+func (r *Runner) failEntryStorageUpgrade(
+	ctx context.Context,
+	feed config.Feed,
+	state *store.State,
+	now time.Time,
+	report *FeedReport,
+	err error,
+) bool {
+	report.Status = "failed"
+	report.Error = fmt.Sprintf("upgrade entry storage: %v", err)
+	report.FailureClass = "storage"
+	budgetReached := errors.Is(err, context.DeadlineExceeded) ||
+		errors.Is(ctx.Err(), context.DeadlineExceeded)
+	if budgetReached {
+		report.FailureClass = "budget"
+	} else if errors.Is(err, context.Canceled) {
+		report.FailureClass = "cancelled"
+	}
+	r.recordFailure(report, feed, state, now, err)
+	return budgetReached
 }
 
 func (r *Runner) persistFetched(feed config.Feed, state *store.State, result fetch.Result, now time.Time) error {

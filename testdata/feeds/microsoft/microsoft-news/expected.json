@@ -9,14 +9,14 @@
       "title": "Representative news item one",
       "url": "https://news.microsoft.com/articles/one",
       "entry_key": "9268d5d4ced143305a04608ad6f7d37aece6ca53bdb42aa4f35e2496e88a2db2",
-      "content_hash": "67fcceeb3366238c18e5b875c239bea48cdd9db8e6cde8c1af416fd98e6a8d9c"
+      "content_hash": "59c5595e70c72b42ebac5bf44328fc15d4b4ab75156a5e3013dc3f2df95c7d71"
     },
     {
       "identity_basis": "id",
       "title": "Representative news item two",
       "url": "https://news.microsoft.com/articles/two",
       "entry_key": "4ffd26bcd1686325513b1ec4a65cd3e4fa779b7293e11d030d97255a3a3f2182",
-      "content_hash": "b264118426159904b28fc64ddaee50ca7bd8fe0547319e0946e33f23a437663d"
+      "content_hash": "6aa12cf72c8399a4e346847bb8550fc740a67011d5fb4bcba020a6a074145bd5"
     }
   ]
 }

@@ -9,14 +9,14 @@
       "title": "Representative security item one",
       "url": "https://example.test/security/one",
       "entry_key": "edaaf7caa302ddb9795e7368ede2d06f2a62b2b3bbe9c4d64f06662e444b92e0",
-      "content_hash": "7b6d2d46539bda66fb669419da6af5f39e8b5bab0429cb12401bfd7df126309f"
+      "content_hash": "12b0f2e3785c132212cd12a4164995ed58e42538b7af5c306cccf73f7427bc63"
     },
     {
       "identity_basis": "id",
       "title": "Representative security item two",
       "url": "https://example.test/security/two",
       "entry_key": "40cbca804d242c17d1e39751547246cbf8e781cf96121f36b11f7d7620b6483a",
-      "content_hash": "3e8c3ff066099954fdd3cf1f6002c25e5de77bb3a69b04304455954690c1d966"
+      "content_hash": "154a45e6d555a382bde3f0a0e40d7c894a5f16c4cc008135e4b4096dd84e589e"
     }
   ]
 }
