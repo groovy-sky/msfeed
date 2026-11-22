@@ -2,10 +2,12 @@
   "schema_version": 1,
   "entry_key": "1eb001fe5a327ab58b267d6115e5298455ff9258d80ccde69cf8f4b1cc2f4eac",
   "identity_basis": "id",
+  "identity": "https://blogs.microsoft.com/?p=52563199",
   "source_id": "https://blogs.microsoft.com/?p=52563199",
   "url": "https://blogs.microsoft.com/blog/2026/10/19/securing-the-agentic-insider/",
   "has_feed_content": true,
+  "canonical_week": "2026-W43",
   "current_revision": "cb6013ffc35f6afee0feb656cad6bf565283865611636de12ad1a4c21210aabb",
   "first_seen": "2026-11-22T06:51:17Z",
-  "last_seen": "2026-11-22T14:10:14Z"
+  "last_seen": "2026-11-22T21:15:52Z"
 }

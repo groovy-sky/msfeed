@@ -2,10 +2,12 @@
   "schema_version": 1,
   "entry_key": "df938c08bf8d4a00c3fdd6015e47a93b53484c34ab91d776b218f36d9710d823",
   "identity_basis": "id",
+  "identity": "https://blogs.microsoft.com/?p=52563198",
   "source_id": "https://blogs.microsoft.com/?p=52563198",
   "url": "https://blogs.microsoft.com/blog/2026/10/20/advancing-digital-sovereignty-with-greater-control-and-choice/",
   "has_feed_content": true,
+  "canonical_week": "2026-W43",
   "current_revision": "45f19008e7d61f66d6319ba29f70e18ae18cf9424afd1749f8e90155725b4dbf",
   "first_seen": "2026-11-22T06:51:17Z",
-  "last_seen": "2026-11-22T14:10:14Z"
+  "last_seen": "2026-11-22T21:15:52Z"
 }

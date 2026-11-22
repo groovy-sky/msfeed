@@ -2,10 +2,12 @@
   "schema_version": 1,
   "entry_key": "2b0f961a5b722c30cb3661fa3ac86f8d81f5f7d06f4005b5053a9c47db97ace6",
   "identity_basis": "id",
+  "identity": "https://blogs.microsoft.com/?p=52563191",
   "source_id": "https://blogs.microsoft.com/?p=52563191",
   "url": "https://blogs.microsoft.com/blog/2026/11/17/ignite-2026-building-the-frontier-ecosystem/",
   "has_feed_content": true,
+  "canonical_week": "2026-W47",
   "current_revision": "6de0e0949c8538071c2cbcf239c1f47f354d84ccbe8f8d6300d7948a0e4421e4",
   "first_seen": "2026-11-22T06:51:17Z",
-  "last_seen": "2026-11-22T14:10:14Z"
+  "last_seen": "2026-11-22T21:15:52Z"
 }

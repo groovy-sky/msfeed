@@ -2,10 +2,12 @@
   "schema_version": 1,
   "entry_key": "0d3b1f603368086332452fb897e6a551d036d2a24413f84ee33f3ea49cf701cf",
   "identity_basis": "id",
+  "identity": "https://blogs.microsoft.com/?p=52563236",
   "source_id": "https://blogs.microsoft.com/?p=52563236",
   "url": "https://blogs.microsoft.com/blog/2026/10/28/introducing-the-microsoft-copilot-harness-unlocking-the-potential-of-truly-multi-model-agentic-work/",
   "has_feed_content": true,
+  "canonical_week": "2026-W44",
   "current_revision": "0bed2c2b1438b265d3a8b29d7464151e7409ff958c1555c1cf8cb988a992f2a8",
   "first_seen": "2026-11-22T06:51:17Z",
-  "last_seen": "2026-11-22T14:10:14Z"
+  "last_seen": "2026-11-22T21:15:52Z"
 }

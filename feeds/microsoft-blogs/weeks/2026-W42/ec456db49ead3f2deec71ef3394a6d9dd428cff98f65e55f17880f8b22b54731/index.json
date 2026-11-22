@@ -2,10 +2,12 @@
   "schema_version": 1,
   "entry_key": "ec456db49ead3f2deec71ef3394a6d9dd428cff98f65e55f17880f8b22b54731",
   "identity_basis": "id",
+  "identity": "https://blogs.microsoft.com/?p=52563158",
   "source_id": "https://blogs.microsoft.com/?p=52563158",
   "url": "https://blogs.microsoft.com/blog/2026/10/12/microsoft-to-expand-azure-maia-system-to-multi-gigawatt-deployments/",
   "has_feed_content": true,
+  "canonical_week": "2026-W42",
   "current_revision": "5ef6ad8ec1b271c800ee845e3456a5b90b15a9f234dffab4fe93aad12c0cb38e",
   "first_seen": "2026-11-22T06:51:17Z",
-  "last_seen": "2026-11-22T14:10:14Z"
+  "last_seen": "2026-11-22T21:15:52Z"
 }
