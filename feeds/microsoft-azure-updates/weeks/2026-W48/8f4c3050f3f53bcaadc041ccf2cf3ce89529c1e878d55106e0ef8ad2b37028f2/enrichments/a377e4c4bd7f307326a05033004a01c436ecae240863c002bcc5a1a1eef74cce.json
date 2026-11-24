@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "8f4c3050f3f53bcaadc041ccf2cf3ce89529c1e878d55106e0ef8ad2b37028f2",
+  "entry_revision": "775fe4333a818a91147da4383d6a8d0bcd04509c06ac9adb232bd75044b8d4cf",
+  "provider": "odata",
+  "source_id": "581478",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581478",
+  "content_type": "text/plain",
+  "content": "Foundry Toolkit for Visual Studio Code now deploys hosted agents from prebuilt images in customer-managed container registries, including registries other than Azure Container Registry. Choose the matching registry connection in your Foundry project; the Toolkit retains that configuration for redeployment. This lets you reuse approved registries and existing image-build pipelines without copying images into a new Azure Container Registry or rebuilding locally. Registry authentication stays in the configured service connection. Existing Azure Container Registry, source-build, and ZIP deployment paths remain available. Learn more.",
+  "retrieved_at": "2026-11-24T03:26:17Z"
+}

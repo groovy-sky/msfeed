@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=581388",
+  "title": "[In preview] Public Preview: Use your model deployments with model router in Microsoft Foundry",
+  "published_at": 1795465776,
+  "summary": "Model router in Microsoft Foundry can use your existing model deployments to serve routed requests, in public preview. This helps you use capacity you already have while model router selects a model for each request.After selecting a model, model router f"
+}

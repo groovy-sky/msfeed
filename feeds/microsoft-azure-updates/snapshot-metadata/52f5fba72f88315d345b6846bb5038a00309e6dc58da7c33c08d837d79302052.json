@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "feed_id": "microsoft-azure-updates",
+  "hash": "52f5fba72f88315d345b6846bb5038a00309e6dc58da7c33c08d837d79302052",
+  "bytes": 153474,
+  "requested_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss",
+  "effective_url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss",
+  "status": 200,
+  "content_type": "application/rss+xml",
+  "retrieved_at": "2026-11-24T03:26:17Z"
+}

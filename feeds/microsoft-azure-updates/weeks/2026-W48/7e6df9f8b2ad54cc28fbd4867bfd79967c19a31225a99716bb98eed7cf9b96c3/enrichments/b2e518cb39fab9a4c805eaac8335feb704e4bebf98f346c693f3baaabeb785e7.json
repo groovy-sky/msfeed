@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "7e6df9f8b2ad54cc28fbd4867bfd79967c19a31225a99716bb98eed7cf9b96c3",
+  "entry_revision": "5e2f6a99786906f2bfca077dc3e305ec76ea54bb57d2608b005e9d7863a70a9a",
+  "provider": "odata",
+  "source_id": "574535",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=574535",
+  "content_type": "text/plain",
+  "content": "Enhanced Burstable tier (Basv2) builds on the existing burstable model with improved performance predictability and more efficient burst utilization, delivering a better cost-performance balance. Now you can run steady workloads more economically while automatically scaling to handle demand spikes. Learn more.",
+  "retrieved_at": "2026-11-24T03:26:17Z"
+}

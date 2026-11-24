@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=581333",
+  "title": "[In preview] Public Preview: Enterprise Knowledge Graph in Foundry IQ",
+  "published_at": 1795468592,
+  "summary": "Foundry IQ adds Enterprise Knowledge Graph as a knowledge source for questions that depend on relationships across your content.During indexing, it extracts entities and relationships from unstructured content, guided by an ontology you provide. Agents ca"
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "9c78600e44010e0d2ccd3395d0b22da1bc330429a0dd067b32dbbc3a3cd0e421",
+  "entry_revision": "a18549501b4bc52576a4f4ba0e75d8dc874fc2517c064c7aca662f03888e860d",
+  "provider": "odata",
+  "source_id": "581343",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581343",
+  "content_type": "text/plain",
+  "content": "Foundry IQ can use an iterative retrieval model to break complex questions into focused searches. The model reviews search results and searches again when needed, within a configured budget, then passes the retrieved evidence to the model that answers the question. Learn more.",
+  "retrieved_at": "2026-11-24T03:26:17Z"
+}

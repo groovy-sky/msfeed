@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=582030",
+  "title": "[Launched] Generally Available: Wildcard domain support in Azure Firewall network rules",
+  "published_at": 1795459891,
+  "summary": "Wildcard domain support in Azure Firewall network rules is now generally available. This capability enables customers to use wildcard patterns, such as *.contoso.com, when defining FQDN-based network rules. Wildcard support makes it easier to secure desti"
+}

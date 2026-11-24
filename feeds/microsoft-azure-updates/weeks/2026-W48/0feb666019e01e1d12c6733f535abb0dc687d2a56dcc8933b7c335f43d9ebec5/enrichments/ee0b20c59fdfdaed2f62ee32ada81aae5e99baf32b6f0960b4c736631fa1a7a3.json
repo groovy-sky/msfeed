@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "0feb666019e01e1d12c6733f535abb0dc687d2a56dcc8933b7c335f43d9ebec5",
+  "entry_revision": "f0d5c386fb96437bf91530adf87c2f3d03dca38bce11dd96afafa6ff98677833",
+  "provider": "odata",
+  "source_id": "581368",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581368",
+  "content_type": "text/plain",
+  "content": "Upload files directly to a managed knowledge source in Foundry IQ. Foundry IQ processes and indexes the files for retrieval through a knowledge base, so you don't need to provision a storage account or scheduled indexer. Learn more.",
+  "retrieved_at": "2026-11-24T03:26:17Z"
+}
