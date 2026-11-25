@@ -1,0 +1,6 @@
+{
+  "url": "https://azure.microsoft.com/updates?id=581483",
+  "title": "[In preview] Public Preview: Optimize agents from insights in Foundry Agent Service",
+  "published_at": 1795539127,
+  "summary": "Optimization from insights is in public preview in Foundry Agent Service. In the Foundry portal, start from an eligible insight in a prompt-agent trace to generate and evaluate candidate changes to the agent's instructions and function-calling tool descri"
+}

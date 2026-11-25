@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "10f95e96608d2246bac3ecf6e942f18b1bf6779da64f6ee5ad93314d582dc0fe",
+  "entry_revision": "cd4c51312bb6238d3cb80a44f5e26e4419f50de04cf66236e5dfadb207d9f9b8",
+  "provider": "odata",
+  "source_id": "581313",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581313",
+  "content_type": "text/plain",
+  "content": "Bring your existing Agent2Agent (A2A) agents to Agent Service without a protocol conversion layer. Previously, Agent Service converted incoming A2A requests to the Responses protocol. With A2A passthrough, Agent Service forwards native A2A requests directly to your hosted agent container. Your code handles A2A messages and tasks. Agent Service manages the endpoint, authentication, and hosted compute. The preview supports incoming A2A v1.0 requests over JSON-RPC. Streaming, push notifications, and authenticated extended agent cards are not available. A2A passthrough handles incoming requests. It does not configure outbound calls to other agents. Learn more.",
+  "retrieved_at": "2026-11-25T03:26:42Z"
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "83ff90c6bbadd142dd4bf9e2f551708bb02d7d97d30a1f4d0be440b703c0aba7",
+  "entry_revision": "c7264030d529f9c8d0e7c34e18461e538f0aed221d32592748cc0306f0bc6325",
+  "provider": "odata",
+  "source_id": "581483",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581483",
+  "content_type": "text/plain",
+  "content": "Optimization from insights is in public preview in Foundry Agent Service. In the Foundry portal, start from an eligible insight in a prompt-agent trace to generate and evaluate candidate changes to the agent's instructions and function-calling tool descriptions. This portal workflow supports only prompt agents that do not use the Microsoft Copilot harness; hosted agents use a separate optimization workflow. For hosted-agent optimization, use the Microsoft Foundry Toolkit extension for Visual Studio Code or the Azure Developer CLI with the microsoft.foundry extension. Review candidate changes and evaluation results before promoting a new agent version. If an agent's tools can change production systems, use read-only access or isolated test resources during optimization. Learn more: Hosted-agent optimization quickstart Fix insights with agent optimizer (preview)",
+  "retrieved_at": "2026-11-25T03:26:42Z"
+}

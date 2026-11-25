@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "d5ad7a9e13312789849eb78e9eb1b9d16ac0c1fa74e4c8f1a74724688e129885",
+  "entry_revision": "0feca1483004bcf81f5375ceceab63acc5bc61e90933bca6c98ae4657a3c7615",
+  "provider": "odata",
+  "source_id": "581498",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581498",
+  "content_type": "text/plain",
+  "content": "In public preview, Microsoft Foundry Agent Service lets you route MCP tool traffic through existing AI Gateway or Azure API Management endpoints that your organization manages. Configure the MCP route in the gateway first, then enter the gateway-routed endpoint in Foundry. Foundry does not automatically register the MCP server or replace direct endpoints. The gateway can apply access controls and policies, publish approved tools behind one endpoint, and expose logs and traces for MCP tool calls, policy decisions and backend routing. This gives platform teams centralized control while developers continue to build agents in Foundry. The preview is intended for evaluation and is not covered by a production SLA. Learn more.",
+  "retrieved_at": "2026-11-25T03:26:42Z"
+}

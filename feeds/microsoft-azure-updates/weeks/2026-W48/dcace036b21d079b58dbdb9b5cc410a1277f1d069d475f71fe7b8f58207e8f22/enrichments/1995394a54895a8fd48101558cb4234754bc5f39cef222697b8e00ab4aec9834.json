@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "entry_key": "dcace036b21d079b58dbdb9b5cc410a1277f1d069d475f71fe7b8f58207e8f22",
+  "entry_revision": "48cda6e8537e44f8d0554f6609398c1fb1adea7873ab038725945a10951bab29",
+  "provider": "odata",
+  "source_id": "581328",
+  "source_url": "https://www.microsoft.com/releasecommunications/api/v2/azure",
+  "article_url": "https://azure.microsoft.com/updates?id=581328",
+  "content_type": "text/plain",
+  "content": "Administrators can use Azure Policy to govern outbound destinations for hosted agents in Foundry Agent Service. Agent authors configure and attach a compliant egress policy before creating an agent version. The egress policy then controls outbound requests at runtime. Learn more.",
+  "retrieved_at": "2026-11-25T03:26:42Z"
+}
