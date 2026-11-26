@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "entry_key": "8dc6b34954fb4c75316fe7004a00490ad6c6999344543454a27fc426baf25ae2",
+  "identity_basis": "id",
+  "identity": "https://devblogs.microsoft.com/?p=22768",
+  "source_id": "https://devblogs.microsoft.com/?p=22768",
+  "url": "https://devblogs.microsoft.com/blog/do-inconsistent-docs-hurt-ai-coding-agents/",
+  "has_feed_content": true,
+  "canonical_week": "2026-W48",
+  "current_revision": "6fc0e3604d63c9e35044a64a24d4723b3d8ab2b2466ed56a49a65aa0c4479d86",
+  "first_seen": "2026-11-26T03:25:42Z",
+  "last_seen": "2026-11-26T03:25:42Z"
+}

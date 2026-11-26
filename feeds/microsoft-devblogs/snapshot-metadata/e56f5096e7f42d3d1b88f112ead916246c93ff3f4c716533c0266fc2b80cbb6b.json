@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "feed_id": "microsoft-devblogs",
+  "hash": "e56f5096e7f42d3d1b88f112ead916246c93ff3f4c716533c0266fc2b80cbb6b",
+  "bytes": 41113,
+  "requested_url": "https://devblogs.microsoft.com/feed",
+  "effective_url": "https://devblogs.microsoft.com/feed/",
+  "status": 200,
+  "content_type": "application/rss+xml; charset=UTF-8",
+  "content_encoding": "gzip",
+  "etag": "W/\"ee8455cfc73e6d4f48246d36dfee8438\"",
+  "last_modified": "Wed, 25 Nov 2026 11:53:55 GMT",
+  "retrieved_at": "2026-11-26T03:25:42Z",
+  "redirects": [
+    "https://devblogs.microsoft.com/feed/"
+  ]
+}
