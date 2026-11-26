@@ -1,586 +1,143 @@
-# PLAN: Universal RSS Collector in Go
-
-## 1. Objective
-
-Build a compact, file-backed Go application that collects RSS and Atom feeds,
-preserves original source material, tracks new and changed entries, and resumes
-safely after failures.
-
-The collector must work without SQL, Kubernetes, a queue broker, or an LLM.
-Run it locally or through cron on a small machine.
-
-“Universal” means provider-independent handling of RSS 2.0, RSS 1.0/RDF, and
-Atom 1.0. It does not mean arbitrary website scraping or perfect support for
-every malformed feed.
-
-## 2. Scope
-
-### Core
-- Multiple configurable HTTP/HTTPS feeds.
-- Feed parsing and normalization.
-- Exact downloaded feed-body preservation.
-- New-entry discovery and revision detection.
-- Local, deterministic, versioned storage.
-- Conditional HTTP fetching when supported.
-- Persistent retry state and bounded execution.
-- Structured logs and useful exit codes.
-
-### Optional, provider-aware
-- Provider-specific APIs, including additional adapters or MCP.
-- Article fetching.
-- Summarization through an external service.
-- Export to JSON Lines or Markdown.
-
-### Not in scope
-- Databases, distributed coordination, dashboards, or inbound webhooks.
-- Local model inference.
-- JavaScript rendering or automatic full-site crawling.
-- Treating retrieved content as verified facts.
-
-## 3. Operating Model
-
-Use one executable and process feeds sequentially by default:
-
-    configuration → fetch → preserve snapshot → parse → normalize
-                  → reconcile entries → persist state → exit
-
-A process lock prevents concurrent writers to the same data directory.
-Release the lock automatically when the process exits; do not use the mere
-existence of a lock file as proof that another process is running.
-
-Each run has limits on duration, feed count, body size, entries processed, and
-network requests. Stop scheduling new work when the runtime budget expires.
-
-Core collection must remain independent of enrichment and summarization.
-
-## 4. Configuration
-
-Use one versioned JSON configuration file. JSON avoids an additional
-configuration-format dependency.
-
-Example:
-
-```json
-{
-  "schema_version": 1,
-  "data_dir": "./data",
-  "max_run_seconds": 300,
-  "http": {
-    "timeout_seconds": 30,
-    "max_body_bytes": 8388608,
-    "max_redirects": 5,
-    "user_agent": "rss-collector/1.0"
-  },
-  "defaults": {
-    "poll_interval_seconds": 3600,
-    "max_entries_per_run": 500
-  },
-  "feeds": [
-    {
-      "id": "azure-updates",
-      "url": "https://www.microsoft.com/releasecommunications/api/v2/azure/rss",
-      "enabled": true
-    },
-    {
-      "id": "example",
-      "url": "https://example.org/feed.xml",
-      "enabled": true
-    }
-  ]
-}
-```
-
-Requirements:
-- Feed IDs are unique and restricted to safe filename characters.
-- Feed IDs remain stable when URLs change.
-- Reject unknown configuration fields and invalid limits.
-- Optional authentication references environment variables or protected files;
-  do not put secrets in logs or snapshots.
-- Configuration overrides do not change existing record identities.
-- URLs are configuration values, never hard-coded provider assumptions.
-
-## 5. Repository Structure
-
-```text
-cmd/rsscollector/main.go
-internal/
-  config/
-  runner/
-  fetch/
-  parse/
-  normalize/
-  identity/
-  store/
-  retry/
-  output/
-testdata/
-  feeds/
-  expected/
-PLAN.md
-README.md
-go.mod
-go.sum
-```
-
-Use the standard library where practical. Select and pin a maintained feed
-parser after evaluating RSS, RDF, Atom, namespaces, character encodings, and
-malformed-feed behavior. Do not implement a complete XML feed parser from
-scratch merely to eliminate one dependency.
-
-Keep interfaces small and focused:
-- Fetcher: fetch one feed with conditional request metadata.
-- Parser: convert a snapshot into normalized entries.
-- Store: persist snapshots, entry revisions, and state.
-- Clock: injectable time for deterministic tests.
-
-Do not introduce a generic plugin framework for the first release.
-
-## 6. Local Storage Layout
-
-```text
-data/
-  collector.lock
-  feeds/
-    <feed-id>/
-      feed.json
-      state.json
-      snapshots/
-        <sha256>.xml
-      snapshot-metadata/
-        <sha256>.json
-      locations/
-        <entry-key>.json
-      weeks/
-        <YYYY-Www>/
-          <entry-key>/
-            index.json
-            enrichment.json
-            revisions/
-              <content-hash>.json
-            enrichments/
-              <content-hash>.json
-  runs/
-    <run-id>.json
-```
-
-- `feed.json`: configured identity and source URL; omit secrets.
-- `state.json`: HTTP validators, last success, retry schedule, pending snapshot.
-- Snapshots: immutable downloaded bodies; extension does not determine format.
-- Snapshot metadata: retrieval time, effective URL, status, content type, hash.
-- `locations/<entry-key>.json`: immutable canonical week lookup for an entry.
-- `index.json`: identity, source URL/ID, canonical/corrected weeks, first/last
-  seen, current revision.
-- Revisions: immutable compact records containing URL, title, Unix publication
-  timestamp, uncropped plain-text summary, and optional article text.
-- `enrichment.json`: current provider-derived artifact for an entry.
-- Enrichments: immutable plain-text artifacts linked to the exact entry revision,
-  provider, source URL, article URL, source ID, and retrieval time.
-- Run reports: counts, timings, failures, and budget exhaustion.
-
-Reuse identical snapshot and revision hashes rather than rewriting them.
-Observation timestamps belong in indexes/state, not in content hashes.
-
-## 7. Stored Entry Schema
-
-```json
-{
-  "url": "https://example.com/original-update",
-  "title": "Original update title",
-  "published_at": 1794499202,
-  "summary": "The description supplied by the feed.",
-  "content": "The full article text supplied by the feed, when different from the summary."
-}
-```
-
-Rules:
-- Preserve original text and HTML in the immutable source snapshot.
-- Store valid publication timestamps as Unix seconds, falling back to the
-  update timestamp.
-- Store missing or invalid publication dates as `0`.
-- Resolve relative links against the relevant document/base URL.
-- Convert summaries and article bodies to plain text without truncation. Use
-  the article text as `summary` when the feed does not supply a description;
-  include `content` only when the article text differs from the summary.
-- Keep source URL, HTTP validators, retrieval time, extensions, and original
-  markup in the snapshot and its metadata rather than duplicating them per entry.
-- Do not invent source fields or silently discard parsing warnings.
-
-The snapshot is the exact source artifact. A stored entry is a compact derived
-representation; its content hash includes all stored fields.
-
-## 8. Identity and Revisions
-
-Identity is scoped to a feed; cross-feed deduplication is not automatic.
-
-Identity precedence:
-1. Nonempty Atom ID or RSS GUID, treated as an opaque identifier.
-2. Entry link, with only conservative normalization.
-3. Documented fallback fingerprint of available title, date, author, and content.
-
-Compute:
-
-    entry_key = SHA-256(feed_id + separator + identity_basis + separator + identity)
-
-Do not remove query parameters or infer that different URLs are equivalent.
-Record the identity basis so fallback decisions are auditable.
-
-Fallback fingerprints cannot guarantee stable identity: edits may appear as
-new entries. Report that limitation rather than attempting unsafe merges.
-
-Compute revision hashes from the canonical serialization of the stored
-record fields, excluding retrieval timestamps and fields not retained in the
-compact record.
-
-Behavior:
-- Same identity and content hash: update last-seen observation only.
-- Same identity, new hash: append revision and update current pointer.
-- Entry absent from a later feed: retain it; absence is not deletion.
-- Never use publication time as the only deduplication mechanism.
-
-## 9. Fetching and Retry Policy
-
-- Use context cancellation and explicit timeouts.
-- Support HTTP/HTTPS only; verify TLS normally.
-- Persist ETag and Last-Modified when supplied.
-- Issue conditional requests; handle 304 without reparsing.
-- Bound decompressed response size, not just Content-Length.
-- Limit redirects and validate each redirect target.
-- Respect Retry-After where applicable.
-- Retry transient transport failures, 429, and selected 5xx responses with
-  exponential backoff, jitter, and a configured maximum.
-- Persist next_retry_at; avoid long sleeping loops inside scheduled jobs.
-- Treat most other 4xx responses as configuration/access errors.
-- Persist malformed snapshots and report parse failure. If processing has not
-  committed a batch yet, fetch a replacement on the next scheduled retry
-  rather than replaying the same rejected bytes.
-
-Important: do not activate new HTTP validators until the associated snapshot
-has been successfully processed. Otherwise, a subsequent 304 could hide
-unfinished work. Resume pending snapshots before fetching again.
-
-Apply an explicit network policy: public destinations by default, with local
-or private-network feeds available only through intentional configuration.
-Never forward authentication across origins automatically.
-
-## 10. Persistence and Recovery
-
-For mutable files:
-1. Write a temporary file in the destination directory.
-2. Flush and sync the file.
-3. Rename into place.
-4. Sync the parent directory where supported.
-
-Declare Linux as the initial crash-durability target; document filesystem and
-platform limitations rather than claiming universal atomicity.
-
-Commit order:
-1. Persist snapshot.
-2. Mark snapshot pending.
-3. Persist entry revisions.
-4. Update entry indexes.
-5. Commit feed state and validators; clear pending marker.
-
-File writes do not form a multi-file transaction. Recovery must replay the
-pending snapshot idempotently and reconcile indexes with stored revisions.
-Optional provider content is stored after the feed revision in a separate
-artifact. A provider failure leaves the completed feed usable; the next run
-retries entries that lack an artifact for the configured provider, including
-after a `304 Not Modified` response. Storage-format upgrades replay the latest
-successfully processed retained snapshot before fetching, so validator-backed
-feeds are backfilled from preserved source bytes without relying on a 200.
-
-Protect local directories with restrictive permissions. Do not delete corrupt
-artifacts automatically: quarantine/report them and preserve recoverable data.
-
-## 11. CLI and Scheduling
-
-```text
-rsscollector validate --config config.json
-rsscollector run --config config.json
-rsscollector run --config config.json --feed azure-updates
-rsscollector run --config config.json --force
-rsscollector status --config config.json
-```
-
-- `--force` bypasses poll/retry scheduling, not locks or safety limits.
-- SIGINT/SIGTERM cancel requests and stop new work.
-- A failed feed does not prevent processing other feeds.
-- An unchanged feed does not prevent optional downstream work.
-
-Exit codes:
-- 0: selected due work completed, or nothing was due.
-- 1: one or more collection/storage failures.
-- 2: invalid configuration or invocation.
-- 3: another process holds the lock.
-- 4: runtime/work budget reached with unfinished selected work.
-
-Cron should invoke the binary directly with absolute paths and log rotation.
-The collector's configured poll intervals determine which feeds are due.
-
-### Optional Git Branch Publication
-
-For an auditable repository archive, `rsscollector archive` maps each stable
-feed ID to an orphan branch named `rss/<feed-id>`. The collector remains the
-single implementation of fetch, parse, retry, scheduling, and persistence
-semantics; Git publication is an outer persistence step rather than a separate
-scraper.
-
-The archive command is optimized to avoid one checkout, process, or push per
-feed:
-
-1. Query all selected remote branch tips in one operation.
-2. Fetch the existing shallow tips with one batched `git fetch`.
-3. Materialize each branch through an isolated temporary Git index.
-4. Run the feed with `data_dir` rooted at that temporary tree.
-5. Stage only `feeds/<feed-id>/`; ephemeral locks and per-invocation reports
-   are not committed.
-6. Create a commit only when the resulting feed tree changed.
-7. Push every changed branch in one atomic, force-with-lease-protected call.
-
-Branch contents are constrained to `.gitignore` and that branch's feed data.
-Symlinks, submodules, and unrelated paths are rejected instead of being
-checked out and executed. A stable feed ID is preferred over encoding a URL in
-the branch name: this avoids unsafe refs and preserves identity/state if the
-configured URL changes. Duplicate source URLs in one archive run are rejected.
-
-`.github/workflows/archive.yml` provides the scheduled deployment shape: one
-runner, one checkout, one build, one invocation, and a repository-wide
-concurrency group. GitHub Actions remains an optional transport; the same
-command works locally with any Git remote.
-
-Git branch publication does not remove repository-size constraints. It is
-appropriate for small or medium archives where immutable history is the main
-goal. Large bodies and high-volume feeds should use object storage and keep
-branch contents limited to manifests and indexes.
-
-## 12. Resource Discipline and Retention
-
-- Default concurrency: one feed/request at a time.
-- Keep memory bounded by the maximum feed size and parser behavior.
-- Release snapshot/parser buffers before processing the next feed.
-- No in-memory archive of all collected entries.
-- Filter expensive downstream operations before invoking them.
-- Keep structured logs small and rotate them externally.
-
-Implement retention as an explicit later command, not automatic deletion.
-Provide dry-run output; never delete snapshots referenced by retained revisions.
-Warn on low disk space and fail safely rather than partially discarding history.
-
-A finite RSS feed is not a historical archive. Polling cannot guarantee recovery
-of entries published and removed between successful runs.
-
-## 13. Testing and Acceptance Criteria
-
-Test with local fixtures and HTTP test servers; no live service is required.
-
-Coverage:
-- RSS 2.0, RSS 1.0/RDF, Atom, namespaces, encodings, relative links.
-- Missing GUIDs, invalid dates, duplicate items, reordered items.
-- Unchanged entries and edited entries.
-- ETag/Last-Modified, 304, redirects, 429, timeouts, oversized responses.
-- Malformed XML and hostile payloads.
-- Interrupted writes, pending replay, corrupt state, lock contention.
-- Missing or changed OData results, request budgets, and 304 enrichment replay.
-- Deterministic normalization and hash results.
-
-Acceptance:
-- A repeated fixture run creates no duplicate revision.
-- A changed entry preserves both old and new revisions.
-- Recovery converges to the same result as an uninterrupted run.
-- Failure of one feed leaves other feeds usable.
-- No credentials appear in emitted logs or stored metadata.
-- Network, memory, and runtime limits are enforced.
-- Collection works with all optional enrichment services unavailable.
-
-Record actual peak memory and execution time using a representative fixture
-set; choose operational limits from measurement, not unsupported guarantees.
-
-Measured on 2026-11-21 for the six-fixture offline compatibility run:
-0.557 seconds wall time and 155620 KiB peak resident memory, including the Go
-test/toolchain process. This measurement is a development baseline, not a
-production-memory guarantee.
-
-## 14. Delivery Phases
-
-### Phase 1 — Core collector
-Configuration, fetching, parsing, snapshots, normalized entries, identity,
-atomic persistence, CLI, lock, and fixture tests.
-
-### Phase 2 — Reliable scheduled operation
-Implement the six-target Microsoft compatibility suite in Section 16.
-Conditional requests, durable retry state, pending recovery, resource budgets,
-status command, run reports, failure-injection tests.
-
-### Phase 3 — Optional downstream processing
-Keep configured enrichment separate from RSS identity and revision storage.
-The OData adapter is available for bounded provider-backed text. Future
-provider-specific MCP, article fetching, and remote summarization adapters
-must preserve separate source provenance and retries without altering the
-universal collector's identity or storage semantics.
-
-## 15. Definition of Done
-
-One documented Go executable collects configured RSS/Atom feeds into an
-auditable local directory, preserves revisions, survives interrupted execution,
-and runs through cron without SQL, orchestration, or external inference.
-
-## 16. Required Microsoft Feed Compatibility Suite
-
-The following user-supplied URLs are required compatibility targets. Their
-listing is a test requirement, not a claim that all endpoints are currently
-available or return valid feeds.
-
-| Feed ID | URL |
-|---|---|
-| microsoft-news | https://news.microsoft.com/source/feed/ |
-| microsoft-blogs | https://blogs.microsoft.com/?feed=rss2 |
-| microsoft-m365-updates | https://www.microsoft.com/releasecommunications/api/v2/m365/rss |
-| microsoft-azure-updates | https://www.microsoft.com/releasecommunications/api/v2/azure/rss |
-| microsoft-devblogs | https://devblogs.microsoft.com/feed |
-| microsoft-msrc | https://api.msrc.microsoft.com/update-guide/rss |
-
-### 16.1 Test Configuration and Assets
-
-Create:
-
-```text
-configs/microsoft-feeds.json
-testdata/feeds/microsoft/
-  <feed-id>/
-    original.xml
-    capture.json
-    expected.json
-internal/integration/microsoft_feeds_test.go
-```
-
-The configuration includes all six targets with the exact supplied URLs.
-Redirects are recorded; do not silently replace a configured URL with an
-alternative endpoint.
-
-`capture.json` records:
-- Capture timestamp in UTC.
-- Requested and effective URLs.
-- HTTP status and redirect chain.
-- Content-Type, Content-Encoding, ETag, and Last-Modified when present.
-- SHA-256 of the stored response body.
-- Capture tool version and parse warnings.
-
-Do not commit credentials, cookies, or unrestricted full response headers.
-Fixture captures must comply with applicable source terms; if redistribution
-is unsuitable, retain captures locally and commit minimal representative
-fixtures plus a reproducible capture procedure.
-
-### 16.2 Two Separate Test Layers
-
-**Offline regression suite — mandatory in normal CI**
-
-Use reviewed snapshots from each reachable target. Tests must not depend on
-live network access, current article titles, current item counts, or wall-clock
-time. A synthetic fixture does not prove compatibility with a live endpoint.
-
-For each fixture:
-1. Parse without panic or silent loss of supported core fields.
-2. Preserve title, links, IDs, dates, content, categories, and attachments when
-   present; retain documented extension fields.
-3. Preserve the original snapshot and associate normalized entries with it.
-4. Confirm exact expected normalized fields and deterministic identity/hash.
-5. Replay the same snapshot: create zero additional revisions.
-6. Reorder entries: preserve existing identities.
-7. Modify content while retaining identity: preserve the old revision and
-   create one new revision.
-8. Simulate interruption and confirm idempotent replay.
-
-Select edge cases from actual captured data rather than assuming every feed
-contains GUIDs, full content, attachments, or particular namespaces.
-
-**Live compatibility suite — opt-in**
-
-Example invocation:
-
-```sh
-RSSCOLLECTOR_LIVE_TESTS=1 go test ./internal/integration -run TestMicrosoftFeeds -v
-```
-
-Live tests run only when explicitly enabled and use sequential requests, the
-configured user agent, timeouts, body limits, redirect limits, and retry policy.
-They must not execute during normal offline CI.
-
-Separate parser defects from transient outages, access restrictions, and
-configuration errors. In an explicitly requested live run, unreachable targets
-must be reported as unsuccessful or unverified, not silently skipped as passed.
-
-### 16.3 Live Checks Per URL
-
-- Record transport, TLS, status, and redirect results.
-- For a successful response, check that the body is a supported feed rather
-  than an HTML error page, login screen, or bot challenge.
-- Treat unexpected Content-Type as a warning if the body parses as a feed;
-  never accept HTML solely because the status is 200.
-- Parse the body and report normalized entry count and warnings.
-- Allow a valid empty feed, but mark entry-level checks as not exercised.
-- Check optional IDs, dates, links, HTML, categories, and extension handling
-  against the fields actually present.
-- Persist and replay the captured snapshot to test idempotency.
-- If validators are supplied, make one conditional follow-up request:
-  accept 304, or parse a 200 response as possibly changed content.
-- If validators are absent, report conditional-fetch coverage as unavailable,
-  not failed.
-- Never require a specific title, ID, publication date, feed format, or item
-  count without evidence from the captured fixture.
-
-Use local HTTP test servers, not repeated calls to Microsoft, for simulated
-429/5xx responses, malformed bodies, timeout behavior, and redirect attacks.
-
-### 16.4 Results and Release Gate
-
-Write a machine-readable and human-readable report containing:
-
-```text
-feed_id
-requested_url
-effective_url
-checked_at
-transport_result
-http_status
-parse_result
-detected_format
-entry_count
-normalization_result
-idempotency_result
-conditional_fetch_result
-warnings[]
-failure_class
-```
-
-Check categories: PASS, FAIL, NOT_EXERCISED, UNVERIFIED.
-
-A target receives an overall PASS only after successful live fetching, parsing,
-persistence, and replay. Optional unsupported features do not prevent PASS,
-but their coverage limitations must be visible.
-
-Before claiming support for all six feeds:
-- Obtain and review a real capture from each reachable endpoint.
-- Pass offline regression tests for all six captured targets.
-- Complete a live compatibility run and retain the timestamped report.
-- Document unresolved endpoint/access issues rather than claiming success.
-- Ensure all feed-specific behavior remains in fixtures or optional adapters;
-  core parsing, identity, and persistence stay provider-independent.
-
-### 16.5 Verification Status at Plan Update
-
-The opt-in Go live suite ran at 2026-11-21T15:31Z. It verified the
-`microsoft-m365-updates` and `microsoft-azure-updates` endpoints by fetching,
-parsing, persisting, and replaying their snapshots, including all entry batches
-for the 2,401-entry M365 response. Neither endpoint supplied a validator during
-the check, so conditional-fetch coverage remains `NOT_EXERCISED`.
-
-The other four configured hostnames failed DNS resolution in the execution
-environment and remain `UNVERIFIED`. This transport result is not evidence that
-the endpoints are unavailable generally. Sanitized machine-readable and
-human-readable results are retained in `testdata/reports/`.
-
-Only two targets therefore have live compatibility evidence. Do not infer that
-all six are supported or replace configured URLs based on their names. Current
-article bodies are not committed; offline CI uses clearly marked representative
-fixtures, and the capture procedure retains real bodies only in an explicitly
-selected local directory.
+Implementation Plan: laya CLI Decision Tool (Go + ggml-org/Laya-GGUF)
+
+1. Objective & CLI Contract
+
+Build a self-contained, minimal-footprint CLI tool (laya) written in Go that wraps ggml-org/Laya-GGUF (via llama.cpp's /v1/systemone inference engine) to perform fast, single-command choice classification.
+
+Target CLI Interface
+
+./laya '["joke","story","report"]' "26.11.2026 backup completed successfully"
+
+
+Argument 1 (choices): JSON array of candidate labels (["joke","story","report"]) or a JSON object mapping labels to rich descriptions ({"joke":"A humorous anecdote","report":"A factual status log"}).
+
+Argument 2 (state): Input text/context to classify.
+
+Optional Flags:
+
+--model (env: LAYA_MODEL, default: /models/laya.gguf): Path to the quantized GGUF model file.
+
+--addr (env: LAYA_ADDR, default: 127.0.0.1:18080): Address of an existing llama-server daemon or ephemeral local bind address.
+
+--raw (bool, default: false): Print only the winning label string (e.g., report) for shell piping; otherwise print structured JSON (choice + probabilities).
+
+--min-confidence (float, default: 0.0): Optional confidence threshold; exits with non-zero status (2) if top probability is below threshold.
+
+2. Architecture Overview
+
+Because ggml-org/Laya-GGUF uses a ModernBERT-large encoder with a specialized decision head exposed in llama-server (/v1/systemone), the Go binary (laya) acts as a zero-dependency static client + lifecycle supervisor:
+
+Daemon Check (Warm Path, < 15 ms): laya sends a fast GET /health check to --addr. If a warm llama-server instance is already listening, laya immediately posts to /v1/systemone.
+
+Ephemeral Server Spawn (Cold Path, ~200 ms): If no server is listening on --addr, laya spawns llama-server as a child subprocess (exec.CommandContext), polls /health until ready, runs the /v1/systemone decision query, and cleanly terminates the subprocess on exit.
+
+Structured Decision Parsing: Parses /v1/systemone response probabilities, ranks candidates, validates optional confidence thresholds, and prints clean output to stdout.
+
+3. Repository Structure
+
+laya-cli/
+├── cmd/
+│   └── laya/
+│       └── main.go          # CLI entrypoint, flag parsing, server lifecycle & HTTP client
+├── internal/
+│   └── systemone/
+│       ├── client.go        # Typed /v1/systemone request/response structs & HTTP client
+│       └── client_test.go   # Unit tests with httptest mock server
+├── go.mod
+├── Dockerfile               # 3-stage minimal build (C++ llama-server + static Go binary + scratch/alpine)
+└── PLAN.md
+
+
+4. Implementation Milestones
+
+Phase 1: Go Client & /v1/systemone Protocol (internal/systemone)
+
+Define Request/Response Models:
+
+SystemOneRequest: { State string, Questions map[string]ChoiceQuestion }
+
+ChoiceQuestion: { Type: "choice", Options map[string]string }
+
+SystemOneResponse: { Answers map[string]ChoiceAnswer } where ChoiceAnswer holds Probabilities map[string]float64.
+
+Input Normalization Helper:
+
+Unmarshal Argument 1 first as []string (mapping each element k -> k).
+
+Fallback to unmarshaling as map[string]string to support rich option descriptions without changing CLI ergonomics.
+
+Decision Ranking & Gating:
+
+Sort probabilities descending to determine TopChoice, TopProb, and Margin (top1 - top2).
+
+Phase 2: CLI & Subprocess Lifecycle (cmd/laya/main.go)
+
+Flag & Env Configuration: Use standard library flag + os.Getenv (zero external Go dependencies to keep binary small and auditable).
+
+Process Management:
+
+Probe http://<addr>/health with a 100ms timeout.
+
+On connection refused, start llama-server -m <model> --host <host> --port <port> -c 2048 -b 512 -ub 512 --parallel 2.
+
+Poll /health every 25ms up to 10s.
+
+Register defer + signal.NotifyContext (SIGINT, SIGTERM) to guarantee child llama-server cleanup.
+
+Output Formatting:
+
+Default JSON mode: {"choice":"report","probabilities":{"joke":0.004,"story":0.009,"report":0.987}}
+
+--raw mode: report
+
+Phase 3: Model Preparation (ggml-org/Laya-GGUF)
+
+Download Laya-Q8_0.gguf (~450 MB, recommended balance of size and accuracy) or Laya-BF16.gguf (~845 MB) from https://huggingface.co/ggml-org/Laya-GGUF.
+
+Verify decision accuracy across representative prompts (joke, story, report, and edge cases with a fallback "other" label).
+
+Phase 4: Minimal Multi-Stage Docker Image
+
+Build a 3-stage Dockerfile combining a stripped static llama-server, a static CGO_ENABLED=0 Go laya binary, and a minimal Alpine runtime (~30 MB image size excluding mounted model):
+
+Stage 1 (cpp-builder on alpine:3.21):
+
+Compile llama-server with -DBUILD_SHARED_LIBS=OFF -DLLAMA_CURL=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF.
+
+Run strip build/bin/llama-server.
+
+Stage 2 (go-builder on golang:1.24-alpine):
+
+Build CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -trimpath -o /bin/laya ./cmd/laya.
+
+Stage 3 (runtime on alpine:3.21):
+
+Install only libstdc++ and libgomp (required by llama-server OpenMP runtime; no curl, jq, or shell wrappers needed).
+
+Copy /usr/local/bin/llama-server and /usr/local/bin/laya.
+
+Run as non-root user (uid 10001) with ENTRYPOINT ["/usr/local/bin/laya"].
+
+5. Verification & Usage Checklist
+
+[ ] Unit Tests: go test ./... passes against mock /v1/systemone payloads (array choices, object descriptions, confidence threshold failures).
+
+[ ] Image Size Check: docker images laya-cli:minimal confirms base image footprint is ~30–35 MB (without baked model).
+
+[ ] Cold One-Shot Run:
+
+docker run --rm -v "$(pwd)/models:/models:ro" laya-cli:minimal \
+  '["joke","story","report"]' \
+  "26.11.2026 backup completed successfully"
+
+
+[ ] Warm Daemon Mode (High Throughput):
+
+# Start persistent background server
+docker run -d --name laya-daemon -p 18080:18080 \
+  -v "$(pwd)/models:/models:ro" \
+  --entrypoint /usr/local/bin/llama-server \
+  laya-cli:minimal -m /models/laya.gguf --host 0.0.0.0 --port 18080 -c 2048 -b 512 -ub 512 --parallel 4
+
+# Execute sub-15ms CLI calls against the warm daemon
+LAYA_ADDR=127.0.0.1:18080 ./laya --raw '["joke","story","report"]' "26.11.2026 backup completed successfully"

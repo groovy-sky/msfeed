@@ -22,6 +22,9 @@ cp config.example.json config.json
 ./rsscollector archive --config config.json --repository .
 ```
 
+The separate [laya CLI](laya-cli/README.md) is maintained as a nested Go module
+and image so its llama.cpp runtime is never linked into `rsscollector`.
+
 Use `run --feed ID` to collect one configured feed and `run --force` to bypass
 poll and retry schedules. The data directory is protected by an OS process
 lock, and network requests have bounded time, redirects, and response size.
