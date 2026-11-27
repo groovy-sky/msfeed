@@ -7,6 +7,10 @@
   "url": "https://azure.microsoft.com/updates?id=577520",
   "canonical_week": "2026-W47",
   "current_revision": "aec92feed2d22fcd7d78b1829959129f035bd0192ac740017eeee7bba4b45151",
+  "state": "Generally Available",
+  "state_revision": "aec92feed2d22fcd7d78b1829959129f035bd0192ac740017eeee7bba4b45151",
+  "area": "Storage \u0026 Backup",
+  "area_revision": "aec92feed2d22fcd7d78b1829959129f035bd0192ac740017eeee7bba4b45151",
   "first_seen": "2026-11-22T06:51:25Z",
-  "last_seen": "2026-11-27T03:25:49Z"
+  "last_seen": "2026-11-27T20:13:59Z"
 }

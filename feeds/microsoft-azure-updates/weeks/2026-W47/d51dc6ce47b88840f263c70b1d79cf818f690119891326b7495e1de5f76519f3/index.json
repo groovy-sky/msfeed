@@ -7,6 +7,10 @@
   "url": "https://azure.microsoft.com/updates?id=580055",
   "canonical_week": "2026-W47",
   "current_revision": "7fac3b2e6129e8bb65c5c879c182b5812d8827e897ba05ad75af96e858d1c907",
+  "state": "Generally Available",
+  "state_revision": "7fac3b2e6129e8bb65c5c879c182b5812d8827e897ba05ad75af96e858d1c907",
+  "area": "Hybrid \u0026 Multicloud",
+  "area_revision": "7fac3b2e6129e8bb65c5c879c182b5812d8827e897ba05ad75af96e858d1c907",
   "first_seen": "2026-11-22T06:51:25Z",
-  "last_seen": "2026-11-27T03:25:49Z"
+  "last_seen": "2026-11-27T20:13:59Z"
 }

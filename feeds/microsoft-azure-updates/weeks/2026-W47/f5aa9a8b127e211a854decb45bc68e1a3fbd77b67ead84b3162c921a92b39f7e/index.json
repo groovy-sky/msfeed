@@ -7,6 +7,10 @@
   "url": "https://azure.microsoft.com/updates?id=578465",
   "canonical_week": "2026-W47",
   "current_revision": "24e12ac4174d2410a7025727fa7191379b16687fac7df25abc87f65858af3f55",
+  "state": "Generally Available",
+  "state_revision": "24e12ac4174d2410a7025727fa7191379b16687fac7df25abc87f65858af3f55",
+  "area": "Data \u0026 Databases",
+  "area_revision": "24e12ac4174d2410a7025727fa7191379b16687fac7df25abc87f65858af3f55",
   "first_seen": "2026-11-22T06:51:25Z",
-  "last_seen": "2026-11-27T03:25:49Z"
+  "last_seen": "2026-11-27T20:13:59Z"
 }

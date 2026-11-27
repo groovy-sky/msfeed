@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "entry_key": "2c9306e391b59419fc5b18b6ea0e7bffbc71362ba331b0278856a0993de934e2",
+  "entry_revision": "9b2bc8813d040ff225f182a4fae87c65949886e1fdb1c2eb910064a9877eece2",
+  "provider": "laya-cli",
+  "state": "Generally Available",
+  "area": "Networking \u0026 Connectivity",
+  "input_sha256": "29294082dda0bb83ccbaa02642a2bba6cce889eb6562cfb9e25ccfd8850add6d",
+  "classified_at": "2026-11-27T20:13:59Z"
+}

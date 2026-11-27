@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "entry_key": "16a40331b9738a92bcaf4602a429f16bf841abb58633981cedfc48c3f5bc3514",
+  "entry_revision": "6920af368da37e8e2b1c232c50ed3142d7341a2fdffc2553e9c1adf5d8edd6dd",
+  "provider": "laya-cli",
+  "state": "Generally Available",
+  "area": "Integration \u0026 APIs",
+  "input_sha256": "fd27d20fc92747434f09138847eac73fcca62d7970d125378feb237b7323fa24",
+  "classified_at": "2026-11-27T20:13:59Z"
+}

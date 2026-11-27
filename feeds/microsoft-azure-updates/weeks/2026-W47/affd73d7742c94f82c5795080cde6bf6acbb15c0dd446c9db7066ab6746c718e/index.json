@@ -7,6 +7,10 @@
   "url": "https://azure.microsoft.com/updates?id=581145",
   "canonical_week": "2026-W47",
   "current_revision": "7490bd0707cae6a0c626ce7c973cdc0f6cd86e999857708fb2347a14737d1a66",
+  "state": "Preview",
+  "state_revision": "7490bd0707cae6a0c626ce7c973cdc0f6cd86e999857708fb2347a14737d1a66",
+  "area": "Compute \u0026 Virtualization",
+  "area_revision": "7490bd0707cae6a0c626ce7c973cdc0f6cd86e999857708fb2347a14737d1a66",
   "first_seen": "2026-11-22T06:51:25Z",
-  "last_seen": "2026-11-27T03:25:49Z"
+  "last_seen": "2026-11-27T20:13:59Z"
 }

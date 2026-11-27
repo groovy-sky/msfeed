@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "entry_key": "67f4214195b38456fac35990a3420ace5c8b55e7cc653aa391948f823cd259b2",
+  "entry_revision": "c96304e79ccf3632b2a7aabb2f2c566e6e36c575a266f37a2a185f0134c8ff37",
+  "provider": "laya-cli",
+  "state": "Generally Available",
+  "area": "Management \u0026 Resiliency",
+  "input_sha256": "2eb8eb067ad8e0c21aba5022f5010c267414d6249573eaed3d55062c33c85368",
+  "classified_at": "2026-11-27T20:13:59Z"
+}

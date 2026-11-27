@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "entry_key": "8f4c3050f3f53bcaadc041ccf2cf3ce89529c1e878d55106e0ef8ad2b37028f2",
+  "entry_revision": "775fe4333a818a91147da4383d6a8d0bcd04509c06ac9adb232bd75044b8d4cf",
+  "provider": "laya-cli",
+  "state": "Generally Available",
+  "area": "Containers \u0026 Kubernetes",
+  "input_sha256": "559469d7b8d0ac2feb50ce209f79cb7df38b6f968646a10aeb4253dcf66e6368",
+  "classified_at": "2026-11-27T20:13:59Z"
+}

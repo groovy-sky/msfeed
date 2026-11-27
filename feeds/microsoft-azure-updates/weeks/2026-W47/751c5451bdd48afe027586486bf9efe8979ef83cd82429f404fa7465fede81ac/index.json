@@ -7,6 +7,10 @@
   "url": "https://azure.microsoft.com/updates?id=581277",
   "canonical_week": "2026-W47",
   "current_revision": "4421ed483d762ab1eb296190eb8177e68c674ebe767b7ce0a32faafe292a3608",
+  "state": "Preview",
+  "state_revision": "4421ed483d762ab1eb296190eb8177e68c674ebe767b7ce0a32faafe292a3608",
+  "area": "Web \u0026 App Platform",
+  "area_revision": "4421ed483d762ab1eb296190eb8177e68c674ebe767b7ce0a32faafe292a3608",
   "first_seen": "2026-11-22T06:51:25Z",
-  "last_seen": "2026-11-27T03:25:49Z"
+  "last_seen": "2026-11-27T20:13:59Z"
 }

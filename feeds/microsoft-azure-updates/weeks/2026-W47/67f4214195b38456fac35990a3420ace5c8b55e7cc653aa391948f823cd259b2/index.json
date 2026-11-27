@@ -7,6 +7,10 @@
   "url": "https://azure.microsoft.com/updates?id=580748",
   "canonical_week": "2026-W47",
   "current_revision": "c96304e79ccf3632b2a7aabb2f2c566e6e36c575a266f37a2a185f0134c8ff37",
+  "state": "Generally Available",
+  "state_revision": "c96304e79ccf3632b2a7aabb2f2c566e6e36c575a266f37a2a185f0134c8ff37",
+  "area": "Management \u0026 Resiliency",
+  "area_revision": "c96304e79ccf3632b2a7aabb2f2c566e6e36c575a266f37a2a185f0134c8ff37",
   "first_seen": "2026-11-22T06:51:25Z",
-  "last_seen": "2026-11-27T03:25:49Z"
+  "last_seen": "2026-11-27T20:13:59Z"
 }

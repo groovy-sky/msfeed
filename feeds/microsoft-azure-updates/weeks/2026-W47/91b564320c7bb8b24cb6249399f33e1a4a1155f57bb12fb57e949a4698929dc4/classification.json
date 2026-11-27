@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "entry_key": "91b564320c7bb8b24cb6249399f33e1a4a1155f57bb12fb57e949a4698929dc4",
+  "entry_revision": "db7447f58c60e4248c9e55055bd453ad2afdcd8024109012078a1a99b88e09b5",
+  "provider": "laya-cli",
+  "state": "Generally Available",
+  "area": "Storage \u0026 Backup",
+  "input_sha256": "4aad4a25912595cb15e13890f770d08c1147da87bd3e03ee4c6380b41318c675",
+  "classified_at": "2026-11-27T20:13:59Z"
+}

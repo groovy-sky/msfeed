@@ -7,6 +7,10 @@
   "url": "https://azure.microsoft.com/updates?id=581333",
   "canonical_week": "2026-W48",
   "current_revision": "485ce829d58d61abf41e6cd1069a4f634e4b125091c160d64c525fd8df0f503b",
+  "state": "Preview",
+  "state_revision": "485ce829d58d61abf41e6cd1069a4f634e4b125091c160d64c525fd8df0f503b",
+  "area": "AI \u0026 Agent Engineering",
+  "area_revision": "485ce829d58d61abf41e6cd1069a4f634e4b125091c160d64c525fd8df0f503b",
   "first_seen": "2026-11-24T03:26:17Z",
-  "last_seen": "2026-11-27T03:25:49Z"
+  "last_seen": "2026-11-27T20:13:59Z"
 }

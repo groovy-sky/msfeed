@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "entry_key": "9867d34b2591873b7bd07e0cb54a2a5f0e6fde84c2ac4f9311fa12c5663ab23b",
+  "entry_revision": "2782850c6c94650a592e6bac8d64e17bbd6a51a071ac480fabd19c9f543ba4b1",
+  "provider": "laya-cli",
+  "state": "Generally Available",
+  "area": "Data \u0026 Databases",
+  "input_sha256": "443fec98af620a40befd4d6cb9c2032152419ec577fa91f5f4f3ca2d8c9d16db",
+  "classified_at": "2026-11-27T20:13:59Z"
+}

@@ -7,6 +7,10 @@
   "url": "https://azure.microsoft.com/updates?id=transition-to-azure-ad-to-query-data-from-azure-monitor-application-insights-by-31-march-2026",
   "canonical_week": "2023-W20",
   "current_revision": "0fe380463fdff07139bc9a3b47f1e3a2c3f53d92fe0bb1f9d7cf87a138d6fb28",
+  "state": "Retirement",
+  "state_revision": "0fe380463fdff07139bc9a3b47f1e3a2c3f53d92fe0bb1f9d7cf87a138d6fb28",
+  "area": "Data \u0026 Databases",
+  "area_revision": "0fe380463fdff07139bc9a3b47f1e3a2c3f53d92fe0bb1f9d7cf87a138d6fb28",
   "first_seen": "2026-11-22T06:51:25Z",
   "last_seen": "2026-11-23T03:27:46Z"
 }

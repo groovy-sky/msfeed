@@ -7,6 +7,10 @@
   "url": "https://azure.microsoft.com/updates?id=576382",
   "canonical_week": "2026-W45",
   "current_revision": "389733dc08275c9d686f95d1a4fa61845207b29a006b3cc9104bff06efee9e14",
+  "state": "Preview",
+  "state_revision": "389733dc08275c9d686f95d1a4fa61845207b29a006b3cc9104bff06efee9e14",
+  "area": "Containers \u0026 Kubernetes",
+  "area_revision": "389733dc08275c9d686f95d1a4fa61845207b29a006b3cc9104bff06efee9e14",
   "first_seen": "2026-11-22T06:51:25Z",
   "last_seen": "2026-11-23T03:27:46Z"
 }

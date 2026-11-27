@@ -7,6 +7,10 @@
   "url": "https://azure.microsoft.com/updates?id=578748",
   "canonical_week": "2026-W47",
   "current_revision": "493aecadb4dc5a815a4a5d7df17b876cfa9583becf0cf03c18b121db7368e940",
+  "state": "Preview",
+  "state_revision": "493aecadb4dc5a815a4a5d7df17b876cfa9583becf0cf03c18b121db7368e940",
+  "area": "Developer Tools \u0026 Data",
+  "area_revision": "493aecadb4dc5a815a4a5d7df17b876cfa9583becf0cf03c18b121db7368e940",
   "first_seen": "2026-11-22T06:51:25Z",
-  "last_seen": "2026-11-27T03:25:49Z"
+  "last_seen": "2026-11-27T20:13:59Z"
 }

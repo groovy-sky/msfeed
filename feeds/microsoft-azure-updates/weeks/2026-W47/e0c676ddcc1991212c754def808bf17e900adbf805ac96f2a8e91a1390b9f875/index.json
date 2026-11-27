@@ -7,6 +7,10 @@
   "url": "https://azure.microsoft.com/updates?id=580428",
   "canonical_week": "2026-W47",
   "current_revision": "7451754d573f88a6257993e7a1193433678c0a0f40259f89555a98f77d098ab0",
+  "state": "Preview",
+  "state_revision": "7451754d573f88a6257993e7a1193433678c0a0f40259f89555a98f77d098ab0",
+  "area": "Networking \u0026 Connectivity",
+  "area_revision": "7451754d573f88a6257993e7a1193433678c0a0f40259f89555a98f77d098ab0",
   "first_seen": "2026-11-22T06:51:25Z",
-  "last_seen": "2026-11-27T03:25:49Z"
+  "last_seen": "2026-11-27T20:13:59Z"
 }

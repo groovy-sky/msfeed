@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "entry_key": "4dd7d707dd05a6f16286745b19e31567b735ba05c41bc72dd5eabb659443f9bb",
+  "entry_revision": "60b9e5a2176ebcbada19ee5f803fb994334e45e47c49d9673a00df3de045543b",
+  "provider": "laya-cli",
+  "state": "Generally Available",
+  "area": "Compute \u0026 Virtualization",
+  "input_sha256": "29f88d959f81cacbe07b819bf97dd3bb4bf949b30e6c8ebecfadb9ec2667b023",
+  "classified_at": "2026-11-27T20:13:59Z"
+}

@@ -7,6 +7,10 @@
   "url": "https://azure.microsoft.com/updates?id=579280",
   "canonical_week": "2026-W48",
   "current_revision": "b63b312bdc8a447d5f9a8f606245d282a93e8edcb89cfa0e639e72e537f87bf1",
+  "state": "Generally Available",
+  "state_revision": "b63b312bdc8a447d5f9a8f606245d282a93e8edcb89cfa0e639e72e537f87bf1",
+  "area": "Security \u0026 Identity",
+  "area_revision": "b63b312bdc8a447d5f9a8f606245d282a93e8edcb89cfa0e639e72e537f87bf1",
   "first_seen": "2026-11-24T03:26:17Z",
-  "last_seen": "2026-11-27T03:25:49Z"
+  "last_seen": "2026-11-27T20:13:59Z"
 }

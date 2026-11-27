@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "entry_key": "e4f385c3cfa691ece5a9c0260f9fcba7fdc906db0601465090261fcd41a201d0",
+  "entry_revision": "e5e6bd04ee81fbcde10f8fe11e83b027bec3208b2e49fb8474bd3cd8d3b5cc42",
+  "provider": "laya-cli",
+  "state": "Generally Available",
+  "area": "Developer Tools \u0026 Data",
+  "input_sha256": "d2b601d9a7f4769411b21dfaa420038a25f7d0712a6f26dd731371b3b788f583",
+  "classified_at": "2026-11-27T20:13:59Z"
+}

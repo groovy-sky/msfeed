@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "entry_key": "10f95e96608d2246bac3ecf6e942f18b1bf6779da64f6ee5ad93314d582dc0fe",
+  "entry_revision": "cd4c51312bb6238d3cb80a44f5e26e4419f50de04cf66236e5dfadb207d9f9b8",
+  "provider": "laya-cli",
+  "state": "Preview",
+  "area": "Serverless",
+  "input_sha256": "a57471d00d5a6277a836b7ee7e5ceddc4315b5da5c41e93caea8632eb3a143d0",
+  "classified_at": "2026-11-27T20:13:59Z"
+}
