@@ -8,6 +8,10 @@
   "has_feed_content": true,
   "canonical_week": "2026-W41",
   "current_revision": "b66893b6419caf704e5d55cffe0fcad7e75f1232ce437f3498acfa6fb5ec9a3d",
+  "state": "Generally Available",
+  "state_revision": "b66893b6419caf704e5d55cffe0fcad7e75f1232ce437f3498acfa6fb5ec9a3d",
+  "area": "AI \u0026 Agent Engineering",
+  "area_revision": "b66893b6419caf704e5d55cffe0fcad7e75f1232ce437f3498acfa6fb5ec9a3d",
   "first_seen": "2026-11-22T06:51:26Z",
   "last_seen": "2026-11-22T21:15:54Z"
 }

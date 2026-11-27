@@ -8,6 +8,10 @@
   "has_feed_content": true,
   "canonical_week": "2026-W44",
   "current_revision": "4446dc5f74e65223da3f90e5880d576918fe70949e89cae371eb9e8637b802a6",
+  "state": "Generally Available",
+  "state_revision": "4446dc5f74e65223da3f90e5880d576918fe70949e89cae371eb9e8637b802a6",
+  "area": "Data \u0026 Databases",
+  "area_revision": "4446dc5f74e65223da3f90e5880d576918fe70949e89cae371eb9e8637b802a6",
   "first_seen": "2026-11-22T06:51:26Z",
   "last_seen": "2026-11-27T03:25:50Z"
 }
