@@ -628,6 +628,7 @@ func (r *Runner) persistClassifications(
 			EntryRevision: entry.ContentHash,
 			Provider:      r.Classifier.Provider(),
 			State:         result.State,
+			Area:          result.Area,
 			InputSHA256:   result.InputSHA256,
 			ClassifiedAt:  now.UTC().Format(time.RFC3339),
 		}

@@ -77,12 +77,23 @@ Archive collection can also be given the standalone `laya` executable with
 - `Other`
 
 The current state and its `state_revision` are written to the entry's
-`index.json`. `classification.json` records the `laya-cli` provider, the
-classified revision, the input SHA-256, and the classification time. Missing
-states are backfilled even after an HTTP `304 Not Modified`; a changed RSS
-revision or changed provider input is classified again. Invalid laya output
-or process failures are reported explicitly rather than storing an
-approximate fallback.
+`index.json`. The classifier also selects one area from the documented product
+and business taxonomy, writing it as `area` with `area_revision` in the index.
+`classification.json` records the `laya-cli` provider, state, area, classified
+revision, input SHA-256, and classification time. Missing states or areas are
+backfilled even after an HTTP `304 Not Modified`; a changed RSS revision or
+changed provider input is classified again. Invalid laya output or process
+failures are reported explicitly rather than storing an approximate fallback.
+
+The area choices are `Data & Databases`, `AI & Agents`,
+`Networking & Connectivity`, `Serverless`, `Security & Identity`,
+`Integration & APIs`, `Compute & Virtualization`, `Storage & Backup`,
+`Management & Resiliency`, `Containers & Kubernetes`,
+`Sovereignty & Compliance`, `Marketplace & Commercial`,
+`Business Applications`, `Web & App Platform`, `Hybrid & Multicloud`,
+`AI Infrastructure & Compute`, `AI & Agent Engineering`,
+`Sovereignty & Cloud Strategy`, `Corporate & People`,
+`Developer Tools & Data`, and `Other`.
 
 State validators are committed only after the snapshot has been parsed and
 persisted, allowing a pending snapshot to be replayed safely. Pending snapshots
