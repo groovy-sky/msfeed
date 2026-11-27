@@ -206,6 +206,88 @@ func (c *recordingClassifier) Calls() int {
 	return c.calls
 }
 
+func TestRunPreservesClassificationProgressAtRuntimeBudget(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, request *http.Request) {
+		w.Header().Set("ETag", `"v1"`)
+		w.Header().Set("Content-Type", "application/rss+xml")
+		if request.Header.Get("If-None-Match") == `"v1"` {
+			w.WriteHeader(http.StatusNotModified)
+			return
+		}
+		_, _ = fmt.Fprint(w, `<?xml version="1.0"?><rss version="2.0"><channel>
+			<title>Test</title>
+			<item><guid>one</guid><title>First update</title></item>
+			<item><guid>two</guid><title>Second update</title></item>
+			</channel></rss>`)
+	}))
+	defer server.Close()
+
+	cfg := runnerConfig(t, server.URL)
+	cfg.MaxRunSeconds = 1
+	collector := New(cfg)
+	first, err := collector.Run(context.Background(), "", true)
+	if err != nil || first.Failed != 0 || first.Feeds[0].Counts.NewEntries != 2 {
+		t.Fatalf("first report = %+v, error = %v", first, err)
+	}
+
+	collector.Classifier = &deadlineClassifier{}
+	second, err := collector.Run(context.Background(), "", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !second.BudgetReached || second.Failed != 0 ||
+		second.Feeds[0].Status != "partial" ||
+		second.Feeds[0].Counts.Classifications != 1 ||
+		second.Feeds[0].RemainingClassifications != 1 {
+		t.Fatalf("budget report = %+v", second)
+	}
+	state, err := collector.Store.LoadState("test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if state.NextRetryAt != "" || state.LastError != "" || state.ConsecutiveErrors != 0 {
+		t.Fatalf("budget recorded as a collection failure: %+v", state)
+	}
+
+	remaining := &recordingClassifier{}
+	collector.Classifier = remaining
+	third, err := collector.Run(context.Background(), "", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if third.BudgetReached || third.Failed != 0 ||
+		third.Feeds[0].Status != "skipped" ||
+		third.Feeds[0].Counts.Classifications != 1 {
+		t.Fatalf("completion report = %+v", third)
+	}
+	if remaining.Calls() != 1 {
+		t.Fatalf("remaining classification calls = %d, want 1", remaining.Calls())
+	}
+}
+
+type deadlineClassifier struct {
+	calls atomic.Int32
+}
+
+func (*deadlineClassifier) Provider() string {
+	return classify.ProviderLaya
+}
+
+func (c *deadlineClassifier) Classify(
+	ctx context.Context,
+	entry parse.Entry,
+) (classify.Result, error) {
+	if c.calls.Add(1) == 2 {
+		<-ctx.Done()
+		return classify.Result{}, ctx.Err()
+	}
+	input := classify.Input(entry)
+	return classify.Result{
+		State: classify.StateOther, Area: classify.AreaOther,
+		InputSHA256: classify.InputHash(input),
+	}, nil
+}
+
 func TestRunStoresODataEnrichmentSeparately(t *testing.T) {
 	var mu sync.Mutex
 	apiRequests := 0

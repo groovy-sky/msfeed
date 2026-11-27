@@ -84,6 +84,8 @@ revision, input SHA-256, and classification time. Missing states or areas are
 backfilled even after an HTTP `304 Not Modified`; a changed RSS revision or
 changed provider input is classified again. Invalid laya output or process
 failures are reported explicitly rather than storing an approximate fallback.
+If the runtime budget expires during a backlog, completed classifications are
+published and the remaining classifications are resumed on the next run.
 
 The area choices are `Data & Databases`, `AI & Agents`,
 `Networking & Connectivity`, `Serverless`, `Security & Identity`,
@@ -161,7 +163,9 @@ of feeds. Conditional requests, pending snapshots, retry state, runtime,
 request, feed, and entry budgets remain part of the collector rather than
 being reimplemented by the workflow. A run may be inspected without publishing
 by adding `--dry-run`; `--feed ID` selects one branch and `--force` bypasses
-the normal poll and retry schedules.
+the normal poll and retry schedules. If the runtime budget is reached, the
+collector commits and atomically pushes completed or partial branch progress
+before returning exit code 4 so the next run can resume without repeating it.
 
 `.github/workflows/archive.yml` runs this mode daily at 03:17 UTC. It builds
 the collector, restores or downloads and verifies the Q8 model, and pulls the

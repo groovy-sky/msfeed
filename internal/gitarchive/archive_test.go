@@ -195,6 +195,62 @@ func TestPublishDoesNotPushUnclassifiedEntries(t *testing.T) {
 	}
 }
 
+func TestPublishPersistsPartialClassificationsAtRuntimeBudget(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = fmt.Fprint(w, `<?xml version="1.0"?><rss version="2.0"><channel>
+			<title>Example</title>
+			<item><guid>one</guid><title>First update</title></item>
+			<item><guid>two</guid><title>Second update</title></item>
+			</channel></rss>`)
+	}))
+	defer server.Close()
+
+	repo, remote := initGitRepository(t)
+	cfg := testConfig(t, []config.Feed{{ID: "example", URL: server.URL, Enabled: true}})
+	cfg.MaxRunSeconds = 1
+	classifier := &deadlineArchiveClassifier{}
+
+	first, err := Publish(context.Background(), Options{
+		Config: cfg, RepoDir: repo, Remote: remote, Force: true,
+		Classifier: classifier,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !first.BudgetReached || first.Failed != 0 || first.Changed != 1 ||
+		first.Pushed != 1 || first.Feeds[0].Status != "partial" ||
+		first.Feeds[0].Classifications != 1 ||
+		first.Feeds[0].RemainingClassifications != 1 {
+		t.Fatalf("partial report = %+v", first)
+	}
+	paths := gitLines(
+		t, "", "--git-dir", remote, "ls-tree", "-r", "--name-only",
+		"refs/heads/rss/example",
+	)
+	if countPathSuffix(paths, "/classification.json") != 1 {
+		t.Fatalf("partial branch classification paths = %v", paths)
+	}
+
+	second, err := Publish(context.Background(), Options{
+		Config: cfg, RepoDir: repo, Remote: remote, Force: true,
+		Classifier: classifier,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if second.BudgetReached || second.Failed != 0 || second.Changed != 1 ||
+		second.Pushed != 1 || second.Feeds[0].Classifications != 1 {
+		t.Fatalf("completion report = %+v", second)
+	}
+	paths = gitLines(
+		t, "", "--git-dir", remote, "ls-tree", "-r", "--name-only",
+		"refs/heads/rss/example",
+	)
+	if countPathSuffix(paths, "/classification.json") != 2 {
+		t.Fatalf("completed branch classification paths = %v", paths)
+	}
+}
+
 type archiveClassifier struct{}
 
 func (archiveClassifier) Provider() string {
@@ -217,6 +273,29 @@ func (failingArchiveClassifier) Provider() string {
 
 func (failingArchiveClassifier) Classify(context.Context, parse.Entry) (classify.Result, error) {
 	return classify.Result{}, errors.New("model unavailable")
+}
+
+type deadlineArchiveClassifier struct {
+	calls atomic.Int32
+}
+
+func (*deadlineArchiveClassifier) Provider() string {
+	return classify.ProviderLaya
+}
+
+func (c *deadlineArchiveClassifier) Classify(
+	ctx context.Context,
+	entry parse.Entry,
+) (classify.Result, error) {
+	if c.calls.Add(1) == 2 {
+		<-ctx.Done()
+		return classify.Result{}, ctx.Err()
+	}
+	input := classify.Input(entry)
+	return classify.Result{
+		State: classify.StateOther, Area: classify.AreaOther,
+		InputSHA256: classify.InputHash(input),
+	}, nil
 }
 
 func TestPublishBatchesMultipleFeedBranches(t *testing.T) {
@@ -506,4 +585,14 @@ func anyPathPrefix(paths []string, prefix string) bool {
 		}
 	}
 	return false
+}
+
+func countPathSuffix(paths []string, suffix string) int {
+	count := 0
+	for _, path := range paths {
+		if strings.HasSuffix(path, suffix) {
+			count++
+		}
+	}
+	return count
 }

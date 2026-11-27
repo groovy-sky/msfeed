@@ -37,21 +37,22 @@ type Report struct {
 }
 
 type FeedReport struct {
-	FeedID           string           `json:"feed_id"`
-	RequestedURL     string           `json:"requested_url,omitempty"`
-	Status           string           `json:"status"`
-	Format           string           `json:"format,omitempty"`
-	Snapshot         string           `json:"snapshot,omitempty"`
-	EffectiveURL     string           `json:"effective_url,omitempty"`
-	HTTPStatus       int              `json:"http_status,omitempty"`
-	Redirects        []string         `json:"redirects,omitempty"`
-	Counts           store.FeedCounts `json:"counts"`
-	RemainingEntries int              `json:"remaining_entries,omitempty"`
-	NotModified      bool             `json:"not_modified,omitempty"`
-	Conditional      string           `json:"conditional_fetch,omitempty"`
-	FailureClass     string           `json:"failure_class,omitempty"`
-	Warnings         []string         `json:"warnings,omitempty"`
-	Error            string           `json:"error,omitempty"`
+	FeedID                   string           `json:"feed_id"`
+	RequestedURL             string           `json:"requested_url,omitempty"`
+	Status                   string           `json:"status"`
+	Format                   string           `json:"format,omitempty"`
+	Snapshot                 string           `json:"snapshot,omitempty"`
+	EffectiveURL             string           `json:"effective_url,omitempty"`
+	HTTPStatus               int              `json:"http_status,omitempty"`
+	Redirects                []string         `json:"redirects,omitempty"`
+	Counts                   store.FeedCounts `json:"counts"`
+	RemainingEntries         int              `json:"remaining_entries,omitempty"`
+	RemainingClassifications int              `json:"remaining_classifications,omitempty"`
+	NotModified              bool             `json:"not_modified,omitempty"`
+	Conditional              string           `json:"conditional_fetch,omitempty"`
+	FailureClass             string           `json:"failure_class,omitempty"`
+	Warnings                 []string         `json:"warnings,omitempty"`
+	Error                    string           `json:"error,omitempty"`
 }
 
 type Runner struct {
@@ -211,8 +212,10 @@ func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool, 
 		if report.Status == "failed" {
 			return report, 0, budgetReached
 		}
-		report.Status = "skipped"
-		return report, 0, false
+		if report.Status != "partial" {
+			report.Status = "skipped"
+		}
+		return report, 0, budgetReached
 	}
 	if requestBudget <= 0 {
 		report.Status = "deferred"
@@ -525,7 +528,7 @@ func (r *Runner) processPending(
 			report.Status = "failed"
 			report.FailureClass = "storage"
 			report.Error = fmt.Sprintf("save pending progress: %v", err)
-			return report, enrichmentRequests, false
+			return report, enrichmentRequests, classificationBudgetReached
 		}
 		return report, enrichmentRequests, true
 	}
@@ -540,7 +543,7 @@ func (r *Runner) processPending(
 		report.FailureClass = "storage"
 		report.Error = fmt.Sprintf("commit feed state: %v", err)
 	}
-	return report, enrichmentRequests, false
+	return report, enrichmentRequests, classificationBudgetReached
 }
 
 func (r *Runner) persistEnrichments(
@@ -605,22 +608,33 @@ func (r *Runner) persistClassifications(
 		r.recordFailure(report, feed, state, now, err)
 		return false
 	}
-	for _, entry := range entries {
+	for index, entry := range entries {
 		if err := ctx.Err(); err != nil {
+			if errors.Is(err, context.DeadlineExceeded) {
+				report.Status = "partial"
+				report.FailureClass = "budget"
+				report.RemainingClassifications = len(entries) - index
+				return true
+			}
 			report.Status = "failed"
-			report.FailureClass = "budget"
+			report.FailureClass = "cancelled"
 			report.Error = err.Error()
 			r.recordFailure(report, feed, state, now, err)
-			return errors.Is(err, context.DeadlineExceeded)
+			return false
 		}
 		result, err := r.Classifier.Classify(ctx, entry)
 		if err != nil {
+			if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+				report.Status = "partial"
+				report.FailureClass = "budget"
+				report.RemainingClassifications = len(entries) - index
+				return true
+			}
 			report.Status = "failed"
 			report.FailureClass = "classification"
 			report.Error = fmt.Sprintf("classify entry %s: %v", entry.EntryKey, err)
 			r.recordFailure(report, feed, state, now, err)
-			return errors.Is(err, context.DeadlineExceeded) ||
-				errors.Is(ctx.Err(), context.DeadlineExceeded)
+			return false
 		}
 		record := store.ClassificationRecord{
 			SchemaVersion: 1,

@@ -54,25 +54,26 @@ type Report struct {
 }
 
 type FeedReport struct {
-	FeedID                  string         `json:"feed_id"`
-	Branch                  string         `json:"branch"`
-	BaseCommit              string         `json:"base_commit,omitempty"`
-	Commit                  string         `json:"commit,omitempty"`
-	Status                  string         `json:"status"`
-	Changed                 bool           `json:"changed,omitempty"`
-	Collector               *runner.Report `json:"collector,omitempty"`
-	Error                   string         `json:"error,omitempty"`
-	Requests                int            `json:"requests"`
-	EntriesSeen             int            `json:"entries_seen"`
-	NewEntries              int            `json:"new_entries"`
-	Revisions               int            `json:"revisions"`
-	Unchanged               int            `json:"unchanged"`
-	Enrichments             int            `json:"enrichments,omitempty"`
-	EnrichmentRevisions     int            `json:"enrichment_revisions,omitempty"`
-	EnrichmentDeferred      int            `json:"enrichment_deferred,omitempty"`
-	Classifications         int            `json:"classifications,omitempty"`
-	ClassificationRevisions int            `json:"classification_revisions,omitempty"`
-	FailureClass            string         `json:"failure_class,omitempty"`
+	FeedID                   string         `json:"feed_id"`
+	Branch                   string         `json:"branch"`
+	BaseCommit               string         `json:"base_commit,omitempty"`
+	Commit                   string         `json:"commit,omitempty"`
+	Status                   string         `json:"status"`
+	Changed                  bool           `json:"changed,omitempty"`
+	Collector                *runner.Report `json:"collector,omitempty"`
+	Error                    string         `json:"error,omitempty"`
+	Requests                 int            `json:"requests"`
+	EntriesSeen              int            `json:"entries_seen"`
+	NewEntries               int            `json:"new_entries"`
+	Revisions                int            `json:"revisions"`
+	Unchanged                int            `json:"unchanged"`
+	Enrichments              int            `json:"enrichments,omitempty"`
+	EnrichmentRevisions      int            `json:"enrichment_revisions,omitempty"`
+	EnrichmentDeferred       int            `json:"enrichment_deferred,omitempty"`
+	Classifications          int            `json:"classifications,omitempty"`
+	ClassificationRevisions  int            `json:"classification_revisions,omitempty"`
+	RemainingClassifications int            `json:"remaining_classifications,omitempty"`
+	FailureClass             string         `json:"failure_class,omitempty"`
 }
 
 type feedTarget struct {
@@ -184,7 +185,7 @@ func Publish(ctx context.Context, options Options) (*Report, error) {
 			target.base = base
 			feedReport.BaseCommit = base
 		}
-		processed, err := processTarget(runCtx, repo, options, target, requestBudget)
+		processed, err := processTarget(runCtx, ctx, repo, options, target, requestBudget)
 		feedReport = mergeFeedReports(feedReport, processed)
 		mergeCollectorMetrics(&feedReport, processed.Collector)
 		report.Requests += feedReport.Requests
@@ -218,16 +219,12 @@ func Publish(ctx context.Context, options Options) (*Report, error) {
 		}
 	}
 
-	if len(pushRefspecs) > 0 && runCtx.Err() == nil {
+	if len(pushRefspecs) > 0 && ctx.Err() == nil {
 		args := []string{"push", "--atomic"}
 		args = append(args, pushArgs...)
 		args = append(args, options.Remote)
 		args = append(args, pushRefspecs...)
-		if _, err := (gitCommand{repo: repo}).run(runCtx, args...); err != nil {
-			if errors.Is(runCtx.Err(), context.DeadlineExceeded) {
-				report.BudgetReached = true
-				return finishReport(report, options.Now), nil
-			}
+		if _, err := (gitCommand{repo: repo}).run(ctx, args...); err != nil {
 			return finishReport(report, options.Now), fmt.Errorf("publish feed branches: %w", err)
 		}
 		report.Pushed = len(pushRefspecs)
@@ -280,6 +277,7 @@ func mergeCollectorMetrics(report *FeedReport, collector *runner.Report) {
 	report.EnrichmentDeferred = feed.Counts.EnrichmentDeferred
 	report.Classifications = feed.Counts.Classifications
 	report.ClassificationRevisions = feed.Counts.ClassificationRevisions
+	report.RemainingClassifications = feed.RemainingClassifications
 	report.FailureClass = feed.FailureClass
 }
 
@@ -454,7 +452,8 @@ func fetchHeads(
 }
 
 func processTarget(
-	ctx context.Context,
+	collectionCtx context.Context,
+	finalizeCtx context.Context,
 	repo string,
 	options Options,
 	target feedTarget,
@@ -479,16 +478,16 @@ func processTarget(
 		"GIT_WORK_TREE=" + workDir,
 	}
 	if target.base != "" {
-		if err := validateBranchTree(ctx, repo, target.base, target.feed.ID); err != nil {
+		if err := validateBranchTree(collectionCtx, repo, target.base, target.feed.ID); err != nil {
 			return FeedReport{}, err
 		}
-		if _, err := git.runEnv(ctx, extraEnv, "read-tree", target.base); err != nil {
+		if _, err := git.runEnv(collectionCtx, extraEnv, "read-tree", target.base); err != nil {
 			return FeedReport{}, fmt.Errorf("read branch index: %w", err)
 		}
-		if _, err := git.runEnv(ctx, extraEnv, "checkout-index", "--all", "--force", "--prefix="+workDir+string(filepath.Separator)); err != nil {
+		if _, err := git.runEnv(collectionCtx, extraEnv, "checkout-index", "--all", "--force", "--prefix="+workDir+string(filepath.Separator)); err != nil {
 			return FeedReport{}, fmt.Errorf("materialize archive branch: %w", err)
 		}
-	} else if _, err := git.runEnv(ctx, extraEnv, "read-tree", "--empty"); err != nil {
+	} else if _, err := git.runEnv(collectionCtx, extraEnv, "read-tree", "--empty"); err != nil {
 		return FeedReport{}, fmt.Errorf("initialize branch index: %w", err)
 	}
 
@@ -503,7 +502,7 @@ func processTarget(
 	collector.Config.HTTP.MaxRequestsPerRun = requestBudget
 	collector.Classifier = options.Classifier
 	collector.Now = options.Now
-	runReport, runErr := collector.Run(ctx, target.feed.ID, options.Force)
+	runReport, runErr := collector.Run(collectionCtx, target.feed.ID, options.Force)
 	report := FeedReport{
 		FeedID:     target.feed.ID,
 		Branch:     target.branch,
@@ -525,16 +524,16 @@ func processTarget(
 		)
 	}
 
-	if _, err := git.runEnv(ctx, extraEnv, "add", "--all", "--", ".gitignore", "feeds"); err != nil {
+	if _, err := git.runEnv(finalizeCtx, extraEnv, "add", "--all", "--", ".gitignore", "feeds"); err != nil {
 		return report, fmt.Errorf("stage archive data: %w", err)
 	}
-	treeOutput, err := git.runEnv(ctx, extraEnv, "write-tree")
+	treeOutput, err := git.runEnv(finalizeCtx, extraEnv, "write-tree")
 	if err != nil {
 		return report, fmt.Errorf("write archive tree: %w", err)
 	}
 	tree := strings.TrimSpace(string(treeOutput))
 	if target.base != "" {
-		baseTree, err := git.run(ctx, "rev-parse", target.base+"^{tree}")
+		baseTree, err := git.run(finalizeCtx, "rev-parse", target.base+"^{tree}")
 		if err != nil {
 			return report, fmt.Errorf("read base archive tree: %w", err)
 		}
@@ -556,12 +555,12 @@ func processTarget(
 	if target.base != "" {
 		commitArgs = append(commitArgs, "-p", target.base)
 	}
-	commitOutput, err := git.runEnv(ctx, commitEnv, commitArgs...)
+	commitOutput, err := git.runEnv(finalizeCtx, commitEnv, commitArgs...)
 	if err != nil {
 		return report, fmt.Errorf("create archive commit: %w", err)
 	}
 	commit := strings.TrimSpace(string(commitOutput))
-	if _, err := git.run(ctx, "update-ref", target.commitRef, commit); err != nil {
+	if _, err := git.run(finalizeCtx, "update-ref", target.commitRef, commit); err != nil {
 		return report, fmt.Errorf("record archive commit: %w", err)
 	}
 	report.Changed = true
