@@ -8,6 +8,10 @@
   "has_feed_content": true,
   "canonical_week": "2026-W47",
   "current_revision": "6de0e0949c8538071c2cbcf239c1f47f354d84ccbe8f8d6300d7948a0e4421e4",
+  "state": "Generally Available",
+  "state_revision": "6de0e0949c8538071c2cbcf239c1f47f354d84ccbe8f8d6300d7948a0e4421e4",
+  "area": "Developer Tools \u0026 Data",
+  "area_revision": "6de0e0949c8538071c2cbcf239c1f47f354d84ccbe8f8d6300d7948a0e4421e4",
   "first_seen": "2026-11-22T06:51:17Z",
   "last_seen": "2026-11-22T21:15:52Z"
 }

@@ -8,6 +8,10 @@
   "has_feed_content": true,
   "canonical_week": "2026-W43",
   "current_revision": "45f19008e7d61f66d6319ba29f70e18ae18cf9424afd1749f8e90155725b4dbf",
+  "state": "Generally Available",
+  "state_revision": "45f19008e7d61f66d6319ba29f70e18ae18cf9424afd1749f8e90155725b4dbf",
+  "area": "Sovereignty \u0026 Cloud Strategy",
+  "area_revision": "45f19008e7d61f66d6319ba29f70e18ae18cf9424afd1749f8e90155725b4dbf",
   "first_seen": "2026-11-22T06:51:17Z",
   "last_seen": "2026-11-22T21:15:52Z"
 }

@@ -8,6 +8,10 @@
   "has_feed_content": true,
   "canonical_week": "2026-W43",
   "current_revision": "cb6013ffc35f6afee0feb656cad6bf565283865611636de12ad1a4c21210aabb",
+  "state": "Generally Available",
+  "state_revision": "cb6013ffc35f6afee0feb656cad6bf565283865611636de12ad1a4c21210aabb",
+  "area": "Security \u0026 Identity",
+  "area_revision": "cb6013ffc35f6afee0feb656cad6bf565283865611636de12ad1a4c21210aabb",
   "first_seen": "2026-11-22T06:51:17Z",
   "last_seen": "2026-11-22T21:15:52Z"
 }

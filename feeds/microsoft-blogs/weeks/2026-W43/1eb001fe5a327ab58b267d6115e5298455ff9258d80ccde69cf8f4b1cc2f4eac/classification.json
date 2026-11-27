@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "entry_key": "1eb001fe5a327ab58b267d6115e5298455ff9258d80ccde69cf8f4b1cc2f4eac",
+  "entry_revision": "cb6013ffc35f6afee0feb656cad6bf565283865611636de12ad1a4c21210aabb",
+  "provider": "laya-cli",
+  "state": "Generally Available",
+  "area": "Security \u0026 Identity",
+  "input_sha256": "193d1d04fab607945697108160e2a0febcee2ed1825c18bafc16fdbd94eb0ba0",
+  "classified_at": "2026-11-27T20:12:35Z"
+}

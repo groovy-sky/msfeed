@@ -8,6 +8,10 @@
   "has_feed_content": true,
   "canonical_week": "2026-W42",
   "current_revision": "5ef6ad8ec1b271c800ee845e3456a5b90b15a9f234dffab4fe93aad12c0cb38e",
+  "state": "Generally Available",
+  "state_revision": "5ef6ad8ec1b271c800ee845e3456a5b90b15a9f234dffab4fe93aad12c0cb38e",
+  "area": "Compute \u0026 Virtualization",
+  "area_revision": "5ef6ad8ec1b271c800ee845e3456a5b90b15a9f234dffab4fe93aad12c0cb38e",
   "first_seen": "2026-11-22T06:51:17Z",
   "last_seen": "2026-11-22T21:15:52Z"
 }
