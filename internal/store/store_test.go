@@ -243,6 +243,7 @@ func TestClassificationFollowsCurrentEntryRevision(t *testing.T) {
 	record := ClassificationRecord{
 		EntryKey: entry.EntryKey, EntryRevision: entry.ContentHash,
 		Provider: classify.ProviderLaya, State: classify.StatePreview,
+		Area:         classify.AreaAIAndAgents,
 		InputSHA256:  classify.InputHash(classify.Input(entry)),
 		ClassifiedAt: "2026-11-27T10:00:00Z",
 	}
@@ -260,15 +261,36 @@ func TestClassificationFollowsCurrentEntryRevision(t *testing.T) {
 	if err := readJSON(filepath.Join(base, "index.json"), &index); err != nil {
 		t.Fatal(err)
 	}
-	if index.State != classify.StatePreview || index.StateRevision != entry.ContentHash {
+	if index.State != classify.StatePreview || index.StateRevision != entry.ContentHash ||
+		index.Area != classify.AreaAIAndAgents || index.AreaRevision != entry.ContentHash {
 		t.Fatalf("entry state = %+v", index)
 	}
 	var stored ClassificationRecord
 	if err := readJSON(filepath.Join(base, "classification.json"), &stored); err != nil {
 		t.Fatal(err)
 	}
-	if stored.State != classify.StatePreview || stored.Provider != classify.ProviderLaya {
+	if stored.State != classify.StatePreview || stored.Area != classify.AreaAIAndAgents ||
+		stored.Provider != classify.ProviderLaya {
 		t.Fatalf("classification = %+v", stored)
+	}
+
+	stored.Area = ""
+	if err := writeJSON(filepath.Join(base, "classification.json"), stored); err != nil {
+		t.Fatal(err)
+	}
+	index.Area = ""
+	index.AreaRevision = ""
+	if err := writeJSON(filepath.Join(base, "index.json"), index); err != nil {
+		t.Fatal(err)
+	}
+	pending, err = st.EntriesNeedingClassification("test", classify.ProviderLaya)
+	if err != nil || len(pending) != 1 {
+		t.Fatalf("state-only classification was not queued for area backfill = %d, error = %v", len(pending), err)
+	}
+	record.Area = classify.AreaAIAndAgents
+	if newRecord, changed, err := st.SaveClassification(entry, record); err != nil ||
+		newRecord || !changed {
+		t.Fatalf("area backfill: new=%t changed=%t error=%v", newRecord, changed, err)
 	}
 
 	entry.Title = "Generally Available: Example"
@@ -280,8 +302,9 @@ func TestClassificationFollowsCurrentEntryRevision(t *testing.T) {
 	if err := readJSON(filepath.Join(base, "index.json"), &index); err != nil {
 		t.Fatal(err)
 	}
-	if index.State != "" || index.StateRevision != "" {
-		t.Fatalf("revised entry retained stale state: %+v", index)
+	if index.State != "" || index.StateRevision != "" ||
+		index.Area != "" || index.AreaRevision != "" {
+		t.Fatalf("revised entry retained stale classification: %+v", index)
 	}
 	pending, err = st.EntriesNeedingClassification("test", classify.ProviderLaya)
 	if err != nil || len(pending) != 1 {

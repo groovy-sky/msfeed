@@ -139,12 +139,15 @@ func TestPublishStoresClassifiedEntryState(t *testing.T) {
 		t.Fatal(err)
 	}
 	if index["state"] != classify.StateOther ||
-		index["state_revision"] != index["current_revision"] {
+		index["state_revision"] != index["current_revision"] ||
+		index["area"] != classify.AreaOther ||
+		index["area_revision"] != index["current_revision"] {
 		t.Fatalf("stored index = %v", index)
 	}
 	var classification struct {
 		Provider string `json:"provider"`
 		State    string `json:"state"`
+		Area     string `json:"area"`
 	}
 	if err := json.Unmarshal(
 		gitOutput(t, "", "--git-dir", remote, "show",
@@ -154,7 +157,8 @@ func TestPublishStoresClassifiedEntryState(t *testing.T) {
 		t.Fatal(err)
 	}
 	if classification.Provider != classify.ProviderLaya ||
-		classification.State != classify.StateOther {
+		classification.State != classify.StateOther ||
+		classification.Area != classify.AreaOther {
 		t.Fatalf("stored classification = %+v", classification)
 	}
 }
@@ -200,7 +204,8 @@ func (archiveClassifier) Provider() string {
 func (archiveClassifier) Classify(_ context.Context, entry parse.Entry) (classify.Result, error) {
 	input := classify.Input(entry)
 	return classify.Result{
-		State: classify.StateOther, InputSHA256: classify.InputHash(input),
+		State: classify.StateOther, Area: classify.AreaOther,
+		InputSHA256: classify.InputHash(input),
 	}, nil
 }
 

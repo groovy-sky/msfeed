@@ -78,6 +78,8 @@ type EntryIndex struct {
 	CurrentRevision string   `json:"current_revision"`
 	State           string   `json:"state,omitempty"`
 	StateRevision   string   `json:"state_revision,omitempty"`
+	Area            string   `json:"area,omitempty"`
+	AreaRevision    string   `json:"area_revision,omitempty"`
 	FirstSeen       string   `json:"first_seen"`
 	LastSeen        string   `json:"last_seen"`
 }
@@ -117,6 +119,7 @@ type ClassificationRecord struct {
 	EntryRevision string `json:"entry_revision"`
 	Provider      string `json:"provider"`
 	State         string `json:"state"`
+	Area          string `json:"area,omitempty"`
 	InputSHA256   string `json:"input_sha256"`
 	ClassifiedAt  string `json:"classified_at"`
 }
@@ -360,6 +363,8 @@ func (s *Store) SaveEntry(entry parse.Entry, observedAt time.Time) (newEntry, ch
 		if changed {
 			index.State = ""
 			index.StateRevision = ""
+			index.Area = ""
+			index.AreaRevision = ""
 		}
 		if index.Identity == "" {
 			index.Identity = identity
@@ -491,6 +496,11 @@ func (s *Store) EntriesNeedingClassification(
 				"classification for %s has invalid state %q", entry.EntryKey, record.State,
 			)
 		}
+		if record.Area != "" && !classify.ValidArea(record.Area) {
+			return nil, fmt.Errorf(
+				"classification for %s has invalid area %q", entry.EntryKey, record.Area,
+			)
+		}
 		if _, err := time.Parse(time.RFC3339, record.ClassifiedAt); err != nil {
 			return nil, fmt.Errorf(
 				"invalid classification time for %s: %w", entry.EntryKey, err,
@@ -501,7 +511,9 @@ func (s *Store) EntriesNeedingClassification(
 			record.Provider == provider && record.InputSHA256 == inputHash
 		indexMatch := index.StateRevision == index.CurrentRevision &&
 			index.State == record.State
-		if currentMatch && indexMatch {
+		areaMatch := index.AreaRevision == index.CurrentRevision &&
+			index.Area == record.Area
+		if record.Area != "" && currentMatch && indexMatch && areaMatch {
 			continue
 		}
 		if index.StateRevision == index.CurrentRevision &&
@@ -767,6 +779,9 @@ func (s *Store) SaveClassification(
 	if !classify.ValidState(record.State) {
 		return false, false, fmt.Errorf("invalid classification state %q", record.State)
 	}
+	if !classify.ValidArea(record.Area) {
+		return false, false, fmt.Errorf("invalid classification area %q", record.Area)
+	}
 	inputHash := classify.InputHash(classify.Input(entry))
 	if record.InputSHA256 != inputHash {
 		return false, false, errors.New("classification input hash does not match the entry")
@@ -814,10 +829,14 @@ func (s *Store) SaveClassification(
 	}
 
 	indexChanged := index.State != record.State ||
-		index.StateRevision != record.EntryRevision
+		index.StateRevision != record.EntryRevision ||
+		index.Area != record.Area ||
+		index.AreaRevision != record.EntryRevision
 	if indexChanged {
 		index.State = record.State
 		index.StateRevision = record.EntryRevision
+		index.Area = record.Area
+		index.AreaRevision = record.EntryRevision
 		if err := writeJSON(indexPath, index); err != nil {
 			return newRecord, false, err
 		}

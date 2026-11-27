@@ -27,6 +27,30 @@ const (
 	StateOther              = "Other"
 )
 
+const (
+	AreaDataAndDatabases            = "Data & Databases"
+	AreaAIAndAgents                 = "AI & Agents"
+	AreaNetworkingAndConnectivity   = "Networking & Connectivity"
+	AreaServerless                  = "Serverless"
+	AreaSecurityAndIdentity         = "Security & Identity"
+	AreaIntegrationAndAPIs          = "Integration & APIs"
+	AreaComputeAndVirtualization    = "Compute & Virtualization"
+	AreaStorageAndBackup            = "Storage & Backup"
+	AreaManagementAndResiliency     = "Management & Resiliency"
+	AreaContainersAndKubernetes     = "Containers & Kubernetes"
+	AreaSovereigntyAndCompliance    = "Sovereignty & Compliance"
+	AreaMarketplaceAndCommercial    = "Marketplace & Commercial"
+	AreaBusinessApplications        = "Business Applications"
+	AreaWebAndAppPlatform           = "Web & App Platform"
+	AreaHybridAndMulticloud         = "Hybrid & Multicloud"
+	AreaAIInfrastructureAndCompute  = "AI Infrastructure & Compute"
+	AreaAIAgentEngineering          = "AI & Agent Engineering"
+	AreaSovereigntyAndCloudStrategy = "Sovereignty & Cloud Strategy"
+	AreaCorporateAndPeople          = "Corporate & People"
+	AreaDeveloperToolsAndData       = "Developer Tools & Data"
+	AreaOther                       = "Other"
+)
+
 var choices = map[string]string{
 	StateGenerallyAvailable: "The update says a service or feature is generally available, launched, or ready for production use.",
 	StatePreview:            "The update says a service or feature is in public, private, limited, or beta preview.",
@@ -42,8 +66,39 @@ var choicesJSON = func() string {
 	return string(data)
 }()
 
+var areaChoicesJSON = func() string {
+	data, err := json.Marshal(map[string]string{
+		AreaDataAndDatabases:            "Relational, analytical, or other databases and data platforms.",
+		AreaAIAndAgents:                 "AI services, copilots, models, or autonomous agents.",
+		AreaNetworkingAndConnectivity:   "Networking, connectivity, routing, or traffic delivery.",
+		AreaServerless:                  "Serverless compute and event-driven hosting.",
+		AreaSecurityAndIdentity:         "Security, identity, access, authentication, or authorization.",
+		AreaIntegrationAndAPIs:          "Application integration, messaging, APIs, and API management.",
+		AreaComputeAndVirtualization:    "Virtual machines, compute infrastructure, or virtualization.",
+		AreaStorageAndBackup:            "Storage, data protection, backup, restore, or archival.",
+		AreaManagementAndResiliency:     "Cloud operations, monitoring, management, availability, or recovery.",
+		AreaContainersAndKubernetes:     "Container platforms, registries, Kubernetes, and orchestration.",
+		AreaSovereigntyAndCompliance:    "Regulatory compliance, data sovereignty, or residency controls.",
+		AreaMarketplaceAndCommercial:    "Marketplace, pricing, offers, billing, or commercial terms.",
+		AreaBusinessApplications:        "Business applications and enterprise productivity workloads.",
+		AreaWebAndAppPlatform:           "Web hosting and application platforms.",
+		AreaHybridAndMulticloud:         "Hybrid cloud and multicloud services or management.",
+		AreaAIInfrastructureAndCompute:  "Infrastructure and compute dedicated to AI model workloads.",
+		AreaAIAgentEngineering:          "Developer tooling, frameworks, evaluation, or engineering for AI agents.",
+		AreaSovereigntyAndCloudStrategy: "Strategic cloud sovereignty, adoption, policy, or architecture.",
+		AreaCorporateAndPeople:          "Corporate news, organization, leadership, workforce, or people.",
+		AreaDeveloperToolsAndData:       "Developer tooling and developer-focused data products.",
+		AreaOther:                       "The item does not fit another listed technical or business area.",
+	})
+	if err != nil {
+		panic("area choices must marshal: " + err.Error())
+	}
+	return string(data)
+}()
+
 type Result struct {
 	State       string
+	Area        string
 	InputSHA256 string
 }
 
@@ -78,6 +133,23 @@ func (l *Laya) Classify(ctx context.Context, entry parse.Entry) (Result, error) 
 		return Result{}, errors.New("classification input is empty")
 	}
 
+	state, err := l.selectChoice(ctx, choicesJSON, input, ValidState, "state")
+	if err != nil {
+		return Result{}, err
+	}
+	area, err := l.selectChoice(ctx, areaChoicesJSON, input, ValidArea, "area")
+	if err != nil {
+		return Result{}, err
+	}
+	return Result{State: state, Area: area, InputSHA256: InputHash(input)}, nil
+}
+
+func (l *Laya) selectChoice(
+	ctx context.Context,
+	choicesJSON, input string,
+	valid func(string) bool,
+	field string,
+) (string, error) {
 	command := exec.CommandContext(
 		ctx,
 		l.executable,
@@ -90,20 +162,20 @@ func (l *Laya) Classify(ctx context.Context, entry parse.Entry) (Result, error) 
 	command.Stderr = &stderr
 	if err := command.Run(); err != nil {
 		if ctxErr := ctx.Err(); ctxErr != nil {
-			return Result{}, ctxErr
+			return "", ctxErr
 		}
 		message := strings.TrimSpace(stderr.String())
 		if message == "" {
-			return Result{}, fmt.Errorf("run laya-cli: %w", err)
+			return "", fmt.Errorf("run laya-cli for %s: %w", field, err)
 		}
-		return Result{}, fmt.Errorf("run laya-cli: %w: %s", err, message)
+		return "", fmt.Errorf("run laya-cli for %s: %w: %s", field, err, message)
 	}
 
-	state := strings.TrimSpace(stdout.String())
-	if !ValidState(state) {
-		return Result{}, fmt.Errorf("laya-cli returned invalid state %q", state)
+	choice := strings.TrimSpace(stdout.String())
+	if !valid(choice) {
+		return "", fmt.Errorf("laya-cli returned invalid %s %q", field, choice)
 	}
-	return Result{State: state, InputSHA256: InputHash(input)}, nil
+	return choice, nil
 }
 
 func Input(entry parse.Entry) string {
@@ -137,6 +209,22 @@ func InputHash(input string) string {
 func ValidState(state string) bool {
 	switch state {
 	case StateGenerallyAvailable, StatePreview, StateRetirement, StateOther:
+		return true
+	default:
+		return false
+	}
+}
+
+func ValidArea(area string) bool {
+	switch area {
+	case AreaDataAndDatabases, AreaAIAndAgents, AreaNetworkingAndConnectivity,
+		AreaServerless, AreaSecurityAndIdentity, AreaIntegrationAndAPIs,
+		AreaComputeAndVirtualization, AreaStorageAndBackup, AreaManagementAndResiliency,
+		AreaContainersAndKubernetes, AreaSovereigntyAndCompliance,
+		AreaMarketplaceAndCommercial, AreaBusinessApplications, AreaWebAndAppPlatform,
+		AreaHybridAndMulticloud, AreaAIInfrastructureAndCompute, AreaAIAgentEngineering,
+		AreaSovereigntyAndCloudStrategy, AreaCorporateAndPeople,
+		AreaDeveloperToolsAndData, AreaOther:
 		return true
 	default:
 		return false

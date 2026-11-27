@@ -138,14 +138,20 @@ func TestRunBackfillsStatesAfterNotModified(t *testing.T) {
 		t.Fatalf("entry directories = %d", len(entries))
 	}
 	states := make(map[string]bool)
+	areas := make(map[string]bool)
 	for _, directory := range entries {
 		var index store.EntryIndex
 		if err := readJSONFile(filepath.Join(directory, "index.json"), &index); err != nil {
 			t.Fatal(err)
 		}
 		states[index.State] = true
-		if index.StateRevision != index.CurrentRevision {
-			t.Fatalf("state revision = %s, current revision = %s", index.StateRevision, index.CurrentRevision)
+		areas[index.Area] = true
+		if index.StateRevision != index.CurrentRevision ||
+			index.AreaRevision != index.CurrentRevision {
+			t.Fatalf(
+				"classification revisions = state:%s area:%s, current:%s",
+				index.StateRevision, index.AreaRevision, index.CurrentRevision,
+			)
 		}
 		if _, err := os.Stat(filepath.Join(directory, "classification.json")); err != nil {
 			t.Fatal(err)
@@ -153,6 +159,9 @@ func TestRunBackfillsStatesAfterNotModified(t *testing.T) {
 	}
 	if !states[classify.StateGenerallyAvailable] || !states[classify.StateRetirement] {
 		t.Fatalf("states = %v", states)
+	}
+	if !areas[classify.AreaOther] {
+		t.Fatalf("areas = %v", areas)
 	}
 
 	third, err := collector.Run(context.Background(), "", true)
@@ -186,7 +195,9 @@ func (c *recordingClassifier) Classify(_ context.Context, entry parse.Entry) (cl
 		state = classify.StateRetirement
 	}
 	input := classify.Input(entry)
-	return classify.Result{State: state, InputSHA256: classify.InputHash(input)}, nil
+	return classify.Result{
+		State: state, Area: classify.AreaOther, InputSHA256: classify.InputHash(input),
+	}, nil
 }
 
 func (c *recordingClassifier) Calls() int {
