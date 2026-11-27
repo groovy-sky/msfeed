@@ -243,7 +243,7 @@ func TestClassificationFollowsCurrentEntryRevision(t *testing.T) {
 	record := ClassificationRecord{
 		EntryKey: entry.EntryKey, EntryRevision: entry.ContentHash,
 		Provider: classify.ProviderLaya, State: classify.StatePreview,
-		Area:         classify.AreaAIAndAgents,
+		Area:         classify.AreaMonitoring,
 		InputSHA256:  classify.InputHash(classify.Input(entry)),
 		ClassifiedAt: "2026-11-27T10:00:00Z",
 	}
@@ -262,35 +262,70 @@ func TestClassificationFollowsCurrentEntryRevision(t *testing.T) {
 		t.Fatal(err)
 	}
 	if index.State != classify.StatePreview || index.StateRevision != entry.ContentHash ||
-		index.Area != classify.AreaAIAndAgents || index.AreaRevision != entry.ContentHash {
+		index.Area != classify.AreaMonitoring || index.AreaRevision != entry.ContentHash ||
+		index.StateProvider != classify.ProviderLaya ||
+		index.StateInputSHA256 != record.InputSHA256 ||
+		index.StateClassifiedAt != record.ClassifiedAt {
 		t.Fatalf("entry state = %+v", index)
 	}
-	var stored ClassificationRecord
-	if err := readJSON(filepath.Join(base, "classification.json"), &stored); err != nil {
+	var revision parse.Record
+	revisionPath := filepath.Join(base, "revisions", entry.ContentHash+".json")
+	if err := readJSON(revisionPath, &revision); err != nil {
 		t.Fatal(err)
 	}
-	if stored.State != classify.StatePreview || stored.Area != classify.AreaAIAndAgents ||
-		stored.Provider != classify.ProviderLaya {
-		t.Fatalf("classification = %+v", stored)
+	if revision.State != classify.StatePreview || revision.Area != classify.AreaMonitoring {
+		t.Fatalf("revision state/area = %q/%q", revision.State, revision.Area)
+	}
+	if _, err := os.Stat(filepath.Join(base, "classification.json")); !os.IsNotExist(err) {
+		t.Fatalf("classification sidecar exists: %v", err)
 	}
 
-	stored.Area = ""
-	if err := writeJSON(filepath.Join(base, "classification.json"), stored); err != nil {
-		t.Fatal(err)
-	}
-	index.Area = ""
-	index.AreaRevision = ""
+	index.StateProvider = ""
+	index.StateInputSHA256 = ""
+	index.StateClassifiedAt = ""
 	if err := writeJSON(filepath.Join(base, "index.json"), index); err != nil {
 		t.Fatal(err)
 	}
 	pending, err = st.EntriesNeedingClassification("test", classify.ProviderLaya)
 	if err != nil || len(pending) != 1 {
-		t.Fatalf("state-only classification was not queued for area backfill = %d, error = %v", len(pending), err)
+		t.Fatalf("classification without provenance was not queued = %d, error = %v", len(pending), err)
 	}
-	record.Area = classify.AreaAIAndAgents
 	if newRecord, changed, err := st.SaveClassification(entry, record); err != nil ||
 		newRecord || !changed {
-		t.Fatalf("area backfill: new=%t changed=%t error=%v", newRecord, changed, err)
+		t.Fatalf("provenance backfill: new=%t changed=%t error=%v", newRecord, changed, err)
+	}
+	legacyPath := filepath.Join(base, "classification.json")
+	if err := readJSON(filepath.Join(base, "index.json"), &index); err != nil {
+		t.Fatal(err)
+	}
+	index.Area = "Storage & Backup"
+	index.AreaRevision = entry.ContentHash
+	if err := writeJSON(filepath.Join(base, "index.json"), index); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(legacyPath, []byte(
+		`{"schema_version":1,"state":"Preview","area":"Storage & Backup"}`,
+	), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	pending, err = st.EntriesNeedingClassification("test", classify.ProviderLaya)
+	if err != nil || len(pending) != 1 {
+		t.Fatalf("legacy sidecar was not queued for cleanup = %d, error = %v", len(pending), err)
+	}
+	if newRecord, changed, err := st.SaveClassification(entry, record); err != nil ||
+		newRecord || !changed {
+		t.Fatalf("legacy cleanup: new=%t changed=%t error=%v", newRecord, changed, err)
+	}
+	if _, err := os.Stat(legacyPath); !os.IsNotExist(err) {
+		t.Fatalf("legacy classification sidecar remains: %v", err)
+	}
+	index = EntryIndex{}
+	if err := readJSON(filepath.Join(base, "index.json"), &index); err != nil {
+		t.Fatal(err)
+	}
+	if index.Area != classify.AreaMonitoring ||
+		index.AreaRevision != entry.ContentHash {
+		t.Fatalf("legacy area fields were not migrated: %+v", index)
 	}
 
 	entry.Title = "Generally Available: Example"
@@ -303,7 +338,9 @@ func TestClassificationFollowsCurrentEntryRevision(t *testing.T) {
 		t.Fatal(err)
 	}
 	if index.State != "" || index.StateRevision != "" ||
-		index.Area != "" || index.AreaRevision != "" {
+		index.Area != "" || index.AreaRevision != "" ||
+		index.StateProvider != "" || index.StateInputSHA256 != "" ||
+		index.StateClassifiedAt != "" {
 		t.Fatalf("revised entry retained stale classification: %+v", index)
 	}
 	pending, err = st.EntriesNeedingClassification("test", classify.ProviderLaya)

@@ -2,6 +2,7 @@ package parse
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -103,6 +104,24 @@ func TestRecordUsesUpdatedDateWhenPublishedDateIsMissing(t *testing.T) {
 	record := (Entry{UpdatedAt: "2025-01-02T03:04:05Z"}).Record()
 	if record.PublishedAt != 1735787045 {
 		t.Fatalf("published_at = %d, want updated timestamp", record.PublishedAt)
+	}
+}
+
+func TestRecordClassificationDoesNotChangeSourceHash(t *testing.T) {
+	record := Record{Title: "An update", Summary: "Complete text."}
+	sourceHash := record.Hash()
+	record.Area = "Monitoring"
+	record.State = "Generally Available"
+	if record.Hash() != sourceHash {
+		t.Fatalf("classification changed source hash from %s to %s", sourceHash, record.Hash())
+	}
+	data, err := json.Marshal(record)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := `{"url":"","title":"An update","area":"Monitoring","state":"Generally Available","published_at":0,"summary":"Complete text."}`
+	if string(data) != want {
+		t.Fatalf("classified record = %s, want %s", data, want)
 	}
 }
 

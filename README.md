@@ -61,12 +61,17 @@ only supplies an excerpt. Original HTML, provider extensions, and provenance
 remain in the snapshot and snapshot-metadata directories.
 
 Feeds may optionally declare an OData content source to recover text that the
-RSS payload truncates. Provider text is cleaned to plain text and stored in
+RSS payload truncates. When the feed does not supply a separate body, the
+generated revision JSON keeps the RSS excerpt in `summary` and includes the
+full provider text in `content`, marked with `"content_from_enrichment": true`.
+This does not change the source revision hash. Existing current revisions with
+matching enrichment are filled in on the next successful collection, even if
+the feed returns HTTP 304. Provider text is also stored in plain text in
 the entry's `enrichments/<content-hash>.json`, with the current artifact
 selected by `enrichment.json`. Each artifact records its provider, source and
 article URLs, RSS entry ID, entry revision, retrieval time, and text. This
 keeps provider failures and content changes independent from the feed's
-identity and compact revisions.
+identity and source revision history.
 
 Archive collection can also be given the standalone `laya` executable with
 `--laya <path>`. For every current entry, the classifier stores one of:
@@ -76,26 +81,22 @@ Archive collection can also be given the standalone `laya` executable with
 - `Retirement`
 - `Other`
 
-The current state and its `state_revision` are written to the entry's
-`index.json`. The classifier also selects one area from the documented product
-and business taxonomy, writing it as `area` with `area_revision` in the index.
-`classification.json` records the `laya-cli` provider, state, area, classified
-revision, input SHA-256, and classification time. Missing states or areas are
+The selected `area` and `state` are written directly into the current compact
+`revisions/<content-hash>.json` record. The source content hash intentionally
+excludes these derived fields, so adding or updating a classification does not
+change the entry revision. `index.json` records the classified revision,
+classifier provider, input SHA-256, and classification time; no separate
+`classification.json` file is produced. Missing or invalid classifications are
 backfilled even after an HTTP `304 Not Modified`; a changed RSS revision or
 changed provider input is classified again. Invalid laya output or process
 failures are reported explicitly rather than storing an approximate fallback.
 If the runtime budget expires during a backlog, completed classifications are
 published and the remaining classifications are resumed on the next run.
 
-The area choices are `Data & Databases`, `AI & Agents`,
-`Networking & Connectivity`, `Serverless`, `Security & Identity`,
-`Integration & APIs`, `Compute & Virtualization`, `Storage & Backup`,
-`Management & Resiliency`, `Containers & Kubernetes`,
-`Sovereignty & Compliance`, `Marketplace & Commercial`,
-`Business Applications`, `Web & App Platform`, `Hybrid & Multicloud`,
-`AI Infrastructure & Compute`, `AI & Agent Engineering`,
-`Sovereignty & Cloud Strategy`, `Corporate & People`,
-`Developer Tools & Data`, and `Other`.
+The supported areas are `Data`, `AI`, `Compute`, `Networking`, `Applications`,
+`Integration`, `Security`, `Storage`, `Monitoring`, `Operations`,
+`Development`, `Hybrid`, `Sovereignty`, `Business`, `Commercial`, `Corporate`,
+and `Other`.
 
 State validators are committed only after the snapshot has been parsed and
 persisted, allowing a pending snapshot to be replayed safely. Pending snapshots

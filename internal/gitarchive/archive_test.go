@@ -118,16 +118,16 @@ func TestPublishStoresClassifiedEntryState(t *testing.T) {
 		t, "", "--git-dir", remote, "ls-tree", "-r", "--name-only",
 		"refs/heads/rss/example",
 	)
-	var indexPath, classificationPath string
+	var indexPath, revisionPath string
 	for _, path := range paths {
 		switch {
 		case strings.HasSuffix(path, "/index.json"):
 			indexPath = path
-		case strings.HasSuffix(path, "/classification.json"):
-			classificationPath = path
+		case strings.Contains(path, "/revisions/"):
+			revisionPath = path
 		}
 	}
-	if indexPath == "" || classificationPath == "" {
+	if indexPath == "" || revisionPath == "" {
 		t.Fatalf("classification paths = %v", paths)
 	}
 	var index map[string]any
@@ -139,27 +139,26 @@ func TestPublishStoresClassifiedEntryState(t *testing.T) {
 		t.Fatal(err)
 	}
 	if index["state"] != classify.StateOther ||
+		index["area"] != classify.AreaMonitoring ||
 		index["state_revision"] != index["current_revision"] ||
-		index["area"] != classify.AreaOther ||
-		index["area_revision"] != index["current_revision"] {
+		index["area_revision"] != index["current_revision"] ||
+		index["state_provider"] != classify.ProviderLaya ||
+		index["state_input_sha256"] == "" {
 		t.Fatalf("stored index = %v", index)
 	}
-	var classification struct {
-		Provider string `json:"provider"`
-		State    string `json:"state"`
-		Area     string `json:"area"`
-	}
+	var revision parse.Record
 	if err := json.Unmarshal(
 		gitOutput(t, "", "--git-dir", remote, "show",
-			"refs/heads/rss/example:"+classificationPath),
-		&classification,
+			"refs/heads/rss/example:"+revisionPath),
+		&revision,
 	); err != nil {
 		t.Fatal(err)
 	}
-	if classification.Provider != classify.ProviderLaya ||
-		classification.State != classify.StateOther ||
-		classification.Area != classify.AreaOther {
-		t.Fatalf("stored classification = %+v", classification)
+	if revision.State != classify.StateOther || revision.Area != classify.AreaMonitoring {
+		t.Fatalf("stored revision = %+v", revision)
+	}
+	if countPathSuffix(paths, "/classification.json") != 0 {
+		t.Fatalf("archive contains classification sidecars: %v", paths)
 	}
 }
 
@@ -227,8 +226,9 @@ func TestPublishPersistsPartialClassificationsAtRuntimeBudget(t *testing.T) {
 		t, "", "--git-dir", remote, "ls-tree", "-r", "--name-only",
 		"refs/heads/rss/example",
 	)
-	if countPathSuffix(paths, "/classification.json") != 1 {
-		t.Fatalf("partial branch classification paths = %v", paths)
+	if countPathSuffix(paths, "/classification.json") != 0 ||
+		countRevisionStates(t, remote, "refs/heads/rss/example", paths) != 1 {
+		t.Fatalf("partial branch classifications = %v", paths)
 	}
 
 	second, err := Publish(context.Background(), Options{
@@ -246,8 +246,9 @@ func TestPublishPersistsPartialClassificationsAtRuntimeBudget(t *testing.T) {
 		t, "", "--git-dir", remote, "ls-tree", "-r", "--name-only",
 		"refs/heads/rss/example",
 	)
-	if countPathSuffix(paths, "/classification.json") != 2 {
-		t.Fatalf("completed branch classification paths = %v", paths)
+	if countPathSuffix(paths, "/classification.json") != 0 ||
+		countRevisionStates(t, remote, "refs/heads/rss/example", paths) != 2 {
+		t.Fatalf("completed branch classifications = %v", paths)
 	}
 }
 
@@ -260,7 +261,8 @@ func (archiveClassifier) Provider() string {
 func (archiveClassifier) Classify(_ context.Context, entry parse.Entry) (classify.Result, error) {
 	input := classify.Input(entry)
 	return classify.Result{
-		State: classify.StateOther, Area: classify.AreaOther,
+		State:       classify.StateOther,
+		Area:        classify.AreaMonitoring,
 		InputSHA256: classify.InputHash(input),
 	}, nil
 }
@@ -293,7 +295,8 @@ func (c *deadlineArchiveClassifier) Classify(
 	}
 	input := classify.Input(entry)
 	return classify.Result{
-		State: classify.StateOther, Area: classify.AreaOther,
+		State:       classify.StateOther,
+		Area:        classify.AreaMonitoring,
 		InputSHA256: classify.InputHash(input),
 	}, nil
 }
@@ -591,6 +594,30 @@ func countPathSuffix(paths []string, suffix string) int {
 	count := 0
 	for _, path := range paths {
 		if strings.HasSuffix(path, suffix) {
+			count++
+		}
+	}
+	return count
+}
+
+func countRevisionStates(t *testing.T, remote, ref string, paths []string) int {
+	t.Helper()
+	count := 0
+	for _, path := range paths {
+		if !strings.Contains(path, "/revisions/") || !strings.HasSuffix(path, ".json") {
+			continue
+		}
+		var record parse.Record
+		if err := json.Unmarshal(
+			gitOutput(t, "", "--git-dir", remote, "show", ref+":"+path),
+			&record,
+		); err != nil {
+			t.Fatal(err)
+		}
+		if (record.State == "") != (record.Area == "") {
+			t.Fatalf("revision %s contains incomplete classification: %+v", path, record)
+		}
+		if record.State != "" && record.Area != "" {
 			count++
 		}
 	}

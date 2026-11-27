@@ -555,6 +555,9 @@ func (r *Runner) persistEnrichments(
 	report *FeedReport,
 	state *store.State,
 ) (int, bool) {
+	if feed.Enrichment == nil {
+		return 0, false
+	}
 	enrichments, requests, deferred, warnings := r.resolveEnrichments(
 		ctx, feed, entries, now, requestBudget,
 	)
@@ -586,6 +589,16 @@ func (r *Runner) persistEnrichments(
 		if changed && !newArtifact {
 			report.Counts.EnrichmentRevisions++
 		}
+	}
+	if err := r.Store.PublishEnrichedContent(ctx, feed.ID); err != nil {
+		report.Status = "failed"
+		report.FailureClass = "storage"
+		if ctx.Err() != nil {
+			report.FailureClass = "budget"
+		}
+		report.Error = fmt.Sprintf("publish enriched content: %v", err)
+		r.recordFailure(report, feed, state, now, err)
+		return requests, errors.Is(ctx.Err(), context.DeadlineExceeded)
 	}
 	return requests, false
 }

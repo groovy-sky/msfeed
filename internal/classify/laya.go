@@ -28,27 +28,23 @@ const (
 )
 
 const (
-	AreaDataAndDatabases            = "Data & Databases"
-	AreaAIAndAgents                 = "AI & Agents"
-	AreaNetworkingAndConnectivity   = "Networking & Connectivity"
-	AreaServerless                  = "Serverless"
-	AreaSecurityAndIdentity         = "Security & Identity"
-	AreaIntegrationAndAPIs          = "Integration & APIs"
-	AreaComputeAndVirtualization    = "Compute & Virtualization"
-	AreaStorageAndBackup            = "Storage & Backup"
-	AreaManagementAndResiliency     = "Management & Resiliency"
-	AreaContainersAndKubernetes     = "Containers & Kubernetes"
-	AreaSovereigntyAndCompliance    = "Sovereignty & Compliance"
-	AreaMarketplaceAndCommercial    = "Marketplace & Commercial"
-	AreaBusinessApplications        = "Business Applications"
-	AreaWebAndAppPlatform           = "Web & App Platform"
-	AreaHybridAndMulticloud         = "Hybrid & Multicloud"
-	AreaAIInfrastructureAndCompute  = "AI Infrastructure & Compute"
-	AreaAIAgentEngineering          = "AI & Agent Engineering"
-	AreaSovereigntyAndCloudStrategy = "Sovereignty & Cloud Strategy"
-	AreaCorporateAndPeople          = "Corporate & People"
-	AreaDeveloperToolsAndData       = "Developer Tools & Data"
-	AreaOther                       = "Other"
+	AreaData         = "Data"
+	AreaAI           = "AI"
+	AreaCompute      = "Compute"
+	AreaNetworking   = "Networking"
+	AreaApplications = "Applications"
+	AreaIntegration  = "Integration"
+	AreaSecurity     = "Security"
+	AreaStorage      = "Storage"
+	AreaMonitoring   = "Monitoring"
+	AreaOperations   = "Operations"
+	AreaDevelopment  = "Development"
+	AreaHybrid       = "Hybrid"
+	AreaSovereignty  = "Sovereignty"
+	AreaBusiness     = "Business"
+	AreaCommercial   = "Commercial"
+	AreaCorporate    = "Corporate"
+	AreaOther        = "Other"
 )
 
 var choices = map[string]string{
@@ -68,27 +64,23 @@ var choicesJSON = func() string {
 
 var areaChoicesJSON = func() string {
 	data, err := json.Marshal(map[string]string{
-		AreaDataAndDatabases:            "Relational, analytical, or other databases and data platforms.",
-		AreaAIAndAgents:                 "AI services, copilots, models, or autonomous agents.",
-		AreaNetworkingAndConnectivity:   "Networking, connectivity, routing, or traffic delivery.",
-		AreaServerless:                  "Serverless compute and event-driven hosting.",
-		AreaSecurityAndIdentity:         "Security, identity, access, authentication, or authorization.",
-		AreaIntegrationAndAPIs:          "Application integration, messaging, APIs, and API management.",
-		AreaComputeAndVirtualization:    "Virtual machines, compute infrastructure, or virtualization.",
-		AreaStorageAndBackup:            "Storage, data protection, backup, restore, or archival.",
-		AreaManagementAndResiliency:     "Cloud operations, monitoring, management, availability, or recovery.",
-		AreaContainersAndKubernetes:     "Container platforms, registries, Kubernetes, and orchestration.",
-		AreaSovereigntyAndCompliance:    "Regulatory compliance, data sovereignty, or residency controls.",
-		AreaMarketplaceAndCommercial:    "Marketplace, pricing, offers, billing, or commercial terms.",
-		AreaBusinessApplications:        "Business applications and enterprise productivity workloads.",
-		AreaWebAndAppPlatform:           "Web hosting and application platforms.",
-		AreaHybridAndMulticloud:         "Hybrid cloud and multicloud services or management.",
-		AreaAIInfrastructureAndCompute:  "Infrastructure and compute dedicated to AI model workloads.",
-		AreaAIAgentEngineering:          "Developer tooling, frameworks, evaluation, or engineering for AI agents.",
-		AreaSovereigntyAndCloudStrategy: "Strategic cloud sovereignty, adoption, policy, or architecture.",
-		AreaCorporateAndPeople:          "Corporate news, organization, leadership, workforce, or people.",
-		AreaDeveloperToolsAndData:       "Developer tooling and developer-focused data products.",
-		AreaOther:                       "The item does not fit another listed technical or business area.",
+		AreaData:         "Data platforms, databases, analytics, or data engineering.",
+		AreaAI:           "Core AI models, inference, copilots, or agent capabilities and engineering.",
+		AreaCompute:      "Virtual machines, compute infrastructure, or virtualization.",
+		AreaNetworking:   "Networking, connectivity, routing, or traffic delivery.",
+		AreaApplications: "Business, enterprise, or user-facing applications.",
+		AreaIntegration:  "Application integration, messaging, APIs, or API management.",
+		AreaSecurity:     "Security, identity, authentication, or authorization.",
+		AreaStorage:      "Storage, data protection, backup, restore, or archival.",
+		AreaMonitoring:   "Monitoring, operational insights, observability, traces, diagnostics, telemetry, or recurring failure analysis.",
+		AreaOperations:   "Cloud operations, management, reliability, or recovery.",
+		AreaDevelopment:  "Developer tools, SDKs, frameworks, testing, or engineering workflows.",
+		AreaHybrid:       "Hybrid, multicloud, edge, or cross-environment services.",
+		AreaSovereignty:  "Data sovereignty, residency, compliance, or regulatory controls.",
+		AreaBusiness:     "Business processes, productivity, or organizational solutions.",
+		AreaCommercial:   "Marketplace, pricing, billing, offers, or commercial terms.",
+		AreaCorporate:    "Corporate news, leadership, workforce, or people.",
+		AreaOther:        "The item does not fit another listed area.",
 	})
 	if err != nil {
 		panic("area choices must marshal: " + err.Error())
@@ -217,14 +209,10 @@ func ValidState(state string) bool {
 
 func ValidArea(area string) bool {
 	switch area {
-	case AreaDataAndDatabases, AreaAIAndAgents, AreaNetworkingAndConnectivity,
-		AreaServerless, AreaSecurityAndIdentity, AreaIntegrationAndAPIs,
-		AreaComputeAndVirtualization, AreaStorageAndBackup, AreaManagementAndResiliency,
-		AreaContainersAndKubernetes, AreaSovereigntyAndCompliance,
-		AreaMarketplaceAndCommercial, AreaBusinessApplications, AreaWebAndAppPlatform,
-		AreaHybridAndMulticloud, AreaAIInfrastructureAndCompute, AreaAIAgentEngineering,
-		AreaSovereigntyAndCloudStrategy, AreaCorporateAndPeople,
-		AreaDeveloperToolsAndData, AreaOther:
+	case AreaData, AreaAI, AreaCompute, AreaNetworking, AreaApplications,
+		AreaIntegration, AreaSecurity, AreaStorage, AreaMonitoring,
+		AreaOperations, AreaDevelopment, AreaHybrid, AreaSovereignty,
+		AreaBusiness, AreaCommercial, AreaCorporate, AreaOther:
 		return true
 	default:
 		return false

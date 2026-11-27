@@ -12,7 +12,7 @@ import (
 	"github.com/groovy-sky/msfeed/internal/parse"
 )
 
-func TestLayaClassifyUsesFixedStatesAndStableInput(t *testing.T) {
+func TestLayaClassifyUsesFixedStatesAndAreasAndStableInput(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("test executable is a shell script")
 	}
@@ -22,7 +22,7 @@ func TestLayaClassifyUsesFixedStatesAndStableInput(t *testing.T) {
 	script := `#!/bin/sh
 printf '%s\n' "$@" >> "$LAYA_TEST_ARGUMENTS"
 case "$2" in
-  *Networking*) printf 'Networking & Connectivity\n' ;;
+  *Monitoring*) printf 'Monitoring\n' ;;
   *) printf 'Preview\n' ;;
 esac
 `
@@ -43,7 +43,7 @@ esac
 	if err != nil {
 		t.Fatal(err)
 	}
-	if result.State != StatePreview || result.Area != AreaNetworkingAndConnectivity ||
+	if result.State != StatePreview || result.Area != AreaMonitoring ||
 		result.InputSHA256 != InputHash(Input(entry)) {
 		t.Fatalf("result = %+v", result)
 	}
@@ -63,21 +63,20 @@ esac
 			t.Fatalf("choices do not contain %q: %s", state, choicesJSON)
 		}
 	}
-	for _, area := range []string{
-		AreaDataAndDatabases, AreaAIAndAgents, AreaNetworkingAndConnectivity,
-		AreaServerless, AreaSecurityAndIdentity, AreaIntegrationAndAPIs,
-		AreaComputeAndVirtualization, AreaStorageAndBackup,
-		AreaManagementAndResiliency, AreaContainersAndKubernetes,
-		AreaSovereigntyAndCompliance, AreaMarketplaceAndCommercial,
-		AreaBusinessApplications, AreaWebAndAppPlatform, AreaHybridAndMulticloud,
-		AreaAIInfrastructureAndCompute, AreaAIAgentEngineering,
-		AreaSovereigntyAndCloudStrategy, AreaCorporateAndPeople,
-		AreaDeveloperToolsAndData, AreaOther,
-	} {
-		var areas map[string]string
-		if err := json.Unmarshal([]byte(areaChoicesJSON), &areas); err != nil {
-			t.Fatal(err)
-		}
+	expectedAreas := []string{
+		AreaData, AreaAI, AreaCompute, AreaNetworking, AreaApplications,
+		AreaIntegration, AreaSecurity, AreaStorage, AreaMonitoring,
+		AreaOperations, AreaDevelopment, AreaHybrid, AreaSovereignty,
+		AreaBusiness, AreaCommercial, AreaCorporate, AreaOther,
+	}
+	var areas map[string]string
+	if err := json.Unmarshal([]byte(areaChoicesJSON), &areas); err != nil {
+		t.Fatal(err)
+	}
+	if len(areas) != len(expectedAreas) {
+		t.Fatalf("area count = %d, want %d: %s", len(areas), len(expectedAreas), areaChoicesJSON)
+	}
+	for _, area := range expectedAreas {
 		if _, ok := areas[area]; !ok {
 			t.Fatalf("area choices do not contain %q: %s", area, areaChoicesJSON)
 		}
@@ -110,7 +109,7 @@ func TestLayaClassifyRejectsUnexpectedArea(t *testing.T) {
 	executable := filepath.Join(t.TempDir(), "laya")
 	script := `#!/bin/sh
 case "$2" in
-  *Networking*) printf 'Unknown Area\n' ;;
+  *Monitoring*) printf 'Storage & Backup\n' ;;
   *) printf 'Preview\n' ;;
 esac
 `

@@ -66,22 +66,25 @@ type SnapshotMetadata struct {
 }
 
 type EntryIndex struct {
-	SchemaVersion   int      `json:"schema_version"`
-	EntryKey        string   `json:"entry_key"`
-	IdentityBasis   string   `json:"identity_basis"`
-	Identity        string   `json:"identity,omitempty"`
-	SourceID        string   `json:"source_id,omitempty"`
-	URL             string   `json:"url,omitempty"`
-	HasFeedContent  bool     `json:"has_feed_content,omitempty"`
-	CanonicalWeek   string   `json:"canonical_week"`
-	WeekAliases     []string `json:"week_aliases,omitempty"`
-	CurrentRevision string   `json:"current_revision"`
-	State           string   `json:"state,omitempty"`
-	StateRevision   string   `json:"state_revision,omitempty"`
-	Area            string   `json:"area,omitempty"`
-	AreaRevision    string   `json:"area_revision,omitempty"`
-	FirstSeen       string   `json:"first_seen"`
-	LastSeen        string   `json:"last_seen"`
+	SchemaVersion     int      `json:"schema_version"`
+	EntryKey          string   `json:"entry_key"`
+	IdentityBasis     string   `json:"identity_basis"`
+	Identity          string   `json:"identity,omitempty"`
+	SourceID          string   `json:"source_id,omitempty"`
+	URL               string   `json:"url,omitempty"`
+	HasFeedContent    bool     `json:"has_feed_content,omitempty"`
+	CanonicalWeek     string   `json:"canonical_week"`
+	WeekAliases       []string `json:"week_aliases,omitempty"`
+	CurrentRevision   string   `json:"current_revision"`
+	State             string   `json:"state,omitempty"`
+	StateRevision     string   `json:"state_revision,omitempty"`
+	StateProvider     string   `json:"state_provider,omitempty"`
+	StateInputSHA256  string   `json:"state_input_sha256,omitempty"`
+	StateClassifiedAt string   `json:"state_classified_at,omitempty"`
+	Area              string   `json:"area,omitempty"`
+	AreaRevision      string   `json:"area_revision,omitempty"`
+	FirstSeen         string   `json:"first_seen"`
+	LastSeen          string   `json:"last_seen"`
 }
 
 type EntryLocation struct {
@@ -167,6 +170,18 @@ func (s *Store) Initialize() error {
 		}
 	}
 	return nil
+}
+
+func sameRecordContent(left, right parse.Record) bool {
+	return left.SourceRecord() == right.SourceRecord()
+}
+
+func removeFileIfExists(path string) error {
+	err := os.Remove(path)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	return err
 }
 
 func (s *Store) SaveFeed(feed FeedConfig) error {
@@ -363,6 +378,9 @@ func (s *Store) SaveEntry(entry parse.Entry, observedAt time.Time) (newEntry, ch
 		if changed {
 			index.State = ""
 			index.StateRevision = ""
+			index.StateProvider = ""
+			index.StateInputSHA256 = ""
+			index.StateClassifiedAt = ""
 			index.Area = ""
 			index.AreaRevision = ""
 		}
@@ -395,12 +413,17 @@ func (s *Store) SaveEntry(entry parse.Entry, observedAt time.Time) (newEntry, ch
 		if err != nil {
 			return false, false, fmt.Errorf("read existing revision: %w", err)
 		}
-		if existing != record {
+		if !sameRecordContent(existing, record) {
 			return false, false, errors.New("revision file does not match its compact record")
 		}
 	}
 	if err := writeJSON(indexPath, index); err != nil {
 		return false, false, err
+	}
+	if changed {
+		if err := removeFileIfExists(filepath.Join(base, "classification.json")); err != nil {
+			return false, false, fmt.Errorf("remove legacy classification: %w", err)
+		}
 	}
 	if !found || (location.Identity == "" && identity != "") {
 		location = EntryLocation{
@@ -473,52 +496,47 @@ func (s *Store) EntriesNeedingClassification(
 			return nil, err
 		}
 		inputHash := classify.InputHash(classify.Input(entry))
-		var record ClassificationRecord
-		err = readJSON(filepath.Join(stored.base, "classification.json"), &record)
-		if errors.Is(err, os.ErrNotExist) {
-			entries = append(entries, entry)
-			continue
-		}
-		if err != nil {
-			return nil, fmt.Errorf("read classification for %s: %w", entry.EntryKey, err)
-		}
-		if record.SchemaVersion != 1 {
+		revision := stored.revision
+		if revision.Hash() != stored.index.CurrentRevision {
 			return nil, fmt.Errorf(
-				"unsupported classification schema version %d for %s",
-				record.SchemaVersion, entry.EntryKey,
+				"current revision content does not match entry %s", entry.EntryKey,
 			)
 		}
-		if record.EntryKey != entry.EntryKey {
-			return nil, fmt.Errorf("classification does not match entry %s", entry.EntryKey)
-		}
-		if !classify.ValidState(record.State) {
+		if revision.State != "" && !classify.ValidState(revision.State) {
 			return nil, fmt.Errorf(
-				"classification for %s has invalid state %q", entry.EntryKey, record.State,
-			)
-		}
-		if record.Area != "" && !classify.ValidArea(record.Area) {
-			return nil, fmt.Errorf(
-				"classification for %s has invalid area %q", entry.EntryKey, record.Area,
-			)
-		}
-		if _, err := time.Parse(time.RFC3339, record.ClassifiedAt); err != nil {
-			return nil, fmt.Errorf(
-				"invalid classification time for %s: %w", entry.EntryKey, err,
+				"entry %s has invalid state %q", entry.EntryKey, revision.State,
 			)
 		}
 		index := stored.index
-		currentMatch := record.EntryRevision == index.CurrentRevision &&
-			record.Provider == provider && record.InputSHA256 == inputHash
-		indexMatch := index.StateRevision == index.CurrentRevision &&
-			index.State == record.State
-		areaMatch := index.AreaRevision == index.CurrentRevision &&
-			index.Area == record.Area
-		if record.Area != "" && currentMatch && indexMatch && areaMatch {
-			continue
+		if index.State != "" && !classify.ValidState(index.State) {
+			return nil, fmt.Errorf(
+				"entry index for %s has invalid state %q", entry.EntryKey, index.State,
+			)
 		}
-		if index.StateRevision == index.CurrentRevision &&
-			index.State != record.State && currentMatch {
-			return nil, fmt.Errorf("entry index and classification disagree for %s", entry.EntryKey)
+		_, legacyErr := os.Stat(filepath.Join(stored.base, "classification.json"))
+		if legacyErr != nil && !errors.Is(legacyErr, os.ErrNotExist) {
+			return nil, fmt.Errorf("inspect legacy classification for %s: %w", entry.EntryKey, legacyErr)
+		}
+		if index.StateClassifiedAt != "" {
+			if _, err := time.Parse(time.RFC3339, index.StateClassifiedAt); err != nil {
+				return nil, fmt.Errorf(
+					"invalid classification time for %s: %w", entry.EntryKey, err,
+				)
+			}
+		}
+		currentMatch := index.StateRevision == index.CurrentRevision &&
+			index.AreaRevision == index.CurrentRevision &&
+			index.StateProvider == provider &&
+			index.StateInputSHA256 == inputHash &&
+			index.StateClassifiedAt != ""
+		stateMatch := index.State != "" &&
+			index.State == revision.State &&
+			classify.ValidState(index.State)
+		areaMatch := index.Area != "" &&
+			index.Area == revision.Area &&
+			classify.ValidArea(index.Area)
+		if currentMatch && stateMatch && areaMatch && errors.Is(legacyErr, os.ErrNotExist) {
+			continue
 		}
 		entries = append(entries, entry)
 	}
@@ -526,9 +544,10 @@ func (s *Store) EntriesNeedingClassification(
 }
 
 type currentStoredEntry struct {
-	entry parse.Entry
-	index EntryIndex
-	base  string
+	entry    parse.Entry
+	index    EntryIndex
+	base     string
+	revision parse.Record
 }
 
 func (s *Store) loadCurrentEntries(feedID string) ([]currentStoredEntry, error) {
@@ -575,37 +594,20 @@ func (s *Store) loadCurrentEntries(feedID string) ([]currentStoredEntry, error) 
 				FeedID: feedID, EntryKey: index.EntryKey, ContentHash: index.CurrentRevision,
 				IdentityBasis: index.IdentityBasis, Identity: index.Identity,
 				SourceID: index.SourceID, Title: record.Title, URL: record.URL,
-				Summary: record.Summary, Content: record.Content,
+				Summary: record.Summary, Content: record.SourceRecord().Content,
 			},
-			index: index,
-			base:  base,
+			index:    index,
+			base:     base,
+			revision: record,
 		})
 	}
 	return entries, nil
 }
 
 func (s *Store) entryWithEnrichment(stored currentStoredEntry) (parse.Entry, error) {
-	var index EnrichmentIndex
-	err := readJSON(filepath.Join(stored.base, "enrichment.json"), &index)
-	if errors.Is(err, os.ErrNotExist) {
-		return stored.entry, nil
-	}
+	record, err := readCurrentEnrichment(stored)
 	if err != nil {
-		return parse.Entry{}, fmt.Errorf(
-			"read enrichment index for %s: %w", stored.entry.EntryKey, err,
-		)
-	}
-	var record EnrichmentRecord
-	if err := readJSON(
-		filepath.Join(stored.base, "enrichments", index.CurrentArtifact+".json"),
-		&record,
-	); err != nil {
-		return parse.Entry{}, fmt.Errorf(
-			"read enrichment artifact for %s: %w", stored.entry.EntryKey, err,
-		)
-	}
-	if record.EntryRevision != stored.entry.ContentHash {
-		return stored.entry, nil
+		return parse.Entry{}, err
 	}
 	entry := stored.entry
 	if record.Content != "" && record.Content != entry.Summary {
@@ -616,6 +618,72 @@ func (s *Store) entryWithEnrichment(stored currentStoredEntry) (parse.Entry, err
 		}
 	}
 	return entry, nil
+}
+
+func readCurrentEnrichment(stored currentStoredEntry) (EnrichmentRecord, error) {
+	var index EnrichmentIndex
+	err := readJSON(filepath.Join(stored.base, "enrichment.json"), &index)
+	if errors.Is(err, os.ErrNotExist) {
+		return EnrichmentRecord{}, nil
+	}
+	if err != nil {
+		return EnrichmentRecord{}, fmt.Errorf(
+			"read enrichment index for %s: %w", stored.entry.EntryKey, err,
+		)
+	}
+	var record EnrichmentRecord
+	if err := readJSON(
+		filepath.Join(stored.base, "enrichments", index.CurrentArtifact+".json"),
+		&record,
+	); err != nil {
+		return EnrichmentRecord{}, fmt.Errorf(
+			"read enrichment artifact for %s: %w", stored.entry.EntryKey, err,
+		)
+	}
+	if record.EntryRevision != stored.index.CurrentRevision {
+		return EnrichmentRecord{}, nil
+	}
+	return record, nil
+}
+
+func (s *Store) PublishEnrichedContent(ctx context.Context, feedID string) error {
+	current, err := s.loadCurrentEntries(feedID)
+	if err != nil {
+		return err
+	}
+	for _, stored := range current {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		if stored.index.HasFeedContent || stored.entry.Content != "" {
+			continue
+		}
+		enrichment, err := readCurrentEnrichment(stored)
+		if err != nil {
+			return err
+		}
+		if enrichment.Content == "" {
+			continue
+		}
+		revision := stored.revision
+		if revision.Hash() != stored.index.CurrentRevision {
+			return fmt.Errorf("current revision content does not match entry %s", stored.index.EntryKey)
+		}
+		content := enrichment.Content
+		if content == revision.Summary {
+			content = ""
+		}
+		if revision.Content == content {
+			continue
+		}
+		revision.Content = content
+		revision.ContentFromEnrichment = content != ""
+		path := filepath.Join(stored.base, "revisions", stored.index.CurrentRevision+".json")
+		if err := writeJSON(path, revision); err != nil {
+			return fmt.Errorf("publish enrichment for %s: %w", stored.index.EntryKey, err)
+		}
+	}
+	return nil
 }
 
 func (s *Store) validateWeeklyLocations(feedID string) error {
@@ -809,46 +877,54 @@ func (s *Store) SaveClassification(
 	if index.EntryKey != entry.EntryKey || index.CurrentRevision != entry.ContentHash {
 		return false, false, errors.New("entry index does not match the classified revision")
 	}
-
-	recordPath := filepath.Join(base, "classification.json")
-	var existing ClassificationRecord
-	err = readJSON(recordPath, &existing)
-	switch {
-	case errors.Is(err, os.ErrNotExist):
-		newRecord = true
-		changed = true
-	case err != nil:
-		return false, false, fmt.Errorf("read classification: %w", err)
-	case !sameClassification(existing, record):
-		changed = true
+	revisionPath := filepath.Join(base, "revisions", index.CurrentRevision+".json")
+	revision, err := readCompactRevision(revisionPath)
+	if err != nil {
+		return false, false, fmt.Errorf("read classified revision: %w", err)
 	}
-	if changed {
-		if err := writeJSON(recordPath, record); err != nil {
-			return newRecord, false, err
+	if revision.Hash() != entry.ContentHash {
+		return false, false, errors.New("revision content does not match the classified entry")
+	}
+	newRecord = (index.State == "" && index.Area == "") ||
+		index.StateRevision != record.EntryRevision ||
+		index.AreaRevision != record.EntryRevision
+	revisionChanged := revision.State != record.State || revision.Area != record.Area
+	indexChanged := index.State != record.State ||
+		index.Area != record.Area ||
+		index.StateRevision != record.EntryRevision ||
+		index.AreaRevision != record.EntryRevision ||
+		index.StateProvider != record.Provider ||
+		index.StateInputSHA256 != record.InputSHA256 ||
+		index.StateClassifiedAt != record.ClassifiedAt
+	legacyPath := filepath.Join(base, "classification.json")
+	_, legacyErr := os.Stat(legacyPath)
+	if legacyErr != nil && !errors.Is(legacyErr, os.ErrNotExist) {
+		return false, false, fmt.Errorf("inspect legacy classification: %w", legacyErr)
+	}
+	changed = revisionChanged || indexChanged || legacyErr == nil
+	if revisionChanged {
+		revision.Area = record.Area
+		revision.State = record.State
+		if err := writeJSON(revisionPath, revision); err != nil {
+			return newRecord, false, fmt.Errorf("write classification to revision: %w", err)
 		}
 	}
-
-	indexChanged := index.State != record.State ||
-		index.StateRevision != record.EntryRevision ||
-		index.Area != record.Area ||
-		index.AreaRevision != record.EntryRevision
 	if indexChanged {
 		index.State = record.State
-		index.StateRevision = record.EntryRevision
 		index.Area = record.Area
+		index.StateRevision = record.EntryRevision
 		index.AreaRevision = record.EntryRevision
+		index.StateProvider = record.Provider
+		index.StateInputSHA256 = record.InputSHA256
+		index.StateClassifiedAt = record.ClassifiedAt
 		if err := writeJSON(indexPath, index); err != nil {
 			return newRecord, false, err
 		}
-		changed = true
+	}
+	if err := removeFileIfExists(legacyPath); err != nil {
+		return newRecord, false, fmt.Errorf("remove legacy classification: %w", err)
 	}
 	return newRecord, changed, nil
-}
-
-func sameClassification(left, right ClassificationRecord) bool {
-	left.ClassifiedAt = ""
-	right.ClassifiedAt = ""
-	return left == right
 }
 
 func (s *Store) UpgradeEntryStorage(ctx context.Context, feedID string, allowIncomplete bool) (bool, error) {
@@ -996,7 +1072,7 @@ func (s *Store) removeRecoveredLegacyEntry(feedID, entryKey, legacyPath string) 
 				if err != nil {
 					return false, fmt.Errorf("recovered entry revision is not present: %w", err)
 				}
-				if existing != record {
+				if !sameRecordContent(existing, record) {
 					return false, errors.New("recovered entry revision differs from weekly entry")
 				}
 			}
@@ -1247,7 +1323,7 @@ func writeCompactRevisionIfMissing(path string, record parse.Record) error {
 		if err != nil {
 			return err
 		}
-		if stored != record {
+		if !sameRecordContent(stored, record) {
 			return fmt.Errorf("compact revision %s already contains different content", path)
 		}
 		return nil
