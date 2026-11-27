@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "data_dir": "./data/microsoft",
-  "max_run_seconds": 300,
+  "max_run_seconds": 1200,
   "max_feeds_per_run": 3,
   "http": {
     "timeout_seconds": 30,

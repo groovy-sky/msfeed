@@ -22,6 +22,10 @@ on:
 
 permissions:
   contents: write
+  packages: read
+
+env:
+  LAYA_IMAGE: ghcr.io/${{ github.repository_owner }}/rsscollector-laya:latest
 
 concurrency:
   group: rss-branch-archive-${{ github.repository }}
@@ -30,7 +34,7 @@ concurrency:
 jobs:
   archive:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - name: Check out collector
         uses: actions/checkout@v4
@@ -43,13 +47,76 @@ jobs:
           cache: true
       - name: Build collector
         run: go build -o rsscollector ./cmd/rsscollector
+      - name: Restore Laya model
+        id: laya-model
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/laya-model
+          key: laya-q8_0-ac6a51fd7a79
+      - name: Download and verify Laya model
+        env:
+          LAYA_MODEL_SHA256: ac6a51fd7a7907bc9dd61e85f7e6b989f57a635e2232a8f0345f5c51ca6cb3ea
+        run: |
+          mkdir -p "$RUNNER_TEMP/laya-model"
+          model="$RUNNER_TEMP/laya-model/laya.gguf"
+          if [[ ! -f "$model" ]] || ! echo "$LAYA_MODEL_SHA256  $model" | sha256sum --check --status; then
+            curl --fail --location --retry 5 --retry-all-errors \
+              --output "$model" \
+              https://huggingface.co/ggml-org/Laya-GGUF/resolve/main/Laya-Q8_0.gguf
+          fi
+          echo "$LAYA_MODEL_SHA256  $model" | sha256sum --check
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Pull Laya image
+        run: docker pull "$LAYA_IMAGE"
+      - name: Extract Laya CLI
+        run: |
+          mkdir -p "$RUNNER_TEMP/laya-bin"
+          container=$(docker create --name rsscollector-laya-export "$LAYA_IMAGE")
+          trap 'docker rm --force rsscollector-laya-export >/dev/null 2>&1 || true' EXIT
+          docker cp "$container:/usr/local/bin/laya" "$RUNNER_TEMP/laya-bin/laya"
+      - name: Start Laya daemon
+        run: |
+          docker run --detach \
+            --name rsscollector-laya \
+            --network host \
+            -e LLAMA_ARG_THREADS=2 \
+            -v "$RUNNER_TEMP/laya-model/laya.gguf:/models/laya.gguf:ro" \
+            --entrypoint /usr/local/bin/llama-server \
+            "$LAYA_IMAGE" \
+            -m /models/laya.gguf \
+            --host 127.0.0.1 \
+            --port 18080 \
+            -c 2048 -b 2048 -ub 2048 --parallel 1
+          ready=false
+          for attempt in $(seq 1 120); do
+            if curl --fail --silent http://127.0.0.1:18080/health >/dev/null; then
+              ready=true
+              break
+            fi
+            if [[ "$(docker inspect --format '{{.State.Running}}' rsscollector-laya 2>/dev/null)" != "true" ]]; then
+              docker logs rsscollector-laya
+              exit 1
+            fi
+            sleep 1
+          done
+          if [[ "$ready" != "true" ]]; then
+            docker logs rsscollector-laya
+            echo "Laya did not become ready" >&2
+            exit 1
+          fi
       - name: Collect and publish feed branches
         env:
           ARCHIVE_FEED: ${{ inputs.feed }}
           ARCHIVE_FORCE: ${{ inputs.force }}
           ARCHIVE_DRY_RUN: ${{ inputs.dry_run }}
+          LAYA_ADDR: 127.0.0.1:18080
         run: |
-          args=(archive --config configs/microsoft-feeds.json --repository "$GITHUB_WORKSPACE")
+          args=(archive --config configs/microsoft-feeds.json --repository "$GITHUB_WORKSPACE" --laya "$RUNNER_TEMP/laya-bin/laya")
           if [[ -n "$ARCHIVE_FEED" ]]; then
             args+=(--feed "$ARCHIVE_FEED")
           fi
@@ -60,3 +127,6 @@ jobs:
             args+=(--dry-run)
           fi
           ./rsscollector "${args[@]}"
+      - name: Stop Laya daemon
+        if: always()
+        run: docker rm --force rsscollector-laya >/dev/null 2>&1 || true

@@ -15,6 +15,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/groovy-sky/msfeed/internal/classify"
 	"github.com/groovy-sky/msfeed/internal/config"
 	"github.com/groovy-sky/msfeed/internal/parse"
 	"github.com/groovy-sky/msfeed/internal/store"
@@ -90,6 +91,108 @@ func TestRunIsIdempotentAndPreservesChangedRevision(t *testing.T) {
 		t.Fatalf("third report = %+v", third)
 	}
 	assertRevisionCount(t, entryDir, 2)
+}
+
+func TestRunBackfillsStatesAfterNotModified(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, request *http.Request) {
+		w.Header().Set("ETag", `"v1"`)
+		w.Header().Set("Content-Type", "application/rss+xml")
+		if request.Header.Get("If-None-Match") == `"v1"` {
+			w.WriteHeader(http.StatusNotModified)
+			return
+		}
+		_, _ = fmt.Fprint(w, `<?xml version="1.0"?><rss version="2.0"><channel>
+			<title>Test</title>
+			<item><guid>one</guid><title>Generally Available: New feature</title></item>
+			<item><guid>two</guid><title>Retirement: Old feature</title></item>
+			</channel></rss>`)
+	}))
+	defer server.Close()
+
+	cfg := runnerConfig(t, server.URL)
+	collector := New(cfg)
+	first, err := collector.Run(context.Background(), "", true)
+	if err != nil || first.Failed != 0 || first.Feeds[0].Counts.NewEntries != 2 {
+		t.Fatalf("first report = %+v, error = %v", first, err)
+	}
+
+	classifier := &recordingClassifier{}
+	collector.Classifier = classifier
+	second, err := collector.Run(context.Background(), "", true)
+	if err != nil || second.Failed != 0 ||
+		!second.Feeds[0].NotModified ||
+		second.Feeds[0].Counts.Classifications != 2 {
+		t.Fatalf("second report = %+v, error = %v", second, err)
+	}
+	if classifier.Calls() != 2 {
+		t.Fatalf("classification calls = %d, want 2", classifier.Calls())
+	}
+
+	entries, err := filepath.Glob(filepath.Join(
+		cfg.DataDir, "feeds", "test", "weeks", "*", "*",
+	))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) != 2 {
+		t.Fatalf("entry directories = %d", len(entries))
+	}
+	states := make(map[string]bool)
+	for _, directory := range entries {
+		var index store.EntryIndex
+		if err := readJSONFile(filepath.Join(directory, "index.json"), &index); err != nil {
+			t.Fatal(err)
+		}
+		states[index.State] = true
+		if index.StateRevision != index.CurrentRevision {
+			t.Fatalf("state revision = %s, current revision = %s", index.StateRevision, index.CurrentRevision)
+		}
+		if _, err := os.Stat(filepath.Join(directory, "classification.json")); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if !states[classify.StateGenerallyAvailable] || !states[classify.StateRetirement] {
+		t.Fatalf("states = %v", states)
+	}
+
+	third, err := collector.Run(context.Background(), "", true)
+	if err != nil || third.Failed != 0 ||
+		third.Feeds[0].Counts.Classifications != 0 {
+		t.Fatalf("third report = %+v, error = %v", third, err)
+	}
+	if classifier.Calls() != 2 {
+		t.Fatalf("idempotent run made %d classification calls", classifier.Calls())
+	}
+}
+
+type recordingClassifier struct {
+	mu    sync.Mutex
+	calls int
+}
+
+func (*recordingClassifier) Provider() string {
+	return classify.ProviderLaya
+}
+
+func (c *recordingClassifier) Classify(_ context.Context, entry parse.Entry) (classify.Result, error) {
+	c.mu.Lock()
+	c.calls++
+	c.mu.Unlock()
+	state := classify.StateOther
+	switch {
+	case strings.Contains(entry.Title, "Generally Available"):
+		state = classify.StateGenerallyAvailable
+	case strings.Contains(entry.Title, "Retirement"):
+		state = classify.StateRetirement
+	}
+	input := classify.Input(entry)
+	return classify.Result{State: state, InputSHA256: classify.InputHash(input)}, nil
+}
+
+func (c *recordingClassifier) Calls() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.calls
 }
 
 func TestRunStoresODataEnrichmentSeparately(t *testing.T) {

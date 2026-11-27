@@ -35,6 +35,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
 
 FROM alpine:3.21
 
+LABEL org.opencontainers.image.source="https://github.com/groovy-sky/rsscollector"
+
 RUN apk add --no-cache libstdc++ libgomp \
     && addgroup -S -g 10001 laya \
     && adduser -S -D -H -u 10001 -G laya laya

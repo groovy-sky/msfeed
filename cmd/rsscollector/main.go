@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/groovy-sky/msfeed/internal/classify"
 	"github.com/groovy-sky/msfeed/internal/config"
 	"github.com/groovy-sky/msfeed/internal/gitarchive"
 	"github.com/groovy-sky/msfeed/internal/runner"
@@ -63,6 +64,7 @@ func collect(args []string) int {
 	configPath := flags.String("config", "config.json", "path to JSON configuration")
 	onlyFeed := flags.String("feed", "", "collect one feed ID")
 	force := flags.Bool("force", false, "bypass poll and retry schedules")
+	layaExecutable := flags.String("laya", "", "path to laya-cli for entry state classification")
 	if flags.Parse(args) != nil || flags.NArg() != 0 {
 		return 2
 	}
@@ -73,7 +75,14 @@ func collect(args []string) int {
 	}
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
-	report, err := runner.New(cfg).Run(ctx, *onlyFeed, *force)
+	classifier, err := newLayaClassifier(*layaExecutable)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "invalid classifier: %v\n", err)
+		return 2
+	}
+	collector := runner.New(cfg)
+	collector.Classifier = classifier
+	report, err := collector.Run(ctx, *onlyFeed, *force)
 	if err != nil {
 		if errors.Is(err, runner.ErrLocked) {
 			fmt.Fprintln(os.Stderr, err)
@@ -152,6 +161,7 @@ func archive(args []string) int {
 	onlyFeed := flags.String("feed", "", "archive one enabled feed ID")
 	force := flags.Bool("force", false, "bypass poll and retry schedules")
 	dryRun := flags.Bool("dry-run", false, "collect and create commits without pushing")
+	layaExecutable := flags.String("laya", "", "path to laya-cli for entry state classification")
 	if flags.Parse(args) != nil || flags.NArg() != 0 {
 		return 2
 	}
@@ -162,6 +172,11 @@ func archive(args []string) int {
 	}
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
+	classifier, err := newLayaClassifier(*layaExecutable)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "invalid classifier: %v\n", err)
+		return 2
+	}
 	report, err := gitarchive.Publish(ctx, gitarchive.Options{
 		Config:       cfg,
 		RepoDir:      *repository,
@@ -170,6 +185,7 @@ func archive(args []string) int {
 		OnlyFeed:     *onlyFeed,
 		Force:        *force,
 		DryRun:       *dryRun,
+		Classifier:   classifier,
 	})
 	encoder := json.NewEncoder(os.Stdout)
 	encoder.SetIndent("", "  ")
@@ -193,6 +209,13 @@ func archive(args []string) int {
 		return 1
 	}
 	return 0
+}
+
+func newLayaClassifier(executable string) (classify.Classifier, error) {
+	if executable == "" {
+		return nil, nil
+	}
+	return classify.NewLaya(executable)
 }
 
 func usage() {

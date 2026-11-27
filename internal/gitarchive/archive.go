@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/groovy-sky/msfeed/internal/classify"
 	"github.com/groovy-sky/msfeed/internal/config"
 	"github.com/groovy-sky/msfeed/internal/runner"
 )
@@ -34,6 +35,7 @@ type Options struct {
 	OnlyFeed     string
 	Force        bool
 	DryRun       bool
+	Classifier   classify.Classifier
 	Now          func() time.Time
 }
 
@@ -52,23 +54,25 @@ type Report struct {
 }
 
 type FeedReport struct {
-	FeedID              string         `json:"feed_id"`
-	Branch              string         `json:"branch"`
-	BaseCommit          string         `json:"base_commit,omitempty"`
-	Commit              string         `json:"commit,omitempty"`
-	Status              string         `json:"status"`
-	Changed             bool           `json:"changed,omitempty"`
-	Collector           *runner.Report `json:"collector,omitempty"`
-	Error               string         `json:"error,omitempty"`
-	Requests            int            `json:"requests"`
-	EntriesSeen         int            `json:"entries_seen"`
-	NewEntries          int            `json:"new_entries"`
-	Revisions           int            `json:"revisions"`
-	Unchanged           int            `json:"unchanged"`
-	Enrichments         int            `json:"enrichments,omitempty"`
-	EnrichmentRevisions int            `json:"enrichment_revisions,omitempty"`
-	EnrichmentDeferred  int            `json:"enrichment_deferred,omitempty"`
-	FailureClass        string         `json:"failure_class,omitempty"`
+	FeedID                  string         `json:"feed_id"`
+	Branch                  string         `json:"branch"`
+	BaseCommit              string         `json:"base_commit,omitempty"`
+	Commit                  string         `json:"commit,omitempty"`
+	Status                  string         `json:"status"`
+	Changed                 bool           `json:"changed,omitempty"`
+	Collector               *runner.Report `json:"collector,omitempty"`
+	Error                   string         `json:"error,omitempty"`
+	Requests                int            `json:"requests"`
+	EntriesSeen             int            `json:"entries_seen"`
+	NewEntries              int            `json:"new_entries"`
+	Revisions               int            `json:"revisions"`
+	Unchanged               int            `json:"unchanged"`
+	Enrichments             int            `json:"enrichments,omitempty"`
+	EnrichmentRevisions     int            `json:"enrichment_revisions,omitempty"`
+	EnrichmentDeferred      int            `json:"enrichment_deferred,omitempty"`
+	Classifications         int            `json:"classifications,omitempty"`
+	ClassificationRevisions int            `json:"classification_revisions,omitempty"`
+	FailureClass            string         `json:"failure_class,omitempty"`
 }
 
 type feedTarget struct {
@@ -274,6 +278,8 @@ func mergeCollectorMetrics(report *FeedReport, collector *runner.Report) {
 	report.Enrichments = feed.Counts.Enrichments
 	report.EnrichmentRevisions = feed.Counts.EnrichmentRevisions
 	report.EnrichmentDeferred = feed.Counts.EnrichmentDeferred
+	report.Classifications = feed.Counts.Classifications
+	report.ClassificationRevisions = feed.Counts.ClassificationRevisions
 	report.FailureClass = feed.FailureClass
 }
 
@@ -495,6 +501,7 @@ func processTarget(
 	runConfig.HTTP.MaxRequestsPerRun = requestBudget
 	collector := runner.New(&runConfig)
 	collector.Config.HTTP.MaxRequestsPerRun = requestBudget
+	collector.Classifier = options.Classifier
 	collector.Now = options.Now
 	runReport, runErr := collector.Run(ctx, target.feed.ID, options.Force)
 	report := FeedReport{
@@ -511,6 +518,12 @@ func processTarget(
 		return report, errors.New("collector returned an invalid feed report")
 	}
 	report.Status = runReport.Feeds[0].Status
+	if options.Classifier != nil && runReport.Failed > 0 {
+		return report, fmt.Errorf(
+			"collect %s with classification failed: %s",
+			target.feed.ID, runReport.Feeds[0].Error,
+		)
+	}
 
 	if _, err := git.runEnv(ctx, extraEnv, "add", "--all", "--", ".gitignore", "feeds"); err != nil {
 		return report, fmt.Errorf("stage archive data: %w", err)

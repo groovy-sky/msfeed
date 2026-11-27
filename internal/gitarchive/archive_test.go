@@ -2,6 +2,7 @@ package gitarchive
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -14,7 +15,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/groovy-sky/msfeed/internal/classify"
 	"github.com/groovy-sky/msfeed/internal/config"
+	"github.com/groovy-sky/msfeed/internal/parse"
 )
 
 func TestPublishCreatesIsolatedBranchAndSkipsDueState(t *testing.T) {
@@ -86,6 +89,129 @@ func TestPublishCreatesIsolatedBranchAndSkipsDueState(t *testing.T) {
 	if got := requests.Load(); got != 1 {
 		t.Fatalf("requests = %d, want 1", got)
 	}
+}
+
+func TestPublishStoresClassifiedEntryState(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = fmt.Fprint(w, `<?xml version="1.0"?><rss version="2.0"><channel>
+			<title>Example</title><item><guid>stable-id</guid>
+			<title>An editorial update</title><description>Article text.</description>
+			</item></channel></rss>`)
+	}))
+	defer server.Close()
+
+	repo, remote := initGitRepository(t)
+	cfg := testConfig(t, []config.Feed{{ID: "example", URL: server.URL, Enabled: true}})
+	report, err := Publish(context.Background(), Options{
+		Config: cfg, RepoDir: repo, Remote: remote, Force: true,
+		Classifier: archiveClassifier{},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if report.Failed != 0 || report.Changed != 1 ||
+		report.Feeds[0].Classifications != 1 {
+		t.Fatalf("report = %+v", report)
+	}
+
+	paths := gitLines(
+		t, "", "--git-dir", remote, "ls-tree", "-r", "--name-only",
+		"refs/heads/rss/example",
+	)
+	var indexPath, classificationPath string
+	for _, path := range paths {
+		switch {
+		case strings.HasSuffix(path, "/index.json"):
+			indexPath = path
+		case strings.HasSuffix(path, "/classification.json"):
+			classificationPath = path
+		}
+	}
+	if indexPath == "" || classificationPath == "" {
+		t.Fatalf("classification paths = %v", paths)
+	}
+	var index map[string]any
+	if err := json.Unmarshal(
+		gitOutput(t, "", "--git-dir", remote, "show",
+			"refs/heads/rss/example:"+indexPath),
+		&index,
+	); err != nil {
+		t.Fatal(err)
+	}
+	if index["state"] != classify.StateOther ||
+		index["state_revision"] != index["current_revision"] {
+		t.Fatalf("stored index = %v", index)
+	}
+	var classification struct {
+		Provider string `json:"provider"`
+		State    string `json:"state"`
+	}
+	if err := json.Unmarshal(
+		gitOutput(t, "", "--git-dir", remote, "show",
+			"refs/heads/rss/example:"+classificationPath),
+		&classification,
+	); err != nil {
+		t.Fatal(err)
+	}
+	if classification.Provider != classify.ProviderLaya ||
+		classification.State != classify.StateOther {
+		t.Fatalf("stored classification = %+v", classification)
+	}
+}
+
+func TestPublishDoesNotPushUnclassifiedEntries(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = fmt.Fprint(w, `<?xml version="1.0"?><rss version="2.0"><channel>
+			<title>Example</title><item><guid>stable-id</guid>
+			<title>An update</title></item></channel></rss>`)
+	}))
+	defer server.Close()
+
+	repo, remote := initGitRepository(t)
+	cfg := testConfig(t, []config.Feed{{ID: "example", URL: server.URL, Enabled: true}})
+	report, err := Publish(context.Background(), Options{
+		Config: cfg, RepoDir: repo, Remote: remote, Force: true,
+		Classifier: failingArchiveClassifier{},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if report.Failed != 1 || report.Changed != 0 || report.Pushed != 0 {
+		t.Fatalf("report = %+v", report)
+	}
+	if !strings.Contains(report.Feeds[0].Error, "classification failed") {
+		t.Fatalf("error = %q", report.Feeds[0].Error)
+	}
+	output, err := exec.Command(
+		"git", "--git-dir", remote, "show-ref", "--verify", "--quiet",
+		"refs/heads/rss/example",
+	).CombinedOutput()
+	if err == nil {
+		t.Fatalf("branch was published without classifications: %s", output)
+	}
+}
+
+type archiveClassifier struct{}
+
+func (archiveClassifier) Provider() string {
+	return classify.ProviderLaya
+}
+
+func (archiveClassifier) Classify(_ context.Context, entry parse.Entry) (classify.Result, error) {
+	input := classify.Input(entry)
+	return classify.Result{
+		State: classify.StateOther, InputSHA256: classify.InputHash(input),
+	}, nil
+}
+
+type failingArchiveClassifier struct{}
+
+func (failingArchiveClassifier) Provider() string {
+	return classify.ProviderLaya
+}
+
+func (failingArchiveClassifier) Classify(context.Context, parse.Entry) (classify.Result, error) {
+	return classify.Result{}, errors.New("model unavailable")
 }
 
 func TestPublishBatchesMultipleFeedBranches(t *testing.T) {

@@ -23,6 +23,11 @@ docker build -t laya-cli:minimal .
 The Docker build accepts `--build-arg LLAMA_CPP_REF=<branch-or-commit>` for
 pinning the llama.cpp source revision.
 
+`.github/workflows/laya-image.yml` publishes the same multi-stage image to
+`ghcr.io/<owner>/rsscollector-laya` when `laya-cli/` changes on `main`. It
+publishes `latest` plus a commit-SHA tag, while the archive workflow pulls the
+published image instead of compiling llama.cpp for every collection.
+
 The default amd64 build may require AVX2, FMA, F16C, BMI2, and SSE4.2 CPU
 instructions; run it on a compatible host.
 
@@ -109,6 +114,11 @@ LAYA_ADDR=127.0.0.1:18080 ./laya --raw \
 
 The daemon's context per slot is its `-c` value divided by `--parallel`; its
 physical batch (`-ub`) must also fit the complete request.
+
+`rsscollector archive --laya /path/to/laya` uses this executable to assign the
+fixed states `Generally Available`, `Preview`, `Retirement`, or `Other` to
+stored entries. The daily archive workflow starts one warm daemon and reuses
+it for all entries, so the Q8 model is loaded only once per job.
 
 ## Tests
 

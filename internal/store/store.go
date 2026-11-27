@@ -15,6 +15,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/groovy-sky/msfeed/internal/classify"
 	"github.com/groovy-sky/msfeed/internal/parse"
 )
 
@@ -75,6 +76,8 @@ type EntryIndex struct {
 	CanonicalWeek   string   `json:"canonical_week"`
 	WeekAliases     []string `json:"week_aliases,omitempty"`
 	CurrentRevision string   `json:"current_revision"`
+	State           string   `json:"state,omitempty"`
+	StateRevision   string   `json:"state_revision,omitempty"`
 	FirstSeen       string   `json:"first_seen"`
 	LastSeen        string   `json:"last_seen"`
 }
@@ -108,14 +111,26 @@ type EnrichmentRecord struct {
 	RetrievedAt   string `json:"retrieved_at"`
 }
 
+type ClassificationRecord struct {
+	SchemaVersion int    `json:"schema_version"`
+	EntryKey      string `json:"entry_key"`
+	EntryRevision string `json:"entry_revision"`
+	Provider      string `json:"provider"`
+	State         string `json:"state"`
+	InputSHA256   string `json:"input_sha256"`
+	ClassifiedAt  string `json:"classified_at"`
+}
+
 type FeedCounts struct {
-	EntriesSeen         int `json:"entries_seen"`
-	NewEntries          int `json:"new_entries"`
-	Revisions           int `json:"revisions"`
-	Unchanged           int `json:"unchanged"`
-	Enrichments         int `json:"enrichments,omitempty"`
-	EnrichmentRevisions int `json:"enrichment_revisions,omitempty"`
-	EnrichmentDeferred  int `json:"enrichment_deferred,omitempty"`
+	EntriesSeen             int `json:"entries_seen"`
+	NewEntries              int `json:"new_entries"`
+	Revisions               int `json:"revisions"`
+	Unchanged               int `json:"unchanged"`
+	Enrichments             int `json:"enrichments,omitempty"`
+	EnrichmentRevisions     int `json:"enrichment_revisions,omitempty"`
+	EnrichmentDeferred      int `json:"enrichment_deferred,omitempty"`
+	Classifications         int `json:"classifications,omitempty"`
+	ClassificationRevisions int `json:"classification_revisions,omitempty"`
 }
 
 type FeedConfig struct {
@@ -342,6 +357,10 @@ func (s *Store) SaveEntry(entry parse.Entry, observedAt time.Time) (newEntry, ch
 		newEntry = true
 	} else {
 		index.CurrentRevision = entry.ContentHash
+		if changed {
+			index.State = ""
+			index.StateRevision = ""
+		}
 		if index.Identity == "" {
 			index.Identity = identity
 		}
@@ -393,6 +412,114 @@ func (s *Store) SaveEntry(entry parse.Entry, observedAt time.Time) (newEntry, ch
 func (s *Store) EntriesNeedingEnrichment(
 	feedID, provider, sourceURL string,
 ) ([]parse.Entry, error) {
+	current, err := s.loadCurrentEntries(feedID)
+	if err != nil {
+		return nil, err
+	}
+	entries := make([]parse.Entry, 0)
+	for _, stored := range current {
+		index := stored.index
+		if index.SourceID == "" {
+			continue
+		}
+		if index.HasFeedContent || stored.entry.Content != "" {
+			continue
+		}
+
+		var enrichmentIndex EnrichmentIndex
+		err = readJSON(filepath.Join(stored.base, "enrichment.json"), &enrichmentIndex)
+		if errors.Is(err, os.ErrNotExist) {
+			entries = append(entries, stored.entry)
+			continue
+		}
+		if err != nil {
+			return nil, fmt.Errorf("read enrichment index for %s: %w", index.EntryKey, err)
+		}
+		var enrichment EnrichmentRecord
+		artifactPath := filepath.Join(
+			stored.base, "enrichments", enrichmentIndex.CurrentArtifact+".json",
+		)
+		if err := readJSON(artifactPath, &enrichment); err != nil {
+			return nil, fmt.Errorf("read enrichment artifact for %s: %w", index.EntryKey, err)
+		}
+		if enrichment.EntryRevision == index.CurrentRevision &&
+			enrichment.Provider == provider && enrichment.SourceURL == sourceURL {
+			continue
+		}
+		entries = append(entries, stored.entry)
+	}
+	return entries, nil
+}
+
+func (s *Store) EntriesNeedingClassification(
+	feedID, provider string,
+) ([]parse.Entry, error) {
+	if strings.TrimSpace(provider) == "" {
+		return nil, errors.New("classification provider is required")
+	}
+	current, err := s.loadCurrentEntries(feedID)
+	if err != nil {
+		return nil, err
+	}
+	entries := make([]parse.Entry, 0)
+	for _, stored := range current {
+		entry, err := s.entryWithEnrichment(stored)
+		if err != nil {
+			return nil, err
+		}
+		inputHash := classify.InputHash(classify.Input(entry))
+		var record ClassificationRecord
+		err = readJSON(filepath.Join(stored.base, "classification.json"), &record)
+		if errors.Is(err, os.ErrNotExist) {
+			entries = append(entries, entry)
+			continue
+		}
+		if err != nil {
+			return nil, fmt.Errorf("read classification for %s: %w", entry.EntryKey, err)
+		}
+		if record.SchemaVersion != 1 {
+			return nil, fmt.Errorf(
+				"unsupported classification schema version %d for %s",
+				record.SchemaVersion, entry.EntryKey,
+			)
+		}
+		if record.EntryKey != entry.EntryKey {
+			return nil, fmt.Errorf("classification does not match entry %s", entry.EntryKey)
+		}
+		if !classify.ValidState(record.State) {
+			return nil, fmt.Errorf(
+				"classification for %s has invalid state %q", entry.EntryKey, record.State,
+			)
+		}
+		if _, err := time.Parse(time.RFC3339, record.ClassifiedAt); err != nil {
+			return nil, fmt.Errorf(
+				"invalid classification time for %s: %w", entry.EntryKey, err,
+			)
+		}
+		index := stored.index
+		currentMatch := record.EntryRevision == index.CurrentRevision &&
+			record.Provider == provider && record.InputSHA256 == inputHash
+		indexMatch := index.StateRevision == index.CurrentRevision &&
+			index.State == record.State
+		if currentMatch && indexMatch {
+			continue
+		}
+		if index.StateRevision == index.CurrentRevision &&
+			index.State != record.State && currentMatch {
+			return nil, fmt.Errorf("entry index and classification disagree for %s", entry.EntryKey)
+		}
+		entries = append(entries, entry)
+	}
+	return entries, nil
+}
+
+type currentStoredEntry struct {
+	entry parse.Entry
+	index EntryIndex
+	base  string
+}
+
+func (s *Store) loadCurrentEntries(feedID string) ([]currentStoredEntry, error) {
 	if err := s.validateWeeklyLocations(feedID); err != nil {
 		return nil, err
 	}
@@ -404,7 +531,7 @@ func (s *Store) EntriesNeedingEnrichment(
 	if err != nil {
 		return nil, err
 	}
-	entries := make([]parse.Entry, 0)
+	entries := make([]currentStoredEntry, 0, len(directories))
 	for _, directory := range directories {
 		if !directory.Type().IsRegular() || filepath.Ext(directory.Name()) != ".json" {
 			return nil, fmt.Errorf("entry location path %q is not a regular JSON file", directory.Name())
@@ -425,42 +552,58 @@ func (s *Store) EntriesNeedingEnrichment(
 		if index.EntryKey != entryKey || index.CanonicalWeek != location.CanonicalWeek {
 			return nil, fmt.Errorf("entry index %s does not match its location", entryKey)
 		}
-		if index.SourceID == "" {
-			continue
-		}
 		record, err := s.readRevision(filepath.Join(
 			base, "revisions", index.CurrentRevision+".json",
 		))
 		if err != nil {
 			return nil, fmt.Errorf("read current revision for %s: %w", index.EntryKey, err)
 		}
-		if index.HasFeedContent || record.Content != "" {
-			continue
-		}
-
-		var enrichmentIndex EnrichmentIndex
-		err = readJSON(filepath.Join(base, "enrichment.json"), &enrichmentIndex)
-		if errors.Is(err, os.ErrNotExist) {
-			entries = append(entries, pendingEnrichmentEntry(feedID, index))
-			continue
-		}
-		if err != nil {
-			return nil, fmt.Errorf("read enrichment index for %s: %w", index.EntryKey, err)
-		}
-		var enrichment EnrichmentRecord
-		artifactPath := filepath.Join(
-			base, "enrichments", enrichmentIndex.CurrentArtifact+".json",
-		)
-		if err := readJSON(artifactPath, &enrichment); err != nil {
-			return nil, fmt.Errorf("read enrichment artifact for %s: %w", index.EntryKey, err)
-		}
-		if enrichment.EntryRevision == index.CurrentRevision &&
-			enrichment.Provider == provider && enrichment.SourceURL == sourceURL {
-			continue
-		}
-		entries = append(entries, pendingEnrichmentEntry(feedID, index))
+		entries = append(entries, currentStoredEntry{
+			entry: parse.Entry{
+				FeedID: feedID, EntryKey: index.EntryKey, ContentHash: index.CurrentRevision,
+				IdentityBasis: index.IdentityBasis, Identity: index.Identity,
+				SourceID: index.SourceID, Title: record.Title, URL: record.URL,
+				Summary: record.Summary, Content: record.Content,
+			},
+			index: index,
+			base:  base,
+		})
 	}
 	return entries, nil
+}
+
+func (s *Store) entryWithEnrichment(stored currentStoredEntry) (parse.Entry, error) {
+	var index EnrichmentIndex
+	err := readJSON(filepath.Join(stored.base, "enrichment.json"), &index)
+	if errors.Is(err, os.ErrNotExist) {
+		return stored.entry, nil
+	}
+	if err != nil {
+		return parse.Entry{}, fmt.Errorf(
+			"read enrichment index for %s: %w", stored.entry.EntryKey, err,
+		)
+	}
+	var record EnrichmentRecord
+	if err := readJSON(
+		filepath.Join(stored.base, "enrichments", index.CurrentArtifact+".json"),
+		&record,
+	); err != nil {
+		return parse.Entry{}, fmt.Errorf(
+			"read enrichment artifact for %s: %w", stored.entry.EntryKey, err,
+		)
+	}
+	if record.EntryRevision != stored.entry.ContentHash {
+		return stored.entry, nil
+	}
+	entry := stored.entry
+	if record.Content != "" && record.Content != entry.Summary {
+		if entry.Content == "" {
+			entry.Content = record.Content
+		} else {
+			entry.Content += "\n" + record.Content
+		}
+	}
+	return entry, nil
 }
 
 func (s *Store) validateWeeklyLocations(feedID string) error {
@@ -497,14 +640,6 @@ func (s *Store) validateWeeklyLocations(feedID string) error {
 		}
 	}
 	return nil
-}
-
-func pendingEnrichmentEntry(feedID string, index EntryIndex) parse.Entry {
-	return parse.Entry{
-		FeedID: feedID, EntryKey: index.EntryKey, ContentHash: index.CurrentRevision,
-		IdentityBasis: index.IdentityBasis, Identity: index.Identity,
-		SourceID: index.SourceID, URL: index.URL,
-	}
 }
 
 func (s *Store) SaveEnrichment(
@@ -607,6 +742,93 @@ func (record EnrichmentRecord) Hash() string {
 func sameEnrichment(left, right EnrichmentRecord) bool {
 	left.RetrievedAt = ""
 	right.RetrievedAt = ""
+	return left == right
+}
+
+func (s *Store) SaveClassification(
+	entry parse.Entry,
+	record ClassificationRecord,
+) (newRecord, changed bool, err error) {
+	if entry.EntryKey == "" || entry.ContentHash == "" {
+		return false, false, errors.New("entry identity and revision are required for classification")
+	}
+	if record.SchemaVersion == 0 {
+		record.SchemaVersion = 1
+	}
+	if record.SchemaVersion != 1 {
+		return false, false, fmt.Errorf("unsupported classification schema version %d", record.SchemaVersion)
+	}
+	if record.EntryKey != entry.EntryKey || record.EntryRevision != entry.ContentHash {
+		return false, false, errors.New("classification record does not match its entry revision")
+	}
+	if strings.TrimSpace(record.Provider) == "" {
+		return false, false, errors.New("classification provider is required")
+	}
+	if !classify.ValidState(record.State) {
+		return false, false, fmt.Errorf("invalid classification state %q", record.State)
+	}
+	inputHash := classify.InputHash(classify.Input(entry))
+	if record.InputSHA256 != inputHash {
+		return false, false, errors.New("classification input hash does not match the entry")
+	}
+	if _, err := time.Parse(time.RFC3339Nano, record.ClassifiedAt); err != nil {
+		return false, false, fmt.Errorf("invalid classification time: %w", err)
+	}
+
+	location, found, err := s.entryLocation(entry.FeedID, entry.EntryKey)
+	if err != nil {
+		return false, false, err
+	}
+	if !found {
+		return false, false, errors.New("entry location is missing")
+	}
+	if !sameIdentity(location, entry, entryIdentity(entry)) {
+		return false, false, errors.New("entry location collides with a different identity")
+	}
+	base := filepath.Join(s.feedDir(entry.FeedID), "weeks", location.CanonicalWeek, entry.EntryKey)
+	indexPath := filepath.Join(base, "index.json")
+	var index EntryIndex
+	if err := readJSON(indexPath, &index); err != nil {
+		return false, false, fmt.Errorf("read entry index: %w", err)
+	}
+	if index.EntryKey != entry.EntryKey || index.CurrentRevision != entry.ContentHash {
+		return false, false, errors.New("entry index does not match the classified revision")
+	}
+
+	recordPath := filepath.Join(base, "classification.json")
+	var existing ClassificationRecord
+	err = readJSON(recordPath, &existing)
+	switch {
+	case errors.Is(err, os.ErrNotExist):
+		newRecord = true
+		changed = true
+	case err != nil:
+		return false, false, fmt.Errorf("read classification: %w", err)
+	case !sameClassification(existing, record):
+		changed = true
+	}
+	if changed {
+		if err := writeJSON(recordPath, record); err != nil {
+			return newRecord, false, err
+		}
+	}
+
+	indexChanged := index.State != record.State ||
+		index.StateRevision != record.EntryRevision
+	if indexChanged {
+		index.State = record.State
+		index.StateRevision = record.EntryRevision
+		if err := writeJSON(indexPath, index); err != nil {
+			return newRecord, false, err
+		}
+		changed = true
+	}
+	return newRecord, changed, nil
+}
+
+func sameClassification(left, right ClassificationRecord) bool {
+	left.ClassifiedAt = ""
+	right.ClassifiedAt = ""
 	return left == right
 }
 

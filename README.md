@@ -68,6 +68,22 @@ article URLs, RSS entry ID, entry revision, retrieval time, and text. This
 keeps provider failures and content changes independent from the feed's
 identity and compact revisions.
 
+Archive collection can also be given the standalone `laya` executable with
+`--laya <path>`. For every current entry, the classifier stores one of:
+
+- `Generally Available`
+- `Preview`
+- `Retirement`
+- `Other`
+
+The current state and its `state_revision` are written to the entry's
+`index.json`. `classification.json` records the `laya-cli` provider, the
+classified revision, the input SHA-256, and the classification time. Missing
+states are backfilled even after an HTTP `304 Not Modified`; a changed RSS
+revision or changed provider input is classified again. Invalid laya output
+or process failures are reported explicitly rather than storing an
+approximate fallback.
+
 State validators are committed only after the snapshot has been parsed and
 persisted, allowing a pending snapshot to be replayed safely. Pending snapshots
 larger than the configured entry budget are processed in deterministic batches
@@ -97,7 +113,8 @@ using stable branches named `rss/<feed-id>` by default:
 ./rsscollector archive \
   --config configs/microsoft-feeds.json \
   --repository . \
-  --remote origin
+  --remote origin \
+  --laya /path/to/laya
 ```
 
 Feed branches contain only that feed's `feeds/<id>/` data. `collector.lock`
@@ -135,13 +152,20 @@ being reimplemented by the workflow. A run may be inspected without publishing
 by adding `--dry-run`; `--feed ID` selects one branch and `--force` bypasses
 the normal poll and retry schedules.
 
-`.github/workflows/archive.yml` runs this mode daily at 03:17 UTC with one
-checkout and one Go build. It can also be started manually, optionally for one
-feed. A workflow concurrency group prevents two archive runs from writing the
-same branches concurrently. Ensure Actions has write permission for the
-repository before enabling scheduled publishing. Authentication values for
-private feeds must be supplied through Actions secrets; never place the secret
-itself in the configuration or feed branch.
+`.github/workflows/archive.yml` runs this mode daily at 03:17 UTC. It builds
+the collector, restores or downloads and verifies the Q8 model, and pulls the
+prebuilt `rsscollector-laya` image from GitHub Container Registry. It extracts
+the laya CLI from that image and starts one warm local server for the whole
+collection run, so scheduled collection never builds llama.cpp.
+`.github/workflows/laya-image.yml` rebuilds and publishes that image only when
+`laya-cli/` changes on `main`; it stores both `latest` and commit-SHA tags. The
+archive job can also be started manually, optionally for one feed. A
+workflow concurrency group prevents two archive runs from writing the same
+branches concurrently. Ensure Actions has write permission for the repository
+and read/write package permission for the image workflow before enabling
+scheduled publishing. Authentication values for private feeds must be supplied
+through Actions secrets; never place the secret itself in the configuration
+or feed branch.
 
 Branch-per-feed publication is suitable for small to medium auditable archives.
 GitHub and Git have repository, object, and file-size limits, and every

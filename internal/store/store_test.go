@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/groovy-sky/msfeed/internal/classify"
 	"github.com/groovy-sky/msfeed/internal/parse"
 )
 
@@ -221,6 +222,70 @@ func TestEntriesNeedingEnrichmentUsesCurrentRevisionAndProvider(t *testing.T) {
 		if candidate.EntryKey == feedContentEntry.EntryKey {
 			t.Fatal("entry with feed-supplied content was queued for provider enrichment")
 		}
+	}
+}
+
+func TestClassificationFollowsCurrentEntryRevision(t *testing.T) {
+	st := New(t.TempDir())
+	entry := parse.Entry{
+		EntryKey: "entry-key", FeedID: "test", IdentityBasis: "id",
+		Title: "Public Preview: Example", Summary: "A private preview update.",
+	}
+	entry.ContentHash = entry.Record().Hash()
+	if _, _, err := st.SaveEntry(entry, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+
+	pending, err := st.EntriesNeedingClassification("test", classify.ProviderLaya)
+	if err != nil || len(pending) != 1 {
+		t.Fatalf("pending before classification = %d, error = %v", len(pending), err)
+	}
+	record := ClassificationRecord{
+		EntryKey: entry.EntryKey, EntryRevision: entry.ContentHash,
+		Provider: classify.ProviderLaya, State: classify.StatePreview,
+		InputSHA256:  classify.InputHash(classify.Input(entry)),
+		ClassifiedAt: "2026-11-27T10:00:00Z",
+	}
+	if newRecord, changed, err := st.SaveClassification(entry, record); err != nil ||
+		!newRecord || !changed {
+		t.Fatalf("first save: new=%t changed=%t error=%v", newRecord, changed, err)
+	}
+	pending, err = st.EntriesNeedingClassification("test", classify.ProviderLaya)
+	if err != nil || len(pending) != 0 {
+		t.Fatalf("pending after classification = %d, error = %v", len(pending), err)
+	}
+
+	base := entryDirectory(t, st, "test", entry.EntryKey)
+	var index EntryIndex
+	if err := readJSON(filepath.Join(base, "index.json"), &index); err != nil {
+		t.Fatal(err)
+	}
+	if index.State != classify.StatePreview || index.StateRevision != entry.ContentHash {
+		t.Fatalf("entry state = %+v", index)
+	}
+	var stored ClassificationRecord
+	if err := readJSON(filepath.Join(base, "classification.json"), &stored); err != nil {
+		t.Fatal(err)
+	}
+	if stored.State != classify.StatePreview || stored.Provider != classify.ProviderLaya {
+		t.Fatalf("classification = %+v", stored)
+	}
+
+	entry.Title = "Generally Available: Example"
+	entry.ContentHash = entry.Record().Hash()
+	if _, changed, err := st.SaveEntry(entry, time.Now()); err != nil || !changed {
+		t.Fatalf("save revised entry: changed=%t error=%v", changed, err)
+	}
+	index = EntryIndex{}
+	if err := readJSON(filepath.Join(base, "index.json"), &index); err != nil {
+		t.Fatal(err)
+	}
+	if index.State != "" || index.StateRevision != "" {
+		t.Fatalf("revised entry retained stale state: %+v", index)
+	}
+	pending, err = st.EntriesNeedingClassification("test", classify.ProviderLaya)
+	if err != nil || len(pending) != 1 {
+		t.Fatalf("pending after source revision = %d, error = %v", len(pending), err)
 	}
 }
 

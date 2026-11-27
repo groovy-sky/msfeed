@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/groovy-sky/msfeed/internal/classify"
 	"github.com/groovy-sky/msfeed/internal/config"
 	"github.com/groovy-sky/msfeed/internal/enrich"
 	"github.com/groovy-sky/msfeed/internal/fetch"
@@ -54,9 +55,10 @@ type FeedReport struct {
 }
 
 type Runner struct {
-	Config *config.Config
-	Store  *store.Store
-	Now    func() time.Time
+	Config     *config.Config
+	Store      *store.Store
+	Classifier classify.Classifier
+	Now        func() time.Time
 }
 
 func New(cfg *config.Config) *Runner {
@@ -203,6 +205,12 @@ func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool, 
 		return pending, requests, budgetReached
 	}
 	if !force && !due(state, now, feed.PollIntervalSeconds) {
+		budgetReached := r.persistClassifications(
+			ctx, feed, now, &report, &state,
+		)
+		if report.Status == "failed" {
+			return report, 0, budgetReached
+		}
 		report.Status = "skipped"
 		return report, 0, false
 	}
@@ -271,6 +279,12 @@ func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool, 
 				return report, requests, budgetReached
 			}
 		}
+		classificationBudgetReached := r.persistClassifications(
+			ctx, feed, now, &report, &state,
+		)
+		if report.Status == "failed" {
+			return report, requests, classificationBudgetReached
+		}
 		state.LastSuccess = now.UTC().Format(time.RFC3339)
 		clearFailure(&state)
 		if err := r.Store.SaveState(feed.ID, state); err != nil {
@@ -278,7 +292,7 @@ func (r *Runner) processFeed(ctx context.Context, feed config.Feed, force bool, 
 			report.FailureClass = "storage"
 			report.Error = err.Error()
 		}
-		return report, requests, enrichmentBudgetReached
+		return report, requests, enrichmentBudgetReached || classificationBudgetReached
 	}
 
 	lowDisk, err := r.Store.CheckCapacity(int64(len(result.Body)))
@@ -495,6 +509,12 @@ func (r *Runner) processPending(
 	if report.Status == "failed" {
 		return report, enrichmentRequests, budgetReached
 	}
+	classificationBudgetReached := r.persistClassifications(
+		ctx, feed, now, &report, &state,
+	)
+	if report.Status == "failed" {
+		return report, enrichmentRequests, classificationBudgetReached
+	}
 
 	state.PendingOffset += len(parsed.Entries)
 	clearFailure(&state)
@@ -565,6 +585,67 @@ func (r *Runner) persistEnrichments(
 		}
 	}
 	return requests, false
+}
+
+func (r *Runner) persistClassifications(
+	ctx context.Context,
+	feed config.Feed,
+	now time.Time,
+	report *FeedReport,
+	state *store.State,
+) bool {
+	if r.Classifier == nil {
+		return false
+	}
+	entries, err := r.Store.EntriesNeedingClassification(feed.ID, r.Classifier.Provider())
+	if err != nil {
+		report.Status = "failed"
+		report.FailureClass = "storage"
+		report.Error = fmt.Sprintf("list pending classifications: %v", err)
+		r.recordFailure(report, feed, state, now, err)
+		return false
+	}
+	for _, entry := range entries {
+		if err := ctx.Err(); err != nil {
+			report.Status = "failed"
+			report.FailureClass = "budget"
+			report.Error = err.Error()
+			r.recordFailure(report, feed, state, now, err)
+			return errors.Is(err, context.DeadlineExceeded)
+		}
+		result, err := r.Classifier.Classify(ctx, entry)
+		if err != nil {
+			report.Status = "failed"
+			report.FailureClass = "classification"
+			report.Error = fmt.Sprintf("classify entry %s: %v", entry.EntryKey, err)
+			r.recordFailure(report, feed, state, now, err)
+			return errors.Is(err, context.DeadlineExceeded) ||
+				errors.Is(ctx.Err(), context.DeadlineExceeded)
+		}
+		record := store.ClassificationRecord{
+			SchemaVersion: 1,
+			EntryKey:      entry.EntryKey,
+			EntryRevision: entry.ContentHash,
+			Provider:      r.Classifier.Provider(),
+			State:         result.State,
+			InputSHA256:   result.InputSHA256,
+			ClassifiedAt:  now.UTC().Format(time.RFC3339),
+		}
+		newRecord, changed, err := r.Store.SaveClassification(entry, record)
+		if err != nil {
+			report.Status = "failed"
+			report.FailureClass = "storage"
+			report.Error = fmt.Sprintf("persist classification %s: %v", entry.EntryKey, err)
+			r.recordFailure(report, feed, state, now, err)
+			return false
+		}
+		if newRecord {
+			report.Counts.Classifications++
+		} else if changed {
+			report.Counts.ClassificationRevisions++
+		}
+	}
+	return false
 }
 
 func feedEnrichmentConfig(feed config.Feed) *store.FeedEnrichment {
