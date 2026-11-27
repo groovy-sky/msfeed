@@ -61,12 +61,17 @@ only supplies an excerpt. Original HTML, provider extensions, and provenance
 remain in the snapshot and snapshot-metadata directories.
 
 Feeds may optionally declare an OData content source to recover text that the
-RSS payload truncates. Provider text is cleaned to plain text and stored in
+RSS payload truncates. When the feed does not supply a separate body, the
+generated revision JSON keeps the RSS excerpt in `summary` and includes the
+full provider text in `content`, marked with `"content_from_enrichment": true`.
+This does not change the source revision hash. Existing current revisions with
+matching enrichment are filled in on the next successful collection, even if
+the feed returns HTTP 304. Provider text is also stored in plain text in
 the entry's `enrichments/<content-hash>.json`, with the current artifact
 selected by `enrichment.json`. Each artifact records its provider, source and
 article URLs, RSS entry ID, entry revision, retrieval time, and text. This
 keeps provider failures and content changes independent from the feed's
-identity and compact revisions.
+identity and source revision history.
 
 Archive collection can also be given the standalone `laya` executable with
 `--laya <path>`. For every current entry, the classifier stores one of:

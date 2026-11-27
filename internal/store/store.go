@@ -395,7 +395,7 @@ func (s *Store) SaveEntry(entry parse.Entry, observedAt time.Time) (newEntry, ch
 		if err != nil {
 			return false, false, fmt.Errorf("read existing revision: %w", err)
 		}
-		if existing != record {
+		if existing.SourceRecord() != record {
 			return false, false, errors.New("revision file does not match its compact record")
 		}
 	}
@@ -526,9 +526,10 @@ func (s *Store) EntriesNeedingClassification(
 }
 
 type currentStoredEntry struct {
-	entry parse.Entry
-	index EntryIndex
-	base  string
+	entry    parse.Entry
+	index    EntryIndex
+	base     string
+	revision parse.Record
 }
 
 func (s *Store) loadCurrentEntries(feedID string) ([]currentStoredEntry, error) {
@@ -575,37 +576,20 @@ func (s *Store) loadCurrentEntries(feedID string) ([]currentStoredEntry, error) 
 				FeedID: feedID, EntryKey: index.EntryKey, ContentHash: index.CurrentRevision,
 				IdentityBasis: index.IdentityBasis, Identity: index.Identity,
 				SourceID: index.SourceID, Title: record.Title, URL: record.URL,
-				Summary: record.Summary, Content: record.Content,
+				Summary: record.Summary, Content: record.SourceRecord().Content,
 			},
-			index: index,
-			base:  base,
+			index:    index,
+			base:     base,
+			revision: record,
 		})
 	}
 	return entries, nil
 }
 
 func (s *Store) entryWithEnrichment(stored currentStoredEntry) (parse.Entry, error) {
-	var index EnrichmentIndex
-	err := readJSON(filepath.Join(stored.base, "enrichment.json"), &index)
-	if errors.Is(err, os.ErrNotExist) {
-		return stored.entry, nil
-	}
+	record, err := readCurrentEnrichment(stored)
 	if err != nil {
-		return parse.Entry{}, fmt.Errorf(
-			"read enrichment index for %s: %w", stored.entry.EntryKey, err,
-		)
-	}
-	var record EnrichmentRecord
-	if err := readJSON(
-		filepath.Join(stored.base, "enrichments", index.CurrentArtifact+".json"),
-		&record,
-	); err != nil {
-		return parse.Entry{}, fmt.Errorf(
-			"read enrichment artifact for %s: %w", stored.entry.EntryKey, err,
-		)
-	}
-	if record.EntryRevision != stored.entry.ContentHash {
-		return stored.entry, nil
+		return parse.Entry{}, err
 	}
 	entry := stored.entry
 	if record.Content != "" && record.Content != entry.Summary {
@@ -616,6 +600,72 @@ func (s *Store) entryWithEnrichment(stored currentStoredEntry) (parse.Entry, err
 		}
 	}
 	return entry, nil
+}
+
+func readCurrentEnrichment(stored currentStoredEntry) (EnrichmentRecord, error) {
+	var index EnrichmentIndex
+	err := readJSON(filepath.Join(stored.base, "enrichment.json"), &index)
+	if errors.Is(err, os.ErrNotExist) {
+		return EnrichmentRecord{}, nil
+	}
+	if err != nil {
+		return EnrichmentRecord{}, fmt.Errorf(
+			"read enrichment index for %s: %w", stored.entry.EntryKey, err,
+		)
+	}
+	var record EnrichmentRecord
+	if err := readJSON(
+		filepath.Join(stored.base, "enrichments", index.CurrentArtifact+".json"),
+		&record,
+	); err != nil {
+		return EnrichmentRecord{}, fmt.Errorf(
+			"read enrichment artifact for %s: %w", stored.entry.EntryKey, err,
+		)
+	}
+	if record.EntryRevision != stored.entry.ContentHash {
+		return EnrichmentRecord{}, nil
+	}
+	return record, nil
+}
+
+func (s *Store) PublishEnrichedContent(ctx context.Context, feedID string) error {
+	current, err := s.loadCurrentEntries(feedID)
+	if err != nil {
+		return err
+	}
+	for _, stored := range current {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		if stored.index.HasFeedContent || stored.entry.Content != "" {
+			continue
+		}
+		enrichment, err := readCurrentEnrichment(stored)
+		if err != nil {
+			return err
+		}
+		if enrichment.Content == "" {
+			continue
+		}
+		revision := stored.revision
+		if revision.Hash() != stored.index.CurrentRevision {
+			return fmt.Errorf("current revision content does not match entry %s", stored.index.EntryKey)
+		}
+		content := enrichment.Content
+		if content == revision.Summary {
+			content = ""
+		}
+		if revision.Content == content {
+			continue
+		}
+		revision.Content = content
+		revision.ContentFromEnrichment = content != ""
+		path := filepath.Join(stored.base, "revisions", stored.index.CurrentRevision+".json")
+		if err := writeJSON(path, revision); err != nil {
+			return fmt.Errorf("publish enrichment for %s: %w", stored.index.EntryKey, err)
+		}
+	}
+	return nil
 }
 
 func (s *Store) validateWeeklyLocations(feedID string) error {
@@ -996,7 +1046,7 @@ func (s *Store) removeRecoveredLegacyEntry(feedID, entryKey, legacyPath string) 
 				if err != nil {
 					return false, fmt.Errorf("recovered entry revision is not present: %w", err)
 				}
-				if existing != record {
+				if existing.SourceRecord() != record.SourceRecord() {
 					return false, errors.New("recovered entry revision differs from weekly entry")
 				}
 			}
@@ -1247,7 +1297,7 @@ func writeCompactRevisionIfMissing(path string, record parse.Record) error {
 		if err != nil {
 			return err
 		}
-		if stored != record {
+		if stored.SourceRecord() != record.SourceRecord() {
 			return fmt.Errorf("compact revision %s already contains different content", path)
 		}
 		return nil

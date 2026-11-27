@@ -68,11 +68,12 @@ type Entry struct {
 }
 
 type Record struct {
-	URL         string `json:"url"`
-	Title       string `json:"title"`
-	PublishedAt int64  `json:"published_at"`
-	Summary     string `json:"summary"`
-	Content     string `json:"content,omitempty"`
+	URL                   string `json:"url"`
+	Title                 string `json:"title"`
+	PublishedAt           int64  `json:"published_at"`
+	Summary               string `json:"summary"`
+	Content               string `json:"content,omitempty"`
+	ContentFromEnrichment bool   `json:"content_from_enrichment,omitempty"`
 }
 
 type Feed struct {
@@ -221,7 +222,16 @@ func (entry Entry) Record() Record {
 	}
 }
 
+func (record Record) SourceRecord() Record {
+	if record.ContentFromEnrichment {
+		record.Content = ""
+		record.ContentFromEnrichment = false
+	}
+	return record
+}
+
 func (record Record) Hash() string {
+	record = record.SourceRecord()
 	content, err := json.Marshal(record)
 	if err != nil {
 		panic("JSON record content must always marshal: " + err.Error())

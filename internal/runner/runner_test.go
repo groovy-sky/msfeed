@@ -206,9 +206,10 @@ func (c *recordingClassifier) Calls() int {
 	return c.calls
 }
 
-func TestRunStoresODataEnrichmentSeparately(t *testing.T) {
+func TestRunPublishesFullProviderContentInRevision(t *testing.T) {
 	var mu sync.Mutex
 	apiRequests := 0
+	fullBody := strings.Repeat("First body sentence. ", 100) + "Final sentence."
 	feedBody := `<?xml version="1.0"?><rss version="2.0"
 		xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Test</title>
 		<item><guid>one</guid><title>One</title><link>/one</link><description>First excerpt.</description></item>
@@ -229,10 +230,10 @@ func TestRunStoresODataEnrichmentSeparately(t *testing.T) {
 				t.Error("provider request included an entry that has feed-supplied content")
 			}
 			w.Header().Set("Content-Type", "application/json")
-			_, _ = fmt.Fprint(w, `{"value":[
-				{"id":"one","description":"<p>First complete body.</p><script>ignored()</script>"},
+			_, _ = fmt.Fprintf(w, `{"value":[
+				{"id":"one","description":%q},
 				{"id":"two","description":"<p>Second complete body.</p>"}
-			]}`)
+			]}`, "<p>"+fullBody+"</p><script>ignored()</script>")
 		default:
 			http.NotFound(w, request)
 		}
@@ -279,6 +280,31 @@ func TestRunStoresODataEnrichmentSeparately(t *testing.T) {
 	}
 	enriched := 0
 	for _, directory := range entries {
+		var entryIndex store.EntryIndex
+		if err := readJSONFile(filepath.Join(directory, "index.json"), &entryIndex); err != nil {
+			t.Fatal(err)
+		}
+		var revision parse.Record
+		revisionPath := filepath.Join(directory, "revisions", entryIndex.CurrentRevision+".json")
+		if err := readJSONFile(revisionPath, &revision); err != nil {
+			t.Fatal(err)
+		}
+		var wantContent, wantSummary string
+		switch entryIndex.SourceID {
+		case "one":
+			wantContent, wantSummary = fullBody, "First excerpt."
+		case "two":
+			wantContent, wantSummary = "Second complete body.", "Second excerpt."
+		case "three":
+			wantContent, wantSummary = "Third body supplied by the feed.", "Third excerpt."
+		default:
+			t.Fatalf("unexpected source ID %q", entryIndex.SourceID)
+		}
+		if revision.Content != wantContent || revision.Summary != wantSummary ||
+			revision.ContentFromEnrichment != (entryIndex.SourceID != "three") ||
+			revision.Hash() != entryIndex.CurrentRevision {
+			t.Fatalf("unexpected generated content for %s: %+v", entryIndex.SourceID, revision)
+		}
 		indexPath := filepath.Join(directory, "enrichment.json")
 		var index store.EnrichmentIndex
 		if err := readJSONFile(indexPath, &index); err != nil {
@@ -295,9 +321,7 @@ func TestRunStoresODataEnrichmentSeparately(t *testing.T) {
 		if err := readJSONFile(artifactPath, &artifact); err != nil {
 			t.Fatal(err)
 		}
-		if artifact.ContentType != "text/plain" ||
-			!strings.HasSuffix(artifact.Content, "complete body.") ||
-			strings.Contains(artifact.Content, "script") {
+		if artifact.ContentType != "text/plain" || artifact.Content != wantContent {
 			t.Fatalf("artifact = %+v", artifact)
 		}
 	}
@@ -407,6 +431,43 @@ func TestRunRetriesMissingEnrichmentAfterNotModified(t *testing.T) {
 	}
 	if apiCalls.Load() != 2 {
 		t.Fatalf("API calls = %d, want 2", apiCalls.Load())
+	}
+
+	revisions, err := filepath.Glob(filepath.Join(cfg.DataDir, "feeds", "test", "weeks", "*", "*", "revisions", "*.json"))
+	if err != nil || len(revisions) != 1 {
+		t.Fatalf("expected one revision, got %v: %v", revisions, err)
+	}
+	var revision parse.Record
+	if err := readJSONFile(revisions[0], &revision); err != nil {
+		t.Fatal(err)
+	}
+	if revision.Content != "Complete body." {
+		t.Fatalf("retry did not publish provider text: %+v", revision)
+	}
+	// Recreate the previous archive format, which kept provider text only in the artifact.
+	revision.Content = ""
+	revision.ContentFromEnrichment = false
+	sourceJSON, err := json.Marshal(revision)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(revisions[0], sourceJSON, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	third, err := collector.Run(context.Background(), "", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if third.Failed != 0 || !third.Feeds[0].NotModified || third.Requests != 1 || apiCalls.Load() != 2 {
+		t.Fatalf("backfill did not reuse the existing artifact: %+v, API calls = %d", third, apiCalls.Load())
+	}
+	var backfilled parse.Record
+	if err := readJSONFile(revisions[0], &backfilled); err != nil {
+		t.Fatal(err)
+	}
+	if backfilled.Content != "Complete body." || backfilled.Summary != "Source excerpt." ||
+		backfilled.Hash() != revision.Hash() {
+		t.Fatalf("unexpected backfilled revision: %+v", backfilled)
 	}
 }
 
