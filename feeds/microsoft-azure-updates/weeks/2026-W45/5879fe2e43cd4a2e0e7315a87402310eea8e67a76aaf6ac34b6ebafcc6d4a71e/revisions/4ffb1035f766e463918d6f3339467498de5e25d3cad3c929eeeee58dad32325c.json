@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=577668",
   "title": "[Launched] Generally Available: Azure Front Door TLS key exchange policy with post-quantum support",
   "published_at": 1793920788,
-  "summary": "Azure Front Door now supports configurable TLS key exchange policies, including hybrid post-quantum key exchange, to help you prepare for evolving cryptographic threats while meeting your security and client compatibility requirements. Choose a predefined"
+  "summary": "Azure Front Door now supports configurable TLS key exchange policies, including hybrid post-quantum key exchange, to help you prepare for evolving cryptographic threats while meeting your security and client compatibility requirements. Choose a predefined",
+  "content": "Azure Front Door now supports configurable TLS key exchange policies, including hybrid post-quantum key exchange, to help you prepare for evolving cryptographic threats while meeting your security and client compatibility requirements. Choose a predefined Standard or Enhanced policy, or use a Custom policy to select supported classical and hybrid post-quantum key exchange groups, including the option to select X25519. Hybrid post-quantum key exchange requires TLS 1.3 and protects client-to-edge connections; it does not apply to connections from Azure Front Door to your origin. For additional control over TLS encryption, Azure Front Door also supports disabling the TLS_AES_128_GCM_SHA256 cipher suite when TLS 1.3 is configured as the minimum TLS version in TLS Policy. Together, these updates give you more flexibility to tailor key exchange and cipher suite settings to your application’s security requirements. Learn more.",
+  "content_from_enrichment": true
 }

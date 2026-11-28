@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=580926",
   "title": "[In preview] Public Preview: Scale ExpressRoute Direct connectivity with link groups",
   "published_at": 1794946503,
-  "summary": "Azure ExpressRoute is introducing link groups for ExpressRoute Direct, enabling high-throughput workloads to scale network connectivity while reducing operational complexity. Instead of managing multiple independent ExpressRoute connections, you can aggre"
+  "summary": "Azure ExpressRoute is introducing link groups for ExpressRoute Direct, enabling high-throughput workloads to scale network connectivity while reducing operational complexity. Instead of managing multiple independent ExpressRoute connections, you can aggre",
+  "content": "Azure ExpressRoute is introducing link groups for ExpressRoute Direct, enabling high-throughput workloads to scale network connectivity while reducing operational complexity. Instead of managing multiple independent ExpressRoute connections, you can aggregate multiple physical links into a single logical connection. With link groups, you can: Scale connectivity capacity by grouping multiple ExpressRoute Direct links into a single logical connection. Improve resiliency with Link Aggregation Control Protocol (LACP), including dynamic link negotiation and failover. Simplify operations by managing aggregated connectivity and monitoring at the group level instead of operating independent connections. Customize availability behavior by configuring the minimum number of active links required for the group to remain operational. Learn more.",
+  "content_from_enrichment": true
 }

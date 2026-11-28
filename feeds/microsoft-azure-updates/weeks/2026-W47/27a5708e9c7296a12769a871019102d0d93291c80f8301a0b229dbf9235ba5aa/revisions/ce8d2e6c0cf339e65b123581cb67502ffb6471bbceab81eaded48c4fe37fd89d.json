@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=580921",
   "title": "[In preview] Public Preview: Pod snapshot cluster extension",
   "published_at": 1794945632,
-  "summary": "Restarting a sandboxed workload means losing in-memory state and repeating costly initialization. AI environments must reload models and rebuild runtime context; other sandboxed applications must repeat Java Virtual Machine (JVM) warmup or repopulate cach"
+  "summary": "Restarting a sandboxed workload means losing in-memory state and repeating costly initialization. AI environments must reload models and rebuild runtime context; other sandboxed applications must repeat Java Virtual Machine (JVM) warmup or repopulate cach",
+  "content": "Restarting a sandboxed workload means losing in-memory state and repeating costly initialization. AI environments must reload models and rebuild runtime context; other sandboxed applications must repeat Java Virtual Machine (JVM) warmup or repopulate caches. Users wait while work that was already completed runs again. We’re introducing the Pod Snapshot cluster extension to capture a supported pod runtime state and restore it on demand, preserving memory and process state in Azure Blob instead of cold-starting. Paired with the Agent Sandbox cluster extension, it lets teams capture and restore isolated agent environments. For both agent and other supported sandboxed workloads, resuming from captured state reduces repeated initialization and the wait before work can continue. Learn more.",
+  "content_from_enrichment": true
 }

@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=579216",
   "title": "[Launched] Generally Available: Database Hub in Microsoft Fabric",
   "published_at": 1794945632,
-  "summary": "Database Hub in Microsoft Fabric is a unified experience for discovering, managing, monitoring, and optimizing databases across SQL Server, Azure SQL, PostgreSQL, Azure Cosmos DB, and Fabric SQL. By bringing AI-powered insights and agents into a single co"
+  "summary": "Database Hub in Microsoft Fabric is a unified experience for discovering, managing, monitoring, and optimizing databases across SQL Server, Azure SQL, PostgreSQL, Azure Cosmos DB, and Fabric SQL. By bringing AI-powered insights and agents into a single co",
+  "content": "Database Hub in Microsoft Fabric is a unified experience for discovering, managing, monitoring, and optimizing databases across SQL Server, Azure SQL, PostgreSQL, Azure Cosmos DB, and Fabric SQL. By bringing AI-powered insights and agents into a single control plane, Database Hub simplifies database operations and helps you modernize your data estate. Learn more.",
+  "content_from_enrichment": true
 }

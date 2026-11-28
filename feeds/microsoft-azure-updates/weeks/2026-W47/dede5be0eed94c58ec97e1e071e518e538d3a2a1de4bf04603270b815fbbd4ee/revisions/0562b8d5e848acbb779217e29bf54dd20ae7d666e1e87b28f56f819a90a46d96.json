@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=579928",
   "title": "[Launched] Generally Available: Azure HorizonDB Auditing",
   "published_at": 1794945632,
-  "summary": "Azure HorizonDB now supports database auditing with the pgAudit extension. You can capture selected PostgreSQL database activities, including data access, modifications, role changes, and DDL operations, and send audit logs to Azure Monitor Log Analytics"
+  "summary": "Azure HorizonDB now supports database auditing with the pgAudit extension. You can capture selected PostgreSQL database activities, including data access, modifications, role changes, and DDL operations, and send audit logs to Azure Monitor Log Analytics",
+  "content": "Azure HorizonDB now supports database auditing with the pgAudit extension. You can capture selected PostgreSQL database activities, including data access, modifications, role changes, and DDL operations, and send audit logs to Azure Monitor Log Analytics through diagnostic settings for centralized querying and analysis. This capability helps organizations improve visibility into database activity and support security, governance, and compliance scenarios. Learn more.",
+  "content_from_enrichment": true
 }

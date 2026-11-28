@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=578773",
   "title": "[Launched] Generally Available: Azure Functions support for .NET 11",
   "published_at": 1794341265,
-  "summary": "Azure Functions support for .NET 11 is now generally available.You can now build Azure Functions apps targeting .NET 11 using the isolated worker model, while continuing to use the Azure Functions programming model and host integration. Your serverless ap"
+  "summary": "Azure Functions support for .NET 11 is now generally available.You can now build Azure Functions apps targeting .NET 11 using the isolated worker model, while continuing to use the Azure Functions programming model and host integration. Your serverless ap",
+  "content": "Azure Functions support for .NET 11 is now generally available. You can now build Azure Functions apps targeting .NET 11 using the isolated worker model, while continuing to use the Azure Functions programming model and host integration. Your serverless applications can now take advantage of the new runtime performance optimizations, richer APIs, and enhanced developer tooling through the latest .NET runtime, C#, library, and SDK improvements in this release. Learn more.",
+  "content_from_enrichment": true
 }

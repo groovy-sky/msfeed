@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=578807",
   "title": "[In preview] Public Preview: Azure Functions support for Node.js 26",
   "published_at": 1794945632,
-  "summary": "Azure Functions support for Node.js 26 is now in public preview.Developers can evaluate their JavaScript and TypeScript function apps on the new runtime while continuing to use the Azure Functions programming model on Linux in the Flex Consumption, Elasti"
+  "summary": "Azure Functions support for Node.js 26 is now in public preview.Developers can evaluate their JavaScript and TypeScript function apps on the new runtime while continuing to use the Azure Functions programming model on Linux in the Flex Consumption, Elasti",
+  "content": "Azure Functions support for Node.js 26 is now in public preview. Developers can evaluate their JavaScript and TypeScript function apps on the new runtime while continuing to use the Azure Functions programming model on Linux in the Flex Consumption, Elastic Premium, and Dedicated (App Service) plans. Linux Consumption is not supported. Support for Windows hosting plans will roll out in the future. Learn more.",
+  "content_from_enrichment": true
 }

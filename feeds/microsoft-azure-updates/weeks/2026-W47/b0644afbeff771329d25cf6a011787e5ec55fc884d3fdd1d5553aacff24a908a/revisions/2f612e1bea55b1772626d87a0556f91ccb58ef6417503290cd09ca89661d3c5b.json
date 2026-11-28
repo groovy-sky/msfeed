@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=577515",
   "title": "[In preview] Public Preview: Azure Database for MySQL on Premium SSD v2",
   "published_at": 1794945632,
-  "summary": "Azure Database for MySQL now supports Premium SSD v2 (managed disks) in public preview. Premium SSD v2 provides higher performance and better price-performance compared to Premium File Share, with the flexibility to independently scale storage capacity, I"
+  "summary": "Azure Database for MySQL now supports Premium SSD v2 (managed disks) in public preview. Premium SSD v2 provides higher performance and better price-performance compared to Premium File Share, with the flexibility to independently scale storage capacity, I",
+  "content": "Azure Database for MySQL now supports Premium SSD v2 (managed disks) in public preview. Premium SSD v2 provides higher performance and better price-performance compared to Premium File Share, with the flexibility to independently scale storage capacity, IOPS, and throughput. This update enables you to optimize costs and performance based on your workload requirements, from steady-state applications to bursty, transaction-intensive workloads. Learn more.",
+  "content_from_enrichment": true
 }

@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=579388",
   "title": "[Launched] Generally Available: Azure HorizonDB",
   "published_at": 1794945632,
-  "summary": "Azure HorizonDB is Microsoft’s next-generation, fully-managed, cloud-native PostgreSQL service designed for high-performance, AI-driven, and large-scale workloads. Currently generally available, it targets scenarios that require ultra-low latency, high sc"
+  "summary": "Azure HorizonDB is Microsoft’s next-generation, fully-managed, cloud-native PostgreSQL service designed for high-performance, AI-driven, and large-scale workloads. Currently generally available, it targets scenarios that require ultra-low latency, high sc",
+  "content": "Azure HorizonDB is Microsoft’s next-generation, fully-managed, cloud-native PostgreSQL service designed for high-performance, AI-driven, and large-scale workloads. Currently generally available, it targets scenarios that require ultra-low latency, high scalability, and built-in AI capabilities for demanding workloads. Learn more.",
+  "content_from_enrichment": true
 }

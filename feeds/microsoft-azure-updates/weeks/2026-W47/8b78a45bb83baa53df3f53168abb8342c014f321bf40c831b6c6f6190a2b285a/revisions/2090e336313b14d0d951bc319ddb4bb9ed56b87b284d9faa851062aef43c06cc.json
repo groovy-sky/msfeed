@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=574163",
   "title": "[In preview] Generally Available: Customize backup retention from 1 to 35 days in Azure HorizonDB",
   "published_at": 1794959186,
-  "summary": "You can now configure backup retention for your Azure HorizonDB deployments from 1 to 35 days, giving you greater flexibility to align backup retention with your application and data protection requirements. Choose the retention period that best fits you"
+  "summary": "You can now configure backup retention for your Azure HorizonDB deployments from 1 to 35 days, giving you greater flexibility to align backup retention with your application and data protection requirements. Choose the retention period that best fits you",
+  "content": "You can now configure backup retention for your Azure HorizonDB deployments from 1 to 35 days, giving you greater flexibility to align backup retention with your application and data protection requirements. Choose the retention period that best fits your workload and recovery needs while Azure HorizonDB manages backups for you. Learn more.",
+  "content_from_enrichment": true
 }

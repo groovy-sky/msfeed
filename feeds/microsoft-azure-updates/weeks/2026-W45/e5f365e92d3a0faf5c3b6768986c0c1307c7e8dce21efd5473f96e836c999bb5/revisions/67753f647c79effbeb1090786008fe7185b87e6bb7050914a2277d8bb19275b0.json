@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=579507",
   "title": "[In preview] Public Preview: Azure Firewall IPv6 now supports application rules",
   "published_at": 1793815783,
-  "summary": "Azure Firewall now supports application rules in IPv6 Public Preview, enabling layer 7 filtering for IPv6 HTTP and HTTPS traffic. The enhancement extends application-level controls to IPv6 and dual-stack deployments, helping customers maintain consistent"
+  "summary": "Azure Firewall now supports application rules in IPv6 Public Preview, enabling layer 7 filtering for IPv6 HTTP and HTTPS traffic. The enhancement extends application-level controls to IPv6 and dual-stack deployments, helping customers maintain consistent",
+  "content": "Azure Firewall now supports application rules in IPv6 Public Preview, enabling layer 7 filtering for IPv6 HTTP and HTTPS traffic. The enhancement extends application-level controls to IPv6 and dual-stack deployments, helping customers maintain consistent policies across IPv4 and IPv6 environments. Learn more.",
+  "content_from_enrichment": true
 }

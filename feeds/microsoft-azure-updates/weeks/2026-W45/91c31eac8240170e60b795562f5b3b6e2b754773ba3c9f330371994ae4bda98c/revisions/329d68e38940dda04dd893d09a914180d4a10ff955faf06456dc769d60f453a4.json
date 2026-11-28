@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=579300",
   "title": "[Launched] Generally Available: Azure Database for PostgreSQL stable REST API version 2026-10-01",
   "published_at": 1793817732,
-  "summary": "The Azure Database for PostgreSQL Flexible Server REST API version 2026-10-01 is now generally available. This stable API release introduces expanded capabilities for maintenance management, immutable backups, multi-tenant encryption (cross-tenant custome"
+  "summary": "The Azure Database for PostgreSQL Flexible Server REST API version 2026-10-01 is now generally available. This stable API release introduces expanded capabilities for maintenance management, immutable backups, multi-tenant encryption (cross-tenant custome",
+  "content": "The Azure Database for PostgreSQL Flexible Server REST API version 2026-10-01 is now generally available. This stable API release introduces expanded capabilities for maintenance management, immutable backups, multi-tenant encryption (cross-tenant customer-managed keys (**CMKs**), Federal Information Processing Standards (**FIPS**) configuration, network migration, Premium SSD v2 storage, and major version upgrade prechecks. It also enhances autonomous tuning recommendations and introduces more flexible PostgreSQL version handling. These enhancements enable customers to automate more server management operations, strengthen security, and streamline database administration through a stable, production-ready API. Learn more.",
+  "content_from_enrichment": true
 }

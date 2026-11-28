@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=580748",
   "title": "[Launched] Generally Available: Azure Infrastructure Resiliency Manager",
   "published_at": 1794945632,
-  "summary": "Azure Infrastructure Resiliency Manager is now generally available, offering a unified, goal-driven experience to strengthen application resiliency across Azure. You can start resilient with zonally resilient deployment templates, assess applications at s"
+  "summary": "Azure Infrastructure Resiliency Manager is now generally available, offering a unified, goal-driven experience to strengthen application resiliency across Azure. You can start resilient with zonally resilient deployment templates, assess applications at s",
+  "content": "Azure Infrastructure Resiliency Manager is now generally available, offering a unified, goal-driven experience to strengthen application resiliency across Azure. You can start resilient with zonally resilient deployment templates, assess applications at scale using Service Groups and resiliency goals, and prioritize recommendations with visibility into cost impact. Resiliency drift detection, resource and application monitoring, and built-in drills help you proactively maintain their resiliency posture, validate recoverability, and support compliance reporting. You can additionally leverage the Resiliency Agent (preview) to automatically discover application boundaries and access ready-to-run remediation scripts.",
+  "content_from_enrichment": true
 }

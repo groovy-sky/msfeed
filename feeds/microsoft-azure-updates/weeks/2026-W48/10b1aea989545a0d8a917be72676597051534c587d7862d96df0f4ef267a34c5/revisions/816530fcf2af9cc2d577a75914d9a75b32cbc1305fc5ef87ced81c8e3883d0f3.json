@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=581358",
   "title": "[In preview] Public Preview: Human annotation for agent evaluations in Microsoft Foundry",
   "published_at": 1795468283,
-  "summary": "Human annotation for agent evaluations is in public preview in Microsoft Foundry, as announced in the Microsoft IQ launch blog.Reviewers can add ratings, tags, comments, and expected outputs to agent traces. Use annotated conversation traces to build eval"
+  "summary": "Human annotation for agent evaluations is in public preview in Microsoft Foundry, as announced in the Microsoft IQ launch blog.Reviewers can add ratings, tags, comments, and expected outputs to agent traces. Use annotated conversation traces to build eval",
+  "content": "Human annotation for agent evaluations is in public preview in Microsoft Foundry, as announced in the Microsoft IQ launch blog. Reviewers can add ratings, tags, comments, and expected outputs to agent traces. Use annotated conversation traces to build evaluation datasets and curate golden datasets. Foundry can generate a task-specific rubric for each test case. Learn more.",
+  "content_from_enrichment": true
 }

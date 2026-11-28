@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=581323",
   "title": "[In preview] Public Preview: Cost controls for model and agent spending in Microsoft Foundry",
   "published_at": 1795538620,
-  "summary": "Within Microsoft Foundry, cost controls set a spending or token budget for a Foundry resource or project. When usage reaches a threshold that you set, a cost control sends an alert through Azure Event Grid or blocks new requests.You can apply a budget to"
+  "summary": "Within Microsoft Foundry, cost controls set a spending or token budget for a Foundry resource or project. When usage reaches a threshold that you set, a cost control sends an alert through Azure Event Grid or blocks new requests.You can apply a budget to",
+  "content": "Within Microsoft Foundry, cost controls set a spending or token budget for a Foundry resource or project. When usage reaches a threshold that you set, a cost control sends an alert through Azure Event Grid or blocks new requests. You can apply a budget to all usage, or filter it by project, model deployment, agent, or hosted agent session. Budgets reset daily, weekly, or monthly. Cost controls count usage as requests run, so they can act before costs appear in Azure Cost Management. During the preview, cost controls support Azure OpenAI model deployments. Spending totals are estimates and aren't reconciled with your Azure bill. Learn more.",
+  "content_from_enrichment": true
 }

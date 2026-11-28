@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=578054",
   "title": "[Launched] Generally Available: Azure Cosmos DB SDK for Rust",
   "published_at": 1794945632,
-  "summary": "The Azure Cosmos DB SDK for Rust gives you a native Rust client for building applications on Azure Cosmos DB for NoSQL. You get access to database operations directly from Rust, with built-in performance optimizations and failure handling. Efficient binar"
+  "summary": "The Azure Cosmos DB SDK for Rust gives you a native Rust client for building applications on Azure Cosmos DB for NoSQL. You get access to database operations directly from Rust, with built-in performance optimizations and failure handling. Efficient binar",
+  "content": "The Azure Cosmos DB SDK for Rust gives you a native Rust client for building applications on Azure Cosmos DB for NoSQL. You get access to database operations directly from Rust, with built-in performance optimizations and failure handling. Efficient binary encoding, automatic retries, and partition-level failover and circuit breaking are enabled by default. These capabilities help you build reliable, high-performance applications with less client configuration and custom recovery logic. Learn more.",
+  "content_from_enrichment": true
 }

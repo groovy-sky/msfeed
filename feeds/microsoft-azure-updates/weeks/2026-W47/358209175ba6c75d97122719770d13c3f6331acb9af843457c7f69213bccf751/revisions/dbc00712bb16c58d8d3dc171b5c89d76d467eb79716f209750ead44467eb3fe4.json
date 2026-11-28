@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=578262",
   "title": "[In preview] Public Preview: Fine-grained role-based access control for databases and collections in Azure DocumentDB",
   "published_at": 1794945632,
-  "summary": "Azure DocumentDB now offers granular role-based access control (RBAC) , well beyond the cluster-level permissions that have been offered in the service. You can now use database-level and collection-level RBAC to manage data access. Instead of relying onl"
+  "summary": "Azure DocumentDB now offers granular role-based access control (RBAC) , well beyond the cluster-level permissions that have been offered in the service. You can now use database-level and collection-level RBAC to manage data access. Instead of relying onl",
+  "content": "Azure DocumentDB now offers granular role-based access control (RBAC) , well beyond the cluster-level permissions that have been offered in the service. You can now use database-level and collection-level RBAC to manage data access. Instead of relying only on cluster-scoped roles, you can create custom roles for a specific database or individual collection and assign the supported data privileges your users and applications require. This update gives you greater control over who can access and modify your data, helping you apply least-privilege access across databases, applications, and workloads while keeping permissions scoped to where they are needed. Learn more.",
+  "content_from_enrichment": true
 }

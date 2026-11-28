@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=579602",
   "title": "[In preview] Public Preview: Build Knowledge Graphs with AI pipeline in Azure HorizonDB",
   "published_at": 1794945632,
-  "summary": "Build connected, context-rich graph applications directly from your PostgreSQL data with AI pipelines in Azure HorizonDB. The new knowledge graph capability uses AI to identify entities, relationships, and properties from source data and construct a query"
+  "summary": "Build connected, context-rich graph applications directly from your PostgreSQL data with AI pipelines in Azure HorizonDB. The new knowledge graph capability uses AI to identify entities, relationships, and properties from source data and construct a query",
+  "content": "Build connected, context-rich graph applications directly from your PostgreSQL data with AI pipelines in Azure HorizonDB. The new knowledge graph capability uses AI to identify entities, relationships, and properties from source data and construct a queryable graph, reducing the custom extraction, transformation, and graph-loading code typically required to get started. Configurable watermark-based incremental processing handles new source data as it arrives without rebuilding the entire graph. Once created, the knowledge graph enables applications to answer multi-hop questions that are difficult to resolve through keyword or vector search alone, such as how customers, transactions, incidents, assets, or documents are connected. You can combine semantic retrieval with graph relationships to build more contextual recommendations, accelerate investigations and root-cause analysis, and return traceable evidence explaining how an answer or conclusion was reached. Learn more.",
+  "content_from_enrichment": true
 }

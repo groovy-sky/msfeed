@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=579680",
   "title": "[Launched] Generally Available: Microsoft Foundry Support for Business Applications in Work IQ",
   "published_at": 1794945632,
-  "summary": "Business Applications in Work IQ helps developers build business-connected agents faster in Microsoft Foundry, reducing custom integration work and turning enterprise data into actionable workflows. Organizations gain more value from their existing busine"
+  "summary": "Business Applications in Work IQ helps developers build business-connected agents faster in Microsoft Foundry, reducing custom integration work and turning enterprise data into actionable workflows. Organizations gain more value from their existing busine",
+  "content": "Business Applications in Work IQ helps developers build business-connected agents faster in Microsoft Foundry, reducing custom integration work and turning enterprise data into actionable workflows. Organizations gain more value from their existing business applications while maintaining customer permissions and environment controls.",
+  "content_from_enrichment": true
 }

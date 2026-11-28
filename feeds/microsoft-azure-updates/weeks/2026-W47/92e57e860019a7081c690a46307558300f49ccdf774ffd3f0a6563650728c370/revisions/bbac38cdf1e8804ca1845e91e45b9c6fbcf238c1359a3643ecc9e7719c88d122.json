@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=578824",
   "title": "[Launched] Generally Available: Private endpoints for Azure Functions durable task scheduler",
   "published_at": 1794945632,
-  "summary": "Private endpoints for Azure Functions durable task scheduler are now generally available for both Dedicated and Consumption SKU schedulers. Customers can connect Azure Functions and other durable task SDK workloads to a scheduler through a private IP addr"
+  "summary": "Private endpoints for Azure Functions durable task scheduler are now generally available for both Dedicated and Consumption SKU schedulers. Customers can connect Azure Functions and other durable task SDK workloads to a scheduler through a private IP addr",
+  "content": "Private endpoints for Azure Functions durable task scheduler are now generally available for both Dedicated and Consumption SKU schedulers. Customers can connect Azure Functions and other durable task SDK workloads to a scheduler through a private IP address in their virtual network using Azure Private Link. Traffic remains on the Microsoft backbone instead of traversing the public internet, and customers can disable public network access so the scheduler accepts traffic only through approved private endpoints. The private endpoint uses the scheduler's existing endpoint and Microsoft Entra authentication model, allowing applications to adopt private connectivity without changing orchestration code. Customers can configure the capability through the Azure portal, Azure CLI, or Bicep and can connect multiple virtual networks to the same scheduler. Learn more.",
+  "content_from_enrichment": true
 }

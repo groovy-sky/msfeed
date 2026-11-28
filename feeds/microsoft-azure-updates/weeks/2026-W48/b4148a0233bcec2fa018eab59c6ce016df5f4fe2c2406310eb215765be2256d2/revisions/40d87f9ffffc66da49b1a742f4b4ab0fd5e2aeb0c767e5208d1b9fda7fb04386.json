@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=581318",
   "title": "[In preview] Public Preview: Azure Developer CLI extension for Azure Document Intelligence and Content Understanding in Foundry Tools",
   "published_at": 1795538759,
-  "summary": "Within Microsoft Foundry, use azd ai cu commands to analyze documents with Azure Document Intelligence and Content Understanding in Foundry Tools. The extension for Azure Developer CLI (azd) can save analysis results as Markdown or JSON.You can start with"
+  "summary": "Within Microsoft Foundry, use azd ai cu commands to analyze documents with Azure Document Intelligence and Content Understanding in Foundry Tools. The extension for Azure Developer CLI (azd) can save analysis results as Markdown or JSON.You can start with",
+  "content": "Within Microsoft Foundry, use azd ai cu commands to analyze documents with Azure Document Intelligence and Content Understanding in Foundry Tools. The extension for Azure Developer CLI (azd) can save analysis results as Markdown or JSON. You can start without Python, a language SDK, or an initialized azd project. The prebuilt-layout analyzer extracts text and layout without language or embedding model deployments. Learn more.",
+  "content_from_enrichment": true
 }

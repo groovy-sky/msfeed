@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=574535",
   "title": "[In preview] Public Preview: Azure Database for PostgreSQL enhanced Burstable tier (Basv2)",
   "published_at": 1795457379,
-  "summary": "Enhanced Burstable tier (Basv2) builds on the existing burstable model with improved performance predictability and more efficient burst utilization, delivering a better cost-performance balance. Now you can run steady workloads more economically while au"
+  "summary": "Enhanced Burstable tier (Basv2) builds on the existing burstable model with improved performance predictability and more efficient burst utilization, delivering a better cost-performance balance. Now you can run steady workloads more economically while au",
+  "content": "Enhanced Burstable tier (Basv2) builds on the existing burstable model with improved performance predictability and more efficient burst utilization, delivering a better cost-performance balance. Now you can run steady workloads more economically while automatically scaling to handle demand spikes. Learn more.",
+  "content_from_enrichment": true
 }

@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=575069",
   "title": "[Launched] Generally Available: User-assigned managed identity for Azure HorizonDB",
   "published_at": 1794945632,
-  "summary": "User-assigned managed identity (UMI) support is now generally available for Azure HorizonDB, enabling you to assign and centrally manage Azure identities for your HorizonDB clusters. With UMI, you can reduce the need to manage credentials for secure acces"
+  "summary": "User-assigned managed identity (UMI) support is now generally available for Azure HorizonDB, enabling you to assign and centrally manage Azure identities for your HorizonDB clusters. With UMI, you can reduce the need to manage credentials for secure acces",
+  "content": "User-assigned managed identity (UMI) support is now generally available for Azure HorizonDB, enabling you to assign and centrally manage Azure identities for your HorizonDB clusters. With UMI, you can reduce the need to manage credentials for secure access to Azure resources. You can use UMIs with supported HorizonDB capabilities, including customer-managed keys (CMK) and Microsoft Entra authentication, helping you build more secure integrations while reducing the operational burden of managing credentials. Learn more.",
+  "content_from_enrichment": true
 }

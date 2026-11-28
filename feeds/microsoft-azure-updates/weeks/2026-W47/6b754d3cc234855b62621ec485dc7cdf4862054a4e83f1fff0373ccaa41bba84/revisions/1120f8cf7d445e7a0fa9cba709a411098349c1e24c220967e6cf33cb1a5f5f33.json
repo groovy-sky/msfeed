@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=579201",
   "title": "[In preview] Public Preview: Service tags for inbound rules in network security perimeter",
   "published_at": 1794948748,
-  "summary": "Announcing the public preview of 'service tags as inbound rules' support for third-party customers in network security perimeter. This new capability simplifies how customers manage access to in network security perimeter-protected resources by allowing t"
+  "summary": "Announcing the public preview of 'service tags as inbound rules' support for third-party customers in network security perimeter. This new capability simplifies how customers manage access to in network security perimeter-protected resources by allowing t",
+  "content": "Announcing the public preview of 'service tags as inbound rules' support for third-party customers in network security perimeter. This new capability simplifies how customers manage access to in network security perimeter-protected resources by allowing them to use service tags as part of network security perimeter access rules when connecting to supported third-party services. Learn more.",
+  "content_from_enrichment": true
 }

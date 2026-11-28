@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=579933",
   "title": "[Launched] Generally Available: Azure HorizonDB Monitoring via Alerts",
   "published_at": 1794945632,
-  "summary": "Azure HorizonDB now supports Azure Monitor alerts, enabling you to proactively monitor your database environment and receive notifications when specified conditions are met. You can create alert rules based on HorizonDB metrics, configure thresholds, and"
+  "summary": "Azure HorizonDB now supports Azure Monitor alerts, enabling you to proactively monitor your database environment and receive notifications when specified conditions are met. You can create alert rules based on HorizonDB metrics, configure thresholds, and",
+  "content": "Azure HorizonDB now supports Azure Monitor alerts, enabling you to proactively monitor your database environment and receive notifications when specified conditions are met. You can create alert rules based on HorizonDB metrics, configure thresholds, and take action when potential performance, availability, or resource utilization issues are detected. Learn more.",
+  "content_from_enrichment": true
 }

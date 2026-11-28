@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=564451",
   "title": "[Launched] Generally Available: Azure Cobalt 200 Arm-based Dpsv7, Dplsv7, Epsv7, Mpsv4, and Lpsv5-series Virtual Machines",
   "published_at": 1780434030,
-  "summary": "The general purpose Dpsv7 and Dplsv7, memory-optimized Epsv7, high-memory Mpsv4, and dense storage Lpsv5 VMs are now generally available. These virtual machines deliver significant enhancements over the previous generation Cobalt 100 VMs, offering improve"
+  "summary": "The general purpose Dpsv7 and Dplsv7, memory-optimized Epsv7, high-memory Mpsv4, and dense storage Lpsv5 VMs are now generally available. These virtual machines deliver significant enhancements over the previous generation Cobalt 100 VMs, offering improve",
+  "content": "The general purpose Dpsv7 and Dplsv7, memory-optimized Epsv7, high-memory Mpsv4, and dense storage Lpsv5 VMs are now generally available. These virtual machines deliver significant enhancements over the previous generation Cobalt 100 VMs, offering improved CPU performance, greater scalability, and expanded configuration options to meet the demands of a wide range of workloads. Key improvements include: Up to 50% improvement in CPU performance (workload dependent) 20% improvement in remote storage IOPS with NVMe 10% better remote storage throughput with NVMe 15% improvement in network bandwidth Learn more.",
+  "content_from_enrichment": true
 }

@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=579369",
   "title": "[In preview] Public Preview: Azure Files NFS shares on HDD",
   "published_at": 1794945632,
-  "summary": "Azure Files now supports NFS shares on HDD in public preview, expanding beyond the existing SSD offering with a cost-effective, fully managed option for Linux workloads such as general-purpose applications, shared datasets, and backups where cost efficien"
+  "summary": "Azure Files now supports NFS shares on HDD in public preview, expanding beyond the existing SSD offering with a cost-effective, fully managed option for Linux workloads such as general-purpose applications, shared datasets, and backups where cost efficien",
+  "content": "Azure Files now supports NFS shares on HDD in public preview, expanding beyond the existing SSD offering with a cost-effective, fully managed option for Linux workloads such as general-purpose applications, shared datasets, and backups where cost efficiency is the priority. Key benefits: Align storage spending with workload needs: Choose HDD for cost-sensitive data and SSD for performance-sensitive application data. Retain familiar NFS access: Move Linux workloads from on-premises file servers and NAS environments to a fully managed service. Configure capacity and performance independently: Provision capacity, IOPS, and throughput to match workload requirements with Provisioned v2 billing. To get started, complete the NFS HDD signup survey to request access. For questions or feedback, contact azfilespreview@microsoft.com. Learn more: Azure Files NFS learning documentation NFS HDD signup survey",
+  "content_from_enrichment": true
 }

@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=578792",
   "title": "[In preview] Public Preview: Network Watcher Private Link support",
   "published_at": 1794945632,
-  "summary": "Azure Network Watcher VNet Flow Logs now supports flow log enrichment for Azure Private Link Service, providing greater visibility into network traffic flowing through Private Link Service. With this capability, Virtual Network Flow Logs retain backend fl"
+  "summary": "Azure Network Watcher VNet Flow Logs now supports flow log enrichment for Azure Private Link Service, providing greater visibility into network traffic flowing through Private Link Service. With this capability, Virtual Network Flow Logs retain backend fl",
+  "content": "Azure Network Watcher VNet Flow Logs now supports flow log enrichment for Azure Private Link Service, providing greater visibility into network traffic flowing through Private Link Service. With this capability, Virtual Network Flow Logs retain backend flow details while adding context about the original source, translated Private Link Service address information, and the Private Link connection identifier. This helps service providers trace connections from the original client, through the Private Endpoint and Private Link Service translation layer, to the backend workload. Traffic Analytics also supports this enriched Private Link Service traffic, extending its monitoring and analytics capabilities to Private Link Service scenarios. You can now use Traffic Analytics to visualize traffic patterns, monitor network communication, investigate connectivity and security issues, and gain actionable insights into workloads exposed through Private Link Service. Learn more.",
+  "content_from_enrichment": true
 }

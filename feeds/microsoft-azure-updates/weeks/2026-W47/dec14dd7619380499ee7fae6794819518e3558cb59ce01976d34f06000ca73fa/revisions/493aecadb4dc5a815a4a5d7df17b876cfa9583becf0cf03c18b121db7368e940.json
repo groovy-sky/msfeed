@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=578748",
   "title": "[In preview] Public Preview: Durable Task SDK for Go",
   "published_at": 1794945632,
-  "summary": "The Durable Task SDK for Go is available in public preview. Developers can write orchestrations, activities, and durable entities in Go, with Durable Task Scheduler managing execution history and work dispatch. Customers can build workflows with retries,"
+  "summary": "The Durable Task SDK for Go is available in public preview. Developers can write orchestrations, activities, and durable entities in Go, with Durable Task Scheduler managing execution history and work dispatch. Customers can build workflows with retries,",
+  "content": "The Durable Task SDK for Go is available in public preview. Developers can write orchestrations, activities, and durable entities in Go, with Durable Task Scheduler managing execution history and work dispatch. Customers can build workflows with retries, timers, external events, and parallel processing while running workers on their own compute. Learn more.",
+  "content_from_enrichment": true
 }

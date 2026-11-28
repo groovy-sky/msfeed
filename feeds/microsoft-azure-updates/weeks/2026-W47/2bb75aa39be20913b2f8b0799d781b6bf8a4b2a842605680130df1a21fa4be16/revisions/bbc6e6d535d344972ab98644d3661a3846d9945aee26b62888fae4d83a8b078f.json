@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=577568",
   "title": "[In preview] Public Preview: Azure Managed Redis agent kit",
   "published_at": 1794945632,
-  "summary": "The Azure Managed Redis agent kit makes guidance for building and operating production-ready Redis applications available directly into your AI-assisted development workflows. You get recommendations for caching, messaging, search, AI patterns, client con"
+  "summary": "The Azure Managed Redis agent kit makes guidance for building and operating production-ready Redis applications available directly into your AI-assisted development workflows. You get recommendations for caching, messaging, search, AI patterns, client con",
+  "content": "The Azure Managed Redis agent kit makes guidance for building and operating production-ready Redis applications available directly into your AI-assisted development workflows. You get recommendations for caching, messaging, search, AI patterns, client configuration, resilience, and performance, along with Azure-specific guidance for provisioning, networking, security, availability, geo-replication, durability, and observability. The kit helps you make informed design choices, identify configuration issues earlier, and move from development to production with greater confidence. It also connects you to guided workflows for migrating from Azure Cache for Redis and Azure Cache for Redis Enterprise to Azure Managed Redis. Learn more.",
+  "content_from_enrichment": true
 }

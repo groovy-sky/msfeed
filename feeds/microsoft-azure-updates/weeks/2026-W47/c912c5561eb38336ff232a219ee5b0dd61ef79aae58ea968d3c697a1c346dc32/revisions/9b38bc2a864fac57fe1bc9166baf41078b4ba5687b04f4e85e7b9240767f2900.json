@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=579031",
   "title": "[In preview] Public Preview: Azure Blob Storage turbo tier",
   "published_at": 1794945632,
-  "summary": "Azure Blob Storage turbo tier is now in Public Preview, bringing SSD-backed performance to performance-sensitive data in eligible Azure Blob Storage accounts. Designed for AI training, inference, analytics, and other demanding data workloads, turbo tier d"
+  "summary": "Azure Blob Storage turbo tier is now in Public Preview, bringing SSD-backed performance to performance-sensitive data in eligible Azure Blob Storage accounts. Designed for AI training, inference, analytics, and other demanding data workloads, turbo tier d",
+  "content": "Azure Blob Storage turbo tier is now in Public Preview, bringing SSD-backed performance to performance-sensitive data in eligible Azure Blob Storage accounts. Designed for AI training, inference, analytics, and other demanding data workloads, turbo tier delivers high throughput and low latency for active data while allowing less-active data to remain on cost-efficient HDD-backed access tiers. Smart placement helps manage the active working set as access patterns change, while customers retain a single storage account with their data, namespace, and Blob API surface. Turbo tier public preview is available for eligible Azure Blob Storage LRS accounts in selected regions. Preview access is subject to regional capacity and eligibility. Learn more.",
+  "content_from_enrichment": true
 }

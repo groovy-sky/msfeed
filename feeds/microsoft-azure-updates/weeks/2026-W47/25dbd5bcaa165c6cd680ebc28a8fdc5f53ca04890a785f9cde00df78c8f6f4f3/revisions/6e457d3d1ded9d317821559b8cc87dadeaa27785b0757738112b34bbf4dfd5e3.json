@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=578989",
   "title": "[In preview] Public Preview: Task Queues for Azure Functions durable task scheduler",
   "published_at": 1794945632,
-  "summary": "Task Queues for Azure Functions durable task scheduler are now available in public preview. Workloads sharing a task hub can have different throughput requirements and downstream service limits. Create named queues within a task hub and configure a shared"
+  "summary": "Task Queues for Azure Functions durable task scheduler are now available in public preview. Workloads sharing a task hub can have different throughput requirements and downstream service limits. Create named queues within a task hub and configure a shared",
+  "content": "Task Queues for Azure Functions durable task scheduler are now available in public preview. Workloads sharing a task hub can have different throughput requirements and downstream service limits. Create named queues within a task hub and configure a shared actions-per-second dispatch rate for orchestration and activity work. Select a queue by setting the DTS_TaskQueue tag to the queue’s name when starting a workflow. Teams can pace workloads and assign separate throughput budgets without changing function names. The rate controls work-item dispatch, not execution concurrency. Learn more.",
+  "content_from_enrichment": true
 }

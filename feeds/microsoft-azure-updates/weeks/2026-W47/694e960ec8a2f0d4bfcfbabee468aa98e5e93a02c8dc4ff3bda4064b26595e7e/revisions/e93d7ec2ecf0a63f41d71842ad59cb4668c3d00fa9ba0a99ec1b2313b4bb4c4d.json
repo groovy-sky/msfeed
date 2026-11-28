@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=578314",
   "title": "[Launched] Generally Available: Azure HorizonDB now available in 15 regions",
   "published_at": 1794945632,
-  "summary": "Azure HorizonDB is expanding to additional Azure regions, giving you greater flexibility to deploy PostgreSQL workloads closer to your applications and users. With expanded regional availability, you have more options when choosing where to deploy Azure"
+  "summary": "Azure HorizonDB is expanding to additional Azure regions, giving you greater flexibility to deploy PostgreSQL workloads closer to your applications and users. With expanded regional availability, you have more options when choosing where to deploy Azure",
+  "content": "Azure HorizonDB is expanding to additional Azure regions, giving you greater flexibility to deploy PostgreSQL workloads closer to your applications and users. With expanded regional availability, you have more options when choosing where to deploy Azure HorizonDB based on your workload needs. Learn more.",
+  "content_from_enrichment": true
 }

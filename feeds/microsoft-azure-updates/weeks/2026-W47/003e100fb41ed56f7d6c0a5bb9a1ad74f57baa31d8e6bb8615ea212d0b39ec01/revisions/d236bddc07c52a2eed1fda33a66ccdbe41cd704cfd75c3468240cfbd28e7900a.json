@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=577599",
   "title": "[In preview] Public Preview: Shard-level metrics in Azure Managed Redis",
   "published_at": 1794945632,
-  "summary": "Azure Managed Redis now provides shard-level metrics, giving you greater visibility into the performance of individual shards. This added granularity helps you understand workload distribution, identify potential hotspots, and troubleshoot performance mor"
+  "summary": "Azure Managed Redis now provides shard-level metrics, giving you greater visibility into the performance of individual shards. This added granularity helps you understand workload distribution, identify potential hotspots, and troubleshoot performance mor",
+  "content": "Azure Managed Redis now provides shard-level metrics, giving you greater visibility into the performance of individual shards. This added granularity helps you understand workload distribution, identify potential hotspots, and troubleshoot performance more effectively. Learn more.",
+  "content_from_enrichment": true
 }

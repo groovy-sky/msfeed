@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=581220",
   "title": "[In preview] Public Preview: Sovereign Control Panel",
   "published_at": 1794945632,
-  "summary": "Sovereign Control Panel is now available in Public Preview. Sovereign Control Panel is an Azure portal experience designed to help organizations assess and continuously monitor their sovereignty posture, understand the evidence behind identified gaps, and"
+  "summary": "Sovereign Control Panel is now available in Public Preview. Sovereign Control Panel is an Azure portal experience designed to help organizations assess and continuously monitor their sovereignty posture, understand the evidence behind identified gaps, and",
+  "content": "Sovereign Control Panel is now available in Public Preview. Sovereign Control Panel is an Azure portal experience designed to help organizations assess and continuously monitor their sovereignty posture, understand the evidence behind identified gaps, and take guided action to address them. From a centralized experience, customers can apply sovereignty controls, prioritize remediation recommendations, and track improvements across their existing Azure estate, reducing the need to manually assemble information across tools and teams for each assessment. Learn more.",
+  "content_from_enrichment": true
 }

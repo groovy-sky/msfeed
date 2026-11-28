@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=581383",
   "title": "[In preview] Public Preview: Use the Messages API with model router in Microsoft Foundry",
   "published_at": 1795465900,
-  "summary": "Model router in Microsoft Foundry supports the Messages API in public preview. Messages-based applications and coding tools can use automatic model selection while keeping the Anthropic request and response format.Messages requests route only to supported"
+  "summary": "Model router in Microsoft Foundry supports the Messages API in public preview. Messages-based applications and coding tools can use automatic model selection while keeping the Anthropic request and response format.Messages requests route only to supported",
+  "content": "Model router in Microsoft Foundry supports the Messages API in public preview. Messages-based applications and coding tools can use automatic model selection while keeping the Anthropic request and response format. Messages requests route only to supported Claude models, not the full model router pool. Deploy each Claude model you want to use as a Global Standard deployment in the same Foundry resource. Send requests to your resource's /anthropic/v1/messages endpoint with model set to your model router deployment name or auto. The Anthropic SDK, Claude Code, and Claude Agent SDK can use this API. Each response identifies the Claude model that answered. Learn more: From model choice to your durable advantage: Build AI that keeps improving Call model router with Responses, Chat Completions, or Messages",
+  "content_from_enrichment": true
 }

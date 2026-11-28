@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=578980",
   "title": "[In preview] Public Preview: Azure Functions Network Troubleshooter v2",
   "published_at": 1794945632,
-  "summary": "Azure Functions Network Troubleshooter v2 is now in Public Preview. Network Troubleshooter v2 gives customers a top-down view of Function App dependencies across Storage, Service Bus, and Azure Files. For each supported dependency, customers can inspect c"
+  "summary": "Azure Functions Network Troubleshooter v2 is now in Public Preview. Network Troubleshooter v2 gives customers a top-down view of Function App dependencies across Storage, Service Bus, and Azure Files. For each supported dependency, customers can inspect c",
+  "content": "Azure Functions Network Troubleshooter v2 is now in Public Preview. Network Troubleshooter v2 gives customers a top-down view of Function App dependencies across Storage, Service Bus, and Azure Files. For each supported dependency, customers can inspect connectivity status and verify whether Managed Identity is configured correctly. By bringing dependency discovery and these checks into one experience, it reduces the need to diagnose connectivity and configuration issues separately. There are no plan, region, or Managed Identity prerequisites or limitations. Learn more.",
+  "content_from_enrichment": true
 }

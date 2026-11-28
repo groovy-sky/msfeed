@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=578465",
   "title": "[Launched] Generally Available: Azure SQL Managed Instance updates for mid-November 2026",
   "published_at": 1794945632,
-  "summary": "In mid-November 2026, the following updates and enhancements were made to Azure SQL Managed Instance: Boost transaction throughput in Next-gen General Purpose Azure SQL Managed Instance with increased log rates of up to 220 MiB/s and higher pe"
+  "summary": "In mid-November 2026, the following updates and enhancements were made to Azure SQL Managed Instance: Boost transaction throughput in Next-gen General Purpose Azure SQL Managed Instance with increased log rates of up to 220 MiB/s and higher pe",
+  "content": "In mid-November 2026, the following updates and enhancements were made to Azure SQL Managed Instance: Boost transaction throughput in Next-gen General Purpose Azure SQL Managed Instance with increased log rates of up to 220 MiB/s and higher per vCore throughput, improving performance for transaction-intensive workloads. Right-size storage and compute more efficiently in Next-gen General Purpose Azure SQL Managed Instance with improved storage-to-vCore ratios and finer-grained storage scaling, reducing the need to overprovision vCores for storage-intensive workloads. Right-size memory independently of vCores for zone-redundant Next-gen General Purpose Azure SQL Managed Instances, helping optimize performance and resource utilization without overprovisioning compute. Learn more: New capabilities in Next-gen General Purpose Flexible Memory in Azure SQL Managed Instance",
+  "content_from_enrichment": true
 }

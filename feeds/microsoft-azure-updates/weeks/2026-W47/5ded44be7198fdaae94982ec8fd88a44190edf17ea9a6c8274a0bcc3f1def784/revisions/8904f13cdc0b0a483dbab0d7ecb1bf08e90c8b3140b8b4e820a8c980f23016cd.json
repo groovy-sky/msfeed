@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=580091",
   "title": "[In preview] Public Preview: Database Agent for SQL with contextual Copilot",
   "published_at": 1794955381,
-  "summary": "Database Agent now gives you AI-generated, evidence-grounded recommendations for detected database issues, including why the issue matters, the likely cause, and the recommended next step. Recommendations draw on available issue evidence and Microsoft-aut"
+  "summary": "Database Agent now gives you AI-generated, evidence-grounded recommendations for detected database issues, including why the issue matters, the likely cause, and the recommended next step. Recommendations draw on available issue evidence and Microsoft-aut",
+  "content": "Database Agent now gives you AI-generated, evidence-grounded recommendations for detected database issues, including why the issue matters, the likely cause, and the recommended next step. Recommendations draw on available issue evidence and Microsoft-authored scenario knowledge. They distinguish observed evidence from AI-generated conclusions and communicate uncertainty when evidence is incomplete, stale, or conflicting. Recommendations are presented for your review before any state-changing action. Learn more.",
+  "content_from_enrichment": true
 }

@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=579649",
   "title": "[In preview] Public Preview: Azure Application Gateway confidential compute support",
   "published_at": 1794945632,
-  "summary": "Azure Application Gateway confidential compute helps organizations protect sensitive data not only in transit, but also while the gateway processes it. By running the Application Gateway data plane in a confidential computing environment, decrypted reques"
+  "summary": "Azure Application Gateway confidential compute helps organizations protect sensitive data not only in transit, but also while the gateway processes it. By running the Application Gateway data plane in a confidential computing environment, decrypted reques",
+  "content": "Azure Application Gateway confidential compute helps organizations protect sensitive data not only in transit, but also while the gateway processes it. By running the Application Gateway data plane in a confidential computing environment, decrypted request and response data receives hardware-backed protection while being inspected and routed. Organizations can extend confidential computing to the application delivery layer while retaining managed capabilities including TLS termination, WAF, Layer 7 routing, Layer 4 proxying, load balancing, and observability. This is particularly useful for confidential web applications, APIs, AI applications, and regulated workloads that require stronger protection for sensitive data in use. The add-on is available for Standard V2 and WAF V2 SKUs. Learn more.",
+  "content_from_enrichment": true
 }

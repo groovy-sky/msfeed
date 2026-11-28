@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=581199",
   "title": "[In development] Private Preview: Azure confidential VMs on 5th Gen AMD EPYC processors (DCasv7 and ECasv7 series)",
   "published_at": 1794945632,
-  "summary": "Azure's next-generation confidential VMs, the DCasv7, DCadsv7, DCalsv7, DCaldsv7, ECasv7 and ECadsv7 series, are now in private preview. Built on 5th Gen AMD EPYC processors with AMD SEV-SNP, they protect data while it's being processed by isolating each"
+  "summary": "Azure's next-generation confidential VMs, the DCasv7, DCadsv7, DCalsv7, DCaldsv7, ECasv7 and ECadsv7 series, are now in private preview. Built on 5th Gen AMD EPYC processors with AMD SEV-SNP, they protect data while it's being processed by isolating each",
+  "content": "Azure's next-generation confidential VMs, the DCasv7, DCadsv7, DCalsv7, DCaldsv7, ECasv7 and ECadsv7 series, are now in private preview. Built on 5th Gen AMD EPYC processors with AMD SEV-SNP, they protect data while it's being processed by isolating each VM in hardware from the hypervisor, host operators and other tenants. Customers can move sensitive, regulated workloads to the cloud without changing their code. General-purpose, low-memory and memory-optimized sizes are available, with or without local disk, so customers can match price and performance to each workload while meeting privacy, compliance and sovereignty requirements.",
+  "content_from_enrichment": true
 }

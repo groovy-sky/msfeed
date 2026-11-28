@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=581308",
   "title": "[In development] Private Preview: Azure DH/EHasv8 VMs based on 6th Gen AMD EPYC™ (“Venice”) processors",
   "published_at": 1794955250,
-  "summary": "We are announcing the preview of the new Azure DHasv8, DHalsv8 and EHasv8-series virtual machines (VMs), powered by 6th Generation AMD EPYC™ (“Venice”) processors. Designed for the next generation of cloud applications, these VMs deliver expanded compute"
+  "summary": "We are announcing the preview of the new Azure DHasv8, DHalsv8 and EHasv8-series virtual machines (VMs), powered by 6th Generation AMD EPYC™ (“Venice”) processors. Designed for the next generation of cloud applications, these VMs deliver expanded compute",
+  "content": "We are announcing the preview of the new Azure DHasv8, DHalsv8 and EHasv8-series virtual machines (VMs), powered by 6th Generation AMD EPYC™ (“Venice”) processors. Designed for the next generation of cloud applications, these VMs deliver expanded compute and memory scalability, enhanced storage and networking performance, and flexible configurations to support demanding enterprise, database, and abroader range of AI workloads. The preview includes general purpose (DHasv8-series \u0026 DHalsv8-series) and memory-optimized (EHasv8-series) VMs, available with and without local disks. Key enhancements include expanded VM sizes up to 480 cores to support diverse workload requirements; increased memory capacity of up to 3.8 TiB on the EHasv8-series for memory-intensive workloads; and up to 2x higher remote storage IOPS and networking bandwidth on the largest VM sizes compared to the previous generation. Learn more.",
+  "content_from_enrichment": true
 }

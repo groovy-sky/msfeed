@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=579004",
   "title": "[In preview] Public Preview: MSSQL extension for Visual Studio Code performance dashboard",
   "published_at": 1794945632,
-  "summary": "The new query performance dashboard, now in public preview in the MSSQL extension for VS Code, leverages Query Store to surface performance insights, analyze trends, investigate execution plans, and optimize queries with GitHub Copilot.Learn more."
+  "summary": "The new query performance dashboard, now in public preview in the MSSQL extension for VS Code, leverages Query Store to surface performance insights, analyze trends, investigate execution plans, and optimize queries with GitHub Copilot.Learn more.",
+  "content": "The new query performance dashboard, now in public preview in the MSSQL extension for VS Code, leverages Query Store to surface performance insights, analyze trends, investigate execution plans, and optimize queries with GitHub Copilot. Learn more.",
+  "content_from_enrichment": true
 }

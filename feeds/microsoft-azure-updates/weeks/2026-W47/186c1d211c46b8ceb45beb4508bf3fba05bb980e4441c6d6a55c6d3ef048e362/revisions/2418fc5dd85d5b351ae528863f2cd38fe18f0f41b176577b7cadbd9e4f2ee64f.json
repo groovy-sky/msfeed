@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=578242",
   "title": "[In preview] Public Preview: DocumentDB enabled by Azure Arc",
   "published_at": 1794945632,
-  "summary": "With the public preview of DocumentDB enabled by Azure Arc, you can deploy DocumentDB on supported Azure Arc-enabled Kubernetes clusters across on-premises, edge, and multicloud environments. Run MongoDB-compatible document workloads where applications an"
+  "summary": "With the public preview of DocumentDB enabled by Azure Arc, you can deploy DocumentDB on supported Azure Arc-enabled Kubernetes clusters across on-premises, edge, and multicloud environments. Run MongoDB-compatible document workloads where applications an",
+  "content": "With the public preview of DocumentDB enabled by Azure Arc, you can deploy DocumentDB on supported Azure Arc-enabled Kubernetes clusters across on-premises, edge, and multicloud environments. Run MongoDB-compatible document workloads where applications and data need to reside, while using Azure Arc for inventory, configuration, and governance of the underlying Kubernetes infrastructure. Built on PostgreSQL, DocumentDB supports familiar MongoDB-compatible APIs and tools. Learn more.",
+  "content_from_enrichment": true
 }

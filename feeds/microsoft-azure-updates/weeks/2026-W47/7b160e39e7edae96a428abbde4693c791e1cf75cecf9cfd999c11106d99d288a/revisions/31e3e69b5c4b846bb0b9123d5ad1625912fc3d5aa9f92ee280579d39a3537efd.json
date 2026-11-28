@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=579009",
   "title": "[In preview] Public Preview: MSSQL extension for Visual Studio Code- Azure SQL Database container provisioning",
   "published_at": 1794945632,
-  "summary": "The MSSQL extension now supports the Azure SQL Database container, making it easy to create and manage a cloud-aligned local database environment directly in Visual Studio Code. With automatic runtime detection across Docker, WSL, Apple containers, Podman"
+  "summary": "The MSSQL extension now supports the Azure SQL Database container, making it easy to create and manage a cloud-aligned local database environment directly in Visual Studio Code. With automatic runtime detection across Docker, WSL, Apple containers, Podman",
+  "content": "The MSSQL extension now supports the Azure SQL Database container, making it easy to create and manage a cloud-aligned local database environment directly in Visual Studio Code. With automatic runtime detection across Docker, WSL, Apple containers, Podman, and more, plus simple configuration and one-click provisioning, you can get started in seconds without manual container commands. Learn more.",
+  "content_from_enrichment": true
 }

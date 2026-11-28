@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=581463",
   "title": "[Launched] Generally Available: Governance policy guidance in Foundry Canvas and VS Code",
   "published_at": 1795221913,
-  "summary": "Microsoft Foundry governance guidance is now available in Foundry Canvas and the Foundry Toolkit for Visual Studio Code. As developers build agents, both experiences surface relevant policies for agent types, models, toolboxes, and guardrails, with warnin"
+  "summary": "Microsoft Foundry governance guidance is now available in Foundry Canvas and the Foundry Toolkit for Visual Studio Code. As developers build agents, both experiences surface relevant policies for agent types, models, toolboxes, and guardrails, with warnin",
+  "content": "Microsoft Foundry governance guidance is now available in Foundry Canvas and the Foundry Toolkit for Visual Studio Code. As developers build agents, both experiences surface relevant policies for agent types, models, toolboxes, and guardrails, with warnings and next steps to address them. In VS Code, policy-specific errors identify disallowed tools when saving an agent or toolbox and link to policy details in the Foundry portal. Policy administration remains centralized in Foundry, so developers can act within their workflow without managing separate rules. Learn more: Set up Microsoft Foundry developer tools Explore Foundry DevTools on GitHub",
+  "content_from_enrichment": true
 }

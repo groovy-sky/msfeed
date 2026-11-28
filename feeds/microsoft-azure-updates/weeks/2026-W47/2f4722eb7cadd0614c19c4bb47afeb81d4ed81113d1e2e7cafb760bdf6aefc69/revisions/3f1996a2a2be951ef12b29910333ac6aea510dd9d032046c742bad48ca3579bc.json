@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=579574",
   "title": "[Launched] Generally Available: Azure HorizonDB Generic Log Analytics Integration",
   "published_at": 1794945632,
-  "summary": "Azure HorizonDB now supports integration with Azure Monitor diagnostic settings, enabling you to send database logs and diagnostic data to Azure Log Analytics. This provides a centralized way to query and analyze database activity, troubleshoot issues, an"
+  "summary": "Azure HorizonDB now supports integration with Azure Monitor diagnostic settings, enabling you to send database logs and diagnostic data to Azure Log Analytics. This provides a centralized way to query and analyze database activity, troubleshoot issues, an",
+  "content": "Azure HorizonDB now supports integration with Azure Monitor diagnostic settings, enabling you to send database logs and diagnostic data to Azure Log Analytics. This provides a centralized way to query and analyze database activity, troubleshoot issues, and monitor your HorizonDB environment alongside other Azure resources. Learn more.",
+  "content_from_enrichment": true
 }

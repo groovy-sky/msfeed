@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=579943",
   "title": "[In preview] Public Preview: AI-powered application and database modernization with Modernize CLI",
   "published_at": 1795024725,
-  "summary": "Modernize CLI brings application and database modernization together as one connected, agentic journey. It assesses application architecture, dependencies, and cloud readiness while discovering the databases the application relies on and invoking speciali"
+  "summary": "Modernize CLI brings application and database modernization together as one connected, agentic journey. It assesses application architecture, dependencies, and cloud readiness while discovering the databases the application relies on and invoking speciali",
+  "content": "Modernize CLI brings application and database modernization together as one connected, agentic journey. It assesses application architecture, dependencies, and cloud readiness while discovering the databases the application relies on and invoking specialized database skills for compatibility, migration readiness, and target recommendations. The combined insights create a coordinated modernization plan spanning application code and the data layer. You can then use GitHub Copilot to remediate the application and database changes and validate the workload end to end on Azure, transforming what were traditionally separate modernization efforts into a single integrated experience. Learn more.",
+  "content_from_enrichment": true
 }

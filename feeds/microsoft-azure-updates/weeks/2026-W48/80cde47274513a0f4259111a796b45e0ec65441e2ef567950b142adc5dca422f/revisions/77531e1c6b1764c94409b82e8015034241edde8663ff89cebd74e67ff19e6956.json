@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=577474",
   "title": "Retirement: Azure AI Content Safety selected features will be retired on April 30, 2027",
   "published_at": 1795457491,
-  "summary": "The following Azure AI Content Safety preview capabilities will retire on April 30, 2027:Analyze MultimodalCustom categories (rapid), including text and imageConnected containers for Text, Image, and Prompt ShieldsDisconnected containers for Text, ImageEm"
+  "summary": "The following Azure AI Content Safety preview capabilities will retire on April 30, 2027:Analyze MultimodalCustom categories (rapid), including text and imageConnected containers for Text, Image, and Prompt ShieldsDisconnected containers for Text, ImageEm",
+  "content": "The following Azure AI Content Safety preview capabilities will retire on April 30, 2027: Analyze Multimodal Custom categories (rapid), including text and image Connected containers for Text, Image, and Prompt Shields Disconnected containers for Text, Image Embedded Content Safety SDK Groundedness detection in Azure AI Content Safety and Azure OpenAI If you use these capabilities, review the recommended alternatives and plan your migration before the retirement date. Learn more.",
+  "content_from_enrichment": true
 }

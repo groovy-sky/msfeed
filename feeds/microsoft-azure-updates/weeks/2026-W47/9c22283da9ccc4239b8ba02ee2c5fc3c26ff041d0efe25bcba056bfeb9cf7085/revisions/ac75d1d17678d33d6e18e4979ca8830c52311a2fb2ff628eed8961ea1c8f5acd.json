@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=578768",
   "title": "[Launched] Generally Available: Customer-managed keys for Azure Functions durable task scheduler",
   "published_at": 1794945632,
-  "summary": "Customer-managed keys for Azure Functions Durable Task Scheduler are now generally available for Dedicated SKU schedulers.Organizations that need to manage their own encryption keys can now use customer-managed keys to protect their workflow data, support"
+  "summary": "Customer-managed keys for Azure Functions Durable Task Scheduler are now generally available for Dedicated SKU schedulers.Organizations that need to manage their own encryption keys can now use customer-managed keys to protect their workflow data, support",
+  "content": "Customer-managed keys for Azure Functions Durable Task Scheduler are now generally available for Dedicated SKU schedulers. Organizations that need to manage their own encryption keys can now use customer-managed keys to protect their workflow data, supporting separation of duties, centralized auditing of key access, and customer-defined key rotation policies. Customers can use a key they own in Azure Key Vault or Azure Managed Hardware Security Module (HSM) to protect scheduler data at rest. Configuration is available through the ARM REST API, Azure CLI using az rest, or Bicep. Learn more.",
+  "content_from_enrichment": true
 }

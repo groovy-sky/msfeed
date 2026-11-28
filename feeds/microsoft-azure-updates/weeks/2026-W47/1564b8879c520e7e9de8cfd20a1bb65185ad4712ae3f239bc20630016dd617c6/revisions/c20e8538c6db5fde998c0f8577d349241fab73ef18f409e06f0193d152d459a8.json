@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=581193",
   "title": "[In development] Private Preview: Project Nova",
   "published_at": 1794945632,
-  "summary": "Project NOVA enables independent verification of specific claims without revealing the underlying data. Across regulated industries, organizations need to establish trust while protecting confidential information. Project Nova explores how zero-knowledge"
+  "summary": "Project NOVA enables independent verification of specific claims without revealing the underlying data. Across regulated industries, organizations need to establish trust while protecting confidential information. Project Nova explores how zero-knowledge",
+  "content": "Project NOVA enables independent verification of specific claims without revealing the underlying data. Across regulated industries, organizations need to establish trust while protecting confidential information. Project Nova explores how zero-knowledge proofs can enable privacy-preserving transactions, interoperability, and regulatory assurance across organizational boundaries. In financial services, zero-knowledge proofs could enable cross-chain settlement by verifying transaction conditions across networks, support selective disclosure of sensitive information, and provide regulators with independent assurance of compliance without exposing underlying records. Beyond financial services, healthcare organizations could verify patient eligibility without sharing medical histories; AI systems could prove defined computations without exposing sensitive inputs; and supply chains could demonstrate compliance or product provenance without revealing confidential supplier relationships.",
+  "content_from_enrichment": true
 }

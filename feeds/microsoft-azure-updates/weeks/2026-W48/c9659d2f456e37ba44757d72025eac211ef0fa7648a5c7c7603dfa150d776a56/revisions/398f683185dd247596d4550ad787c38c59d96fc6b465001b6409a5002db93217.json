@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=581398",
   "title": "[In preview] Public Preview: Use model router with AI Gateway",
   "published_at": 1795464953,
-  "summary": "Automatic model selection in AI Gateway uses model router from Microsoft Foundry to rank the models behind a model alias for each request. The gateway combines that ranking with the alias's priorities and weights to select a backend, while its access cont"
+  "summary": "Automatic model selection in AI Gateway uses model router from Microsoft Foundry to rank the models behind a model alias for each request. The gateway combines that ranking with the alias's priorities and weights to select a backend, while its access cont",
+  "content": "Automatic model selection in AI Gateway uses model router from Microsoft Foundry to rank the models behind a model alias for each request. The gateway combines that ranking with the alias's priorities and weights to select a backend, while its access controls, policies, and telemetry continue to apply. Choose Balanced, Quality, or Cost as the selection mode. With Model first, the gateway selects the best-fit model across priority groups. With Priorities first, it selects only from the highest-priority group. Weights split traffic among backends for the selected model. Backends can be Foundry or Azure OpenAI deployments, provider-hosted models, models on other clouds, or your own OpenAI-compatible endpoints. Each backend must run a model supported by model router. Learn more.",
+  "content_from_enrichment": true
 }

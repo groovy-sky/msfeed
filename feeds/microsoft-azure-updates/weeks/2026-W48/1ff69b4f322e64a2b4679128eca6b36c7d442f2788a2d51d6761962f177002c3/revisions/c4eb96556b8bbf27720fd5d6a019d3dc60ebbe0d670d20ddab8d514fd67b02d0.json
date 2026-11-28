@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=582326",
   "title": "[In preview] Public Preview: ECMP Nexthop",
   "published_at": 1795648460,
-  "summary": "Equal-Cost Multi-Path (ECMP) routing for Azure Virtual Network is now available in public preview, enabling customers to distribute traffic across multiple network appliances using a single user-defined route (UDR). Customers can configure 2 to 16 next-h"
+  "summary": "Equal-Cost Multi-Path (ECMP) routing for Azure Virtual Network is now available in public preview, enabling customers to distribute traffic across multiple network appliances using a single user-defined route (UDR). Customers can configure 2 to 16 next-h",
+  "content": "Equal-Cost Multi-Path (ECMP) routing for Azure Virtual Network is now available in public preview, enabling customers to distribute traffic across multiple network appliances using a single user-defined route (UDR). Customers can configure 2 to 16 next-hop IP addresses per route, scaling aggregate network throughput beyond individual appliance limits without increasing routing complexity. This capability supports bandwidth-intensive AI workloads, large-scale data platforms, and enterprise hub-and-spoke architectures. Learn more.",
+  "content_from_enrichment": true
 }

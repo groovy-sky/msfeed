@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=578033",
   "title": "[Launched] Generally Available: Zone-redundant Next-gen GP tier in Azure SQL Managed Instance",
   "published_at": 1794945632,
-  "summary": "Zone redundancy for the Next-gen General Purpose service tier helps improve the resiliency of Azure SQL Managed Instance by distributing critical service components across availability zones. This update helps you protect applications against zonal failur"
+  "summary": "Zone redundancy for the Next-gen General Purpose service tier helps improve the resiliency of Azure SQL Managed Instance by distributing critical service components across availability zones. This update helps you protect applications against zonal failur",
+  "content": "Zone redundancy for the Next-gen General Purpose service tier helps improve the resiliency of Azure SQL Managed Instance by distributing critical service components across availability zones. This update helps you protect applications against zonal failures while retaining the performance, scalability, and price-performance benefits of Next-gen General Purpose. Learn more.",
+  "content_from_enrichment": true
 }

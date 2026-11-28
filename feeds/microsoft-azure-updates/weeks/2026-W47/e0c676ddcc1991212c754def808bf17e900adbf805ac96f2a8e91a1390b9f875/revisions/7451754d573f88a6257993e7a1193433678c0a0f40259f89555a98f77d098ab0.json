@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=580428",
   "title": "[In preview] Public Preview: Next-generation elastic architecture for Azure Application Gateway v2",
   "published_at": 1794945632,
-  "summary": "A next-generation elastic architecture for Azure Application Gateway v2 is now available in public preview. Built for demanding workloads and dynamic traffic patterns, it reduces provisioning time by up to 50% and autoscaling time by up to 70% compared to"
+  "summary": "A next-generation elastic architecture for Azure Application Gateway v2 is now available in public preview. Built for demanding workloads and dynamic traffic patterns, it reduces provisioning time by up to 50% and autoscaling time by up to 70% compared to",
+  "content": "A next-generation elastic architecture for Azure Application Gateway v2 is now available in public preview. Built for demanding workloads and dynamic traffic patterns, it reduces provisioning time by up to 50% and autoscaling time by up to 70% compared to the current deployment tier. It also lays the foundation for higher configuration and data-plane scale limits while maintaining seamless application connectivity as gateways scale out and scale in. This platform upgrade is available at no additional cost. To opt in, select \"Accelerated (Preview)\" under Deployment tier when creating a new Application Gateway. During the preview period, the tier is available in select regions, with additional regions being added over time. Existing gateways are unaffected and will continue to operate as-is. Learn more.",
+  "content_from_enrichment": true
 }

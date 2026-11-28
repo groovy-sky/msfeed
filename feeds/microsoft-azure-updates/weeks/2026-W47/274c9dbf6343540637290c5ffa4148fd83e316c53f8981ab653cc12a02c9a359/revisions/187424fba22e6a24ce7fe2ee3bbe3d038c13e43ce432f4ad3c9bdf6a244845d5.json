@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=578787",
   "title": "[In preview] Public Preview: Network Watcher VNet Flow Logs enriched with networkInterfaceIP field",
   "published_at": 1794945632,
-  "summary": "Azure Network Watcher VNet Flow Logs now provides enhanced capture-side interface context with the networkInterfaceIP field. The networkInterfaceIP field records the IP address or addresses of the network interface where a flow was captured, making it eas"
+  "summary": "Azure Network Watcher VNet Flow Logs now provides enhanced capture-side interface context with the networkInterfaceIP field. The networkInterfaceIP field records the IP address or addresses of the network interface where a flow was captured, making it eas",
+  "content": "Azure Network Watcher VNet Flow Logs now provides enhanced capture-side interface context with the networkInterfaceIP field. The networkInterfaceIP field records the IP address or addresses of the network interface where a flow was captured, making it easier to identify the resource associated with the captured traffic, determine the next hops in the network traffic flow, and attribute flow records to the correct resource ID. This additional context provides greater visibility into how traffic moves through your network, including for interfaces using IPv4 or dual-stack addressing. It helps you trace traffic paths, identify the resources involved at different points in the flow, and simplify network monitoring and troubleshooting. Learn more.",
+  "content_from_enrichment": true
 }

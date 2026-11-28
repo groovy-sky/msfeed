@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=577594",
   "title": "[In preview] Public Preview: Redis 8 in Azure Managed Redis",
   "published_at": 1794945632,
-  "summary": "Redis 8 is now available in Azure Managed Redis, bringing the latest Redis innovation to Azure's fully managed Redis service. With richer queries, atomic JSON updates, field-level expiration, and fine-grained security, Redis 8 simplifies development and h"
+  "summary": "Redis 8 is now available in Azure Managed Redis, bringing the latest Redis innovation to Azure's fully managed Redis service. With richer queries, atomic JSON updates, field-level expiration, and fine-grained security, Redis 8 simplifies development and h",
+  "content": "Redis 8 is now available in Azure Managed Redis, bringing the latest Redis innovation to Azure's fully managed Redis service. With richer queries, atomic JSON updates, field-level expiration, and fine-grained security, Redis 8 simplifies development and helps you build sophisticated applications faster. With new vector capabilities, you can build AI-powered applications faster for retrieval-augmented generation (RAG), semantic search, recommendations, and agent memory. Azure Managed Redis helps you move beyond traditional caching and use Redis as a real-time data layer for modern and AI-driven applications. By combining Redis 8 with Azure's enterprise-grade reliability, security, and scalability, you can accelerate application performance, simplify AI architectures, and innovate with confidence on a fully managed service. Learn more.",
+  "content_from_enrichment": true
 }

@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=577531",
   "title": "[Launched] Generally Available: Azure Cosmos DB full-text search BM25 score projection",
   "published_at": 1794945632,
-  "summary": "Azure Cosmos DB full-text search now includes BM25 score projection, giving you clear visibility into why results appear in the order they do. Your app can now access the relevance score for each result directly, making search ranking more transparent.Thi"
+  "summary": "Azure Cosmos DB full-text search now includes BM25 score projection, giving you clear visibility into why results appear in the order they do. Your app can now access the relevance score for each result directly, making search ranking more transparent.Thi",
+  "content": "Azure Cosmos DB full-text search now includes BM25 score projection, giving you clear visibility into why results appear in the order they do. Your app can now access the relevance score for each result directly, making search ranking more transparent. This new capability helps you display relevance, troubleshoot unexpected ordering, and tune ranking with confidence. You can also compare how different ranking signals contribute to final relevance, helping you build better search experiences on top of your Azure Cosmos DB data. Learn more.",
+  "content_from_enrichment": true
 }

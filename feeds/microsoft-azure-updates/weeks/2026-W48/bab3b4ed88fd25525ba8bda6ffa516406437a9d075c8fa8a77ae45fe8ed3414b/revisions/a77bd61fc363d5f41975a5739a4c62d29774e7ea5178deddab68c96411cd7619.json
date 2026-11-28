@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=581363",
   "title": "[Launched] Generally Available: Agent insights in Microsoft Foundry",
   "published_at": 1795468207,
-  "summary": "In Microsoft Foundry, insights analyze agent traces to surface recurring patterns and group related issues.Review an insight and its supporting traces to investigate common failures and decide what to improve first.Use agent optimizer to test potential fi"
+  "summary": "In Microsoft Foundry, insights analyze agent traces to surface recurring patterns and group related issues.Review an insight and its supporting traces to investigate common failures and decide what to improve first.Use agent optimizer to test potential fi",
+  "content": "In Microsoft Foundry, insights analyze agent traces to surface recurring patterns and group related issues. Review an insight and its supporting traces to investigate common failures and decide what to improve first. Use agent optimizer to test potential fixes for selected insights before you promote an updated agent. Learn more.",
+  "content_from_enrichment": true
 }

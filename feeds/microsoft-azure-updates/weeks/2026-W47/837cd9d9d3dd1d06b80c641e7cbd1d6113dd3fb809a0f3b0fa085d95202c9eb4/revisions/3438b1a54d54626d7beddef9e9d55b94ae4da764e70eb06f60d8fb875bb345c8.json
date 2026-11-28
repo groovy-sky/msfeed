@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=577589",
   "title": "[In preview] Public Preview: IP filtering in Azure Managed Redis",
   "published_at": 1794945632,
-  "summary": "Azure Managed Redis now supports adding firewall rules for accessing data, and it gives you greater control over network access to your caches. You can restrict connections to approved source IP addresses or Azure service tags, helping protect publicly ac"
+  "summary": "Azure Managed Redis now supports adding firewall rules for accessing data, and it gives you greater control over network access to your caches. You can restrict connections to approved source IP addresses or Azure service tags, helping protect publicly ac",
+  "content": "Azure Managed Redis now supports adding firewall rules for accessing data, and it gives you greater control over network access to your caches. You can restrict connections to approved source IP addresses or Azure service tags, helping protect publicly accessible cache endpoints. Learn more.",
+  "content_from_enrichment": true
 }

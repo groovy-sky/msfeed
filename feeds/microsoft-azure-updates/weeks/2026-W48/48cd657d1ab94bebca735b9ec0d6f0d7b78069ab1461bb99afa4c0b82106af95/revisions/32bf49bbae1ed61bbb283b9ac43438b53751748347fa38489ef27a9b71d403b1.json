@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=568586",
   "title": "Retirement: Support for Java 8, 11 and 17 in Azure Functions ends on September 1, 2027",
   "published_at": 1795643610,
-  "summary": "Support for Java 8, 11 and 17 on Azure Functions is ending on September 1, 2027. Your apps that are hosted on Azure Functions will continue to run, but security updates will no longer be available, and we’ll no longer provide customer service for Java 8,"
+  "summary": "Support for Java 8, 11 and 17 on Azure Functions is ending on September 1, 2027. Your apps that are hosted on Azure Functions will continue to run, but security updates will no longer be available, and we’ll no longer provide customer service for Java 8,",
+  "content": "Support for Java 8, 11 and 17 on Azure Functions is ending on September 1, 2027. Your apps that are hosted on Azure Functions will continue to run, but security updates will no longer be available, and we’ll no longer provide customer service for Java 8, 11 and 17. Required action To avoid potential security vulnerabilities, minimize risk for your Azure Functions apps, and take advantage of latest features, follow the steps to upgrade your Function app to Java 25 before September 1, 2027. Learn more.",
+  "content_from_enrichment": true
 }

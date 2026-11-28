@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=579324",
   "title": "[In preview] Public Preview: Azure Application Gateway advanced routing rules",
   "published_at": 1794945632,
-  "summary": "Azure Application Gateway advanced routing rules is now available in public preview. Advanced routing rules enables you to create flexible, condition-based routing logic using HTTP request attributes, extending Application Gateway routing beyond tradition"
+  "summary": "Azure Application Gateway advanced routing rules is now available in public preview. Advanced routing rules enables you to create flexible, condition-based routing logic using HTTP request attributes, extending Application Gateway routing beyond tradition",
+  "content": "Azure Application Gateway advanced routing rules is now available in public preview. Advanced routing rules enables you to create flexible, condition-based routing logic using HTTP request attributes, extending Application Gateway routing beyond traditional path-based routing. You can define routing conditions based on HTTP headers, query strings, client IP addresses, HTTP methods, and request paths, and route matching requests to different backend pools. Rules support priority-based evaluation, exact-value and pattern matching, and default routing when no rule matches. Advanced routing rules enables scenarios such as A/B testing and canary deployments, API versioning, multi-tenant applications, traffic segmentation, and routing requests to different application backends based on request characteristics. Learn more.",
+  "content_from_enrichment": true
 }

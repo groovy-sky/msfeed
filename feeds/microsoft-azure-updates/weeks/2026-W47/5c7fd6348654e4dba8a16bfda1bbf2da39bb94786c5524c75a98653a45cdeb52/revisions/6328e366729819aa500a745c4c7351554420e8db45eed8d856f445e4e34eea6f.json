@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=580699",
   "title": "[In preview] Public Preview: Azure Bastion RDP and SSH vision",
   "published_at": 1794947118,
-  "summary": "Azure Bastion RDP and SSH vision is now in public preview, bringing AI-assisted review to recorded privileged sessions. Security and operations teams can use session summaries and insights into noteworthy and risky activity to understand administrative ac"
+  "summary": "Azure Bastion RDP and SSH vision is now in public preview, bringing AI-assisted review to recorded privileged sessions. Security and operations teams can use session summaries and insights into noteworthy and risky activity to understand administrative ac",
+  "content": "Azure Bastion RDP and SSH vision is now in public preview, bringing AI-assisted review to recorded privileged sessions. Security and operations teams can use session summaries and insights into noteworthy and risky activity to understand administrative actions and focus investigations, reducing the need to review every recording from beginning to end. Vision turns session recordings into investigation insights across RDP and SSH, with full SSH command logs providing additional detail for command review. Teams can prioritize sessions for follow-up and use the underlying recordings to assess context, helping make privileged-access audits and investigations more efficient. The capability builds on Azure Bastion Premium session recording, with recordings stored in the customer’s designated Azure Storage account. Vision extends the value of these recordings with AI-assisted analysis to support clearer oversight of privileged activity. Learn more: Documentation Announcement blog",
+  "content_from_enrichment": true
 }

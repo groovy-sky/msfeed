@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=577553",
   "title": "[Launched] Generally Available: Azure Managed Redis database integration guidance",
   "published_at": 1794945632,
-  "summary": "Improved database integration guidance for Azure Managed Redis helps you add caching to applications built with Azure Database for PostgreSQL flexible server, Azure Cosmos DB, and Azure SQL. You can use practical guidance, reference architectures, and ste"
+  "summary": "Improved database integration guidance for Azure Managed Redis helps you add caching to applications built with Azure Database for PostgreSQL flexible server, Azure Cosmos DB, and Azure SQL. You can use practical guidance, reference architectures, and ste",
+  "content": "Improved database integration guidance for Azure Managed Redis helps you add caching to applications built with Azure Database for PostgreSQL flexible server, Azure Cosmos DB, and Azure SQL. You can use practical guidance, reference architectures, and step-by-step tutorials to implement caching best practices and common patterns. These resources help you reduce database load, improve application responsiveness, and choose the right caching approach for your workload. Learn more.",
+  "content_from_enrichment": true
 }

@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=579285",
   "title": "[Launched] Generally Available: WAF Insights for Azure Front Door",
   "published_at": 1795456879,
-  "summary": "WAF Insights is now generally available for Azure Front Door Web Application Firewall (WAF). WAF Insights is a built-in experience in the WAF policy that brings WAF logs and metrics together in interactive dashboards, so you can investigate blocked reques"
+  "summary": "WAF Insights is now generally available for Azure Front Door Web Application Firewall (WAF). WAF Insights is a built-in experience in the WAF policy that brings WAF logs and metrics together in interactive dashboards, so you can investigate blocked reques",
+  "content": "WAF Insights is now generally available for Azure Front Door Web Application Firewall (WAF). WAF Insights is a built-in experience in the WAF policy that brings WAF logs and metrics together in interactive dashboards, so you can investigate blocked requests, analyze attack patterns, and identify false positives without writing queries. Use the Monitor tab to track WAF activity, outcomes, and the most active rules, and the Investigate tab to drill down from a rule or a URL to the exact request and every rule it matched, correlated with the Front Door access log by tracking reference. Azure Front Door now gets the same experience already available for Azure Application Gateway. To get started, open your Azure Front Door WAF policy in the Azure portal and select Insights. Learn more.",
+  "content_from_enrichment": true
 }

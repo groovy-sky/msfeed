@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=581338",
   "title": "[In preview] Public Preview: Updated Guardrails experience in Microsoft Foundry",
   "published_at": 1795468504,
-  "summary": "In Microsoft Foundry, Guardrails helps developers configure runtime safety controls for agents, including classifiers, deterministic rules, and LLM-based judges.When an administrator policy requires controls for a project, Guardrails surfaces those requir"
+  "summary": "In Microsoft Foundry, Guardrails helps developers configure runtime safety controls for agents, including classifiers, deterministic rules, and LLM-based judges.When an administrator policy requires controls for a project, Guardrails surfaces those requir",
+  "content": "In Microsoft Foundry, Guardrails helps developers configure runtime safety controls for agents, including classifiers, deterministic rules, and LLM-based judges. When an administrator policy requires controls for a project, Guardrails surfaces those requirements and prevents developers from changing policy-managed settings. Developers can still add permitted agent-specific controls. Policies can be reused across agents and models in a project, and existing guardrails remain backward compatible. Learn more.",
+  "content_from_enrichment": true
 }

@@ -2,5 +2,7 @@
   "url": "https://azure.microsoft.com/updates?id=581645",
   "title": "Announcing: The new Azure Databricks on Azure Government is now in Beta",
   "published_at": 1795024863,
-  "summary": "A new Azure Databricks environment is now available in Beta on Microsoft Azure Government. It brings the modern data and AI platform from global Azure to U.S. public sector agencies and their partners, delivered as a first-party Azure service. The Beta in"
+  "summary": "A new Azure Databricks environment is now available in Beta on Microsoft Azure Government. It brings the modern data and AI platform from global Azure to U.S. public sector agencies and their partners, delivered as a first-party Azure service. The Beta in",
+  "content": "A new Azure Databricks environment is now available in Beta on Microsoft Azure Government. It brings the modern data and AI platform from global Azure to U.S. public sector agencies and their partners, delivered as a first-party Azure service. The Beta includes Unity Catalog for unified governance across data and AI assets, and Databricks SQL with serverless compute for scalable analytics without managing infrastructure. It also includes system tables for usage, audit and cost visibility. The Compliance Security Profile is on by default in every workspace, Azure Private Link is required, and customer data stays in the US Gov Virginia and US Gov Arizona regions. The Beta is for non-production workloads only and must not be used to process Controlled Unclassified Information (CUI) or other regulated data. Access is enabled per subscription. Learn more.",
+  "content_from_enrichment": true
 }
